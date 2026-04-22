@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :writings
   # View only rails pages
   root "pages#home"
   get "info", to: "pages#info"

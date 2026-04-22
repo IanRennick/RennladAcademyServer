@@ -7,3 +7,8 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+# Add test writings
+10.times do |x|
+  Writing.create(body: "This is a test writing. I hope it's working.")
+end

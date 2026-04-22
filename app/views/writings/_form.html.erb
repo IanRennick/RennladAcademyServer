@@ -1,0 +1,25 @@
+<%= form_with(model: writing) do |form| %>
+  <%# Show any errors %>
+  <% if writing.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(writing.errors.count, "error") %> prohibited this writing from being saved:</h2>
+
+      <ul>
+        <% writing.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%# Body Input %>
+    <%= form.label :body, style: "display: block" %>
+    <%= form.textarea :body %>
+  </div>
+
+  <%# Submit Button %>
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
