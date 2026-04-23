@@ -5,5 +5,8 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   # Associate with Writing
-  has_many :writings
+  has_many :writings, dependent: :destroy
+
+  # Associate with Comments
+  has_many :comments, dependent: :destroy
 end
