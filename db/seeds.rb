@@ -8,7 +8,10 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
+# Add test user
+User.create(email: "renn@example.com", password: "password", password_confirmation: "password")
+
 # Add test writings
 10.times do |x|
-  Writing.create(body: "This is a test writing. I hope it's working.")
+  Writing.create(user_id: User.first.id, body: "This is a test writing. I hope it's working.")
 end

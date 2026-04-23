@@ -1,0 +1,32 @@
+<%# Check if Signed in %>
+<% if current_user %>
+  <li class="nav-item dropdown">
+    
+    <%# Dropdown Menu Button %>
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <%= current_user.name %>
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-lg-end">
+      <li><a class="dropdown-item" href="#">Action</a></li>
+
+      <%# Edit Account Link %>
+      <li><%= link_to "Edit Account", edit_user_registration_path, class: "dropdown-item" %></li>
+      <li><hr class="dropdown-divider"></li>
+
+      <%# Sign Out Link %>
+      <li><%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "dropdown-item" %></li>
+    </ul>
+  </li>
+
+<% else %>
+  <%# Register Link %>
+  <li class="nav-item">
+    <%= link_to "Sign Up", new_user_registration_path, class: "nav-link" %>
+  </li>
+
+  <%# Log in Link %>
+  <li class="nav-item">
+    <%= link_to "Log In", new_user_session_path, class: "nav-link" %>
+  </li>
+<% end %>

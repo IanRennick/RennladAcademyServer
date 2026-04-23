@@ -2,6 +2,8 @@
 
 one:
   body: MyText
+  user: Bob
 
 two:
   body: MyText
+  user: Tom

@@ -3,7 +3,8 @@ class WritingsController < ApplicationController
 
   # GET /writings or /writings.json
   def index
-    @writings = Writing.all
+    # Order writings by created at time
+    @writings = Writing.all.order(created_at: :desc)
   end
 
   # GET /writings/1 or /writings/1.json
@@ -22,6 +23,9 @@ class WritingsController < ApplicationController
   # POST /writings or /writings.json
   def create
     @writing = Writing.new(writing_params)
+
+    # Add current user to writing
+    @writing.user = current_user
 
     respond_to do |format|
       if @writing.save
