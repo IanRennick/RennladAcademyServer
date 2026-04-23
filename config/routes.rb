@@ -5,7 +5,9 @@ Rails.application.routes.draw do
   get "/u/:id", to: "users#profile", as: "user"
 
   # Rails Pages
-  resources :writings
+  resources :writings do
+    resources :comments
+  end
 
   # Devise user pages
   devise_for :users, controllers: {

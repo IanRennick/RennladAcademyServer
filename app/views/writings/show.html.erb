@@ -13,3 +13,13 @@
     <%= button_to "Destroy this writing", @writing, method: :delete %>
   </div>
 </div>
+
+<div class="container">
+  <%# Comment Form %>
+  <%= render "comments/form", writing: @writing %>
+
+  <%# Comments %>
+  <% @comments.each do |comment| %>
+    <%= render "comments/comment", writing: @writing, comment: comment %>
+  <% end %>
+</div>
