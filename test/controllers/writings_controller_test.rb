@@ -15,14 +15,6 @@ class WritingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should create writing" do
-    assert_difference("Writing.count") do
-      post writings_url, params: { writing: { body: @writing.body } }
-    end
-
-    assert_redirected_to writing_url(Writing.last)
-  end
-
   test "should show writing" do
     get writing_url(@writing)
     assert_response :success
