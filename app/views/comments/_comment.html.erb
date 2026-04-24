@@ -4,18 +4,40 @@
   <%# Comment Author namme %>
   <%= comment.user.name %><br />
 
-  <%# Time posted %>
-  <span>Posted <%= time_ago_in_words(comment.created_at) %></span>
+  <% if (comment.updated_at - comment.created_at) - 1 %>
+    <%# Time updated %>
+    <span>Posted <%= time_ago_in_words(comment.updated_at) %> ago</span>
+
+  <% else %>
+    <%# Time posted %>
+    <span>Posted <%= time_ago_in_words(comment.created_at) %> ago</span>
+  <% end %>
 
   <%# Check if current user is author of comment %>
   <% if current_user == comment.user %>
-    <div class="button-group float-end">
+    <div class="btn-group float-end">
+      <%# Edit Button %>
+      <%= link_to "Edit", nil, remote: true, class: "btn btn-warning",
+        data: {
+          controller: "comments",
+          action: "comments#toggleForm",
+          comments_form_param: "edit-form-#{comment.id}",
+          comments_body_param: "comment-body-#{comment.id}"
+        }  
+      %>
+
       <%# Delete Button %>
       <%= button_to "Delete", [writing, comment], class: "btn btn-danger", method: :delete %>
     </div>
+
+     <div id="edit-form-<%= comment.id %>" class="d-none" > 
+        <%= render "comments/form", writing: @writing, comment: comment, submit_label: "Update" %>
+     </div>
   <% end %>
   
   <hr />
   <%# Comment %>
-  <%= comment.body %>
+  <div id="comment-body-<%= comment.id %>" >
+    <%= comment.body %>
+  </div>
 </div>

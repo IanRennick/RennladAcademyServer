@@ -16,7 +16,7 @@
 
 <div class="container">
   <%# Comment Form %>
-  <%= render "comments/form", writing: @writing %>
+  <%= render "comments/form", writing: @writing, comment: @writing.comments.build, submit_label: "Reply" %>
 
   <%# Comments %>
   <% @comments.each do |comment| %>
