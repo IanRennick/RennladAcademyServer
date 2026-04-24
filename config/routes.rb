@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  use_doorkeeper
   # View only rails pages
   root "pages#home"
   get "info", to: "pages#info"
@@ -14,6 +15,9 @@ Rails.application.routes.draw do
     sessions: "users/sessions",
     registrations: "users/registrations"
   }
+
+  # Draw API routes
+  draw :api
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
