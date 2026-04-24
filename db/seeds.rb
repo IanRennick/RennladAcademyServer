@@ -8,6 +8,11 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
+# Create Doorkeeper application
+if Doorkeeper::Application.count.zero?
+  Doorkeeper::Application.create(name: "Web Client", redirect_uri: "", scopes: "")
+end
+
 # Add test user
 User.create(email: "renn@example.com", password: "password", password_confirmation: "password")
 

@@ -4,9 +4,18 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  # Validate email format
+  validates :email, format: URI::MailTo::EMAIL_REGEXP
+
   # Associate with Writing
   has_many :writings, dependent: :destroy
 
   # Associate with Comments
   has_many :comments, dependent: :destroy
+
+  # Doorkeeper method to check password and return user
+  def self.authenticate(email, password)
+    user = User.find_for_authentication(email: email)
+    user&.valid_password?(password) ? user : nil
+  end
 end

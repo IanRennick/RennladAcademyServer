@@ -64,3 +64,8 @@ end
 
 # Handles User functionality
 gem "devise"
+
+# Handles API functionality
+gem "doorkeeper", "~> 5.9"
+
+gem "rack-cors", "~> 3.0"
