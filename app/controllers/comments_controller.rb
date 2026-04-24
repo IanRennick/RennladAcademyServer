@@ -21,6 +21,18 @@ class CommentsController < ApplicationController
   end
 
 
+  def update
+    @comment = @writing.comments.find(params[:id])
+
+    respond_to do |format|
+      if @comment.update(comment_params)
+        format.html { redirect_to writing_url(@writing), notice: "Comment has been updated" }
+      else
+        format.html { redirect_to writing_url(@writing), alert: "Comment has not been updated" }
+      end
+    end
+  end
+
 
   private
 
