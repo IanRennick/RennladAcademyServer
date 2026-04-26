@@ -1,11 +1,10 @@
 Rails.application.routes.draw do
-  use_doorkeeper
   # View only rails pages
   root "pages#home"
   get "info", to: "pages#info"
   get "/u/:id", to: "users#profile", as: "user"
 
-  # Rails Pages
+  # Rails Poutes
   resources :writings do
     resources :comments
   end
@@ -18,6 +17,9 @@ Rails.application.routes.draw do
 
   # Draw API routes
   draw :api
+
+  # Set up Doorkeeper for API auth
+  use_doorkeeper
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

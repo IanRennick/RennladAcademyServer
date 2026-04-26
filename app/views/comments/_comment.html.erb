@@ -17,12 +17,13 @@
   <% if current_user == comment.user %>
     <div class="btn-group float-end">
       <%# Edit Button %>
-      <%= link_to "Edit", nil, remote: true, class: "btn btn-warning",
+      <%= link_to "Edit", nil, remote: true, class: "btn btn-warning", id: "edit-button-#{comment.id}",
         data: {
           controller: "comments",
           action: "comments#toggleForm",
           comments_form_param: "edit-form-#{comment.id}",
-          comments_body_param: "comment-body-#{comment.id}"
+          comments_body_param: "comment-body-#{comment.id}",
+          comments_edit_param: "edit-button-#{comment.id}"
         }  
       %>
 
