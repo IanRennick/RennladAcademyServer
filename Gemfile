@@ -68,4 +68,8 @@ gem "devise"
 # Handles API functionality
 gem "doorkeeper", "~> 5.9"
 
+# Handles API request security
 gem "rack-cors", "~> 3.0"
+
+# Handles Searchbar functionality
+gem "ransack", "~> 4.4"

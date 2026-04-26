@@ -3,11 +3,14 @@ Rails.application.routes.draw do
   root "pages#home"
   get "info", to: "pages#info"
   get "/u/:id", to: "users#profile", as: "user"
+  get "search", to: "search#index"
 
   # Rails Poutes
   resources :writings do
     resources :comments
   end
+
+  resources :questions
 
   # Devise user pages
   devise_for :users, controllers: {
