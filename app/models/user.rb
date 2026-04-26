@@ -7,6 +7,9 @@ class User < ApplicationRecord
   # Validate email format
   validates :email, format: URI::MailTo::EMAIL_REGEXP
 
+  # User roles to allow different permissions
+  enum :role, { user: 0, admin: 1, teacher: 2 }
+
   # Associate with Writing
   has_many :writings, dependent: :destroy
 

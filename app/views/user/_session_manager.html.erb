@@ -8,6 +8,9 @@
     </a>
 
     <ul class="dropdown-menu dropdown-menu-lg-end">
+      <%# Admin Page Link %>
+      <li><%= link_to "Admin", admin_path, class: "dropdown-item" if current_user.admin? %></li>
+
       <li><a class="dropdown-item" href="#">Action</a></li>
 
       <%# Edit Account Link %>

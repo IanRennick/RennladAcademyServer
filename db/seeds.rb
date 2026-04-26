@@ -13,10 +13,17 @@ if Doorkeeper::Application.count.zero?
   Doorkeeper::Application.create(name: "Web Client", redirect_uri: "", scopes: "")
 end
 
+# Add admin user
+User.create(name: "Rennick", email: "renn@example.com", password: "password", password_confirmation: "password", role: User.roles[:admin])
+
 # Add test user
-User.create(email: "renn@example.com", password: "password", password_confirmation: "password")
+User.create(name: "Bob", email: "test@example.com", password: "password", password_confirmation: "password")
 
 # Add test writings
 10.times do |x|
-  Writing.create(user_id: User.first.id, body: "This is a test writing. I hope it's working.")
+  writing = Writing.create(user_id: User.second.id, body: "This is a test writing. I hope it's working.")
+
+  5.times do |y|
+    Comment.create(user_id: User.first.id, body: "This is a test comment", writing_id: writing.id)
+  end
 end
