@@ -4,4 +4,7 @@ class Writing < ApplicationRecord
 
   # Associate with Comments
   has_many :comments, dependent: :destroy
+
+  # Writing body is rich text
+  has_rich_text :body
 end

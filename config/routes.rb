@@ -5,6 +5,12 @@ Rails.application.routes.draw do
   get "/u/:id", to: "users#profile", as: "user"
   get "search", to: "search#index"
 
+  # Admin Pages
+  get "admin", to: "admin#index"
+  get "admin/users"
+  get "admin/writings"
+  get "admin/show_writing/:id", to: "admin#show_writing", as: "admin_writing"
+
   # Rails Poutes
   resources :writings do
     resources :comments

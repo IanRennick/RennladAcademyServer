@@ -1,0 +1,24 @@
+<div class="container">
+    <h1 class="text-center">Administrator</h1>
+    <%= render "admin/nav_links" %>
+
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">User</th>
+                <th scope="col">Comments</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% @writings.each do |writing| %>
+                <tr>
+                    <td><%= link_to writing.id, admin_writing_path(writing) %></td>
+                    <td><%= writing.user.name %></td>
+                    <td><%= pluralize(writing.comments.size, "Comment") %></td>
+                </tr>
+            <% end %>
+        </tbody>
+    </table>
+</div>
