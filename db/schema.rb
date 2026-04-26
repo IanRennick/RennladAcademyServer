@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_23_201004) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_26_154850) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -84,6 +84,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_23_201004) do
     t.string "uid", null: false
     t.datetime "updated_at", null: false
     t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true
+  end
+
+  create_table "questions", force: :cascade do |t|
+    t.string "answer"
+    t.integer "attempted", default: 0
+    t.integer "correct", default: 0
+    t.datetime "created_at", null: false
+    t.string "main"
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
