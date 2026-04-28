@@ -8,3 +8,14 @@
 
   <%= button_to "Destroy this question", @question, method: :delete %>
 </div>
+
+
+<div class="container">
+  <%# Comment Form %>
+  <%= render "comments/question_form", question: @question, comment: @question.comments.build, submit_label: "Reply", commentable_type: "question" %>
+
+  <%# Comments %>
+  <% @comments.each do |comment| %>
+    <%= render "comments/question_comment", question: @question, comment: comment %>
+  <% end %>
+</div>

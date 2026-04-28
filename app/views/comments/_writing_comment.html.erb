@@ -4,6 +4,9 @@
   <%# Comment Author namme %>
   <%= comment.user.name %><br />
 
+  <%= comment.commentable_type %>
+  <%= comment.commentable_id %>
+
   <% if (comment.updated_at - comment.created_at) - 1 %>
     <%# Time updated %>
     <span>Posted <%= time_ago_in_words(comment.updated_at) %> ago</span>
@@ -32,7 +35,7 @@
     </div>
 
      <div id="edit-form-<%= comment.id %>" class="d-none" > 
-        <%= render "comments/form", writing: @writing, comment: comment, submit_label: "Update" %>
+        <%= render "comments/writing_form", writing: @writing, comment: comment, submit_label: "Update", commentable_type: "writing" %>
      </div>
   <% end %>
   

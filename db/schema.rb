@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_26_203510) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_28_151559) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -50,12 +50,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_203510) do
   end
 
   create_table "comments", force: :cascade do |t|
+    t.integer "commentable_id", null: false
+    t.string "commentable_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
-    t.integer "writing_id", null: false
+    t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
     t.index ["user_id"], name: "index_comments_on_user_id"
-    t.index ["writing_id"], name: "index_comments_on_writing_id"
   end
 
   create_table "oauth_access_tokens", force: :cascade do |t|
@@ -119,7 +120,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_203510) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
-  add_foreign_key "comments", "writings"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
   add_foreign_key "writings", "users"
 end

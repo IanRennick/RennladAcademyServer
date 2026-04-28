@@ -16,10 +16,10 @@
 
 <div class="container">
   <%# Comment Form %>
-  <%= render "comments/form", writing: @writing, comment: @writing.comments.build, submit_label: "Reply" %>
+  <%= render "comments/writing_form", writing: @writing, comment: @writing.comments.build, submit_label: "Reply", commentable_type: "writing" %>
 
   <%# Comments %>
   <% @comments.each do |comment| %>
-    <%= render "comments/comment", writing: @writing, comment: comment %>
+    <%= render "comments/writing_comment", writing: @writing, comment: comment %>
   <% end %>
 </div>

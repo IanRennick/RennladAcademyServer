@@ -24,6 +24,15 @@ User.create(name: "Bob", email: "test@example.com", password: "password", passwo
   writing = Writing.create(user_id: User.second.id, body: "This is a test writing. I hope it's working.")
 
   5.times do |y|
-    Comment.create(user_id: User.first.id, body: "This is a test comment", writing_id: writing.id)
+    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: writing)
+  end
+end
+
+# Add test questions
+10.times do |x|
+  question = Question.create(main: "This is a test question?", answer: "Test answer")
+
+  5.times do |y|
+    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
   end
 end
