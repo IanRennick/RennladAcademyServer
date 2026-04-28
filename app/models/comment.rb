@@ -1,6 +1,6 @@
 class Comment < ApplicationRecord
   # Associate with parent
-  belongs_to :writing
+  delegated_type :commentable, types: %w[Question Writing]
 
   # Associate with user
   belongs_to :user
