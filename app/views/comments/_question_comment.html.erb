@@ -1,0 +1,47 @@
+<div class="comment-<%= comment.id %> container"
+  style="border: 1px solid black; padding: 1em; margin: 1em;">
+
+  <%# Comment Author namme %>
+  <%= comment.user.name %><br />
+
+  <%= comment.commentable_type %>
+  <%= comment.commentable_id %>
+
+  <% if (comment.updated_at - comment.created_at) - 1 %>
+    <%# Time updated %>
+    <span>Posted <%= time_ago_in_words(comment.updated_at) %> ago</span>
+
+  <% else %>
+    <%# Time posted %>
+    <span>Posted <%= time_ago_in_words(comment.created_at) %> ago</span>
+  <% end %>
+
+  <%# Check if current user is author of comment %>
+  <% if current_user == comment.user %>
+    <div class="btn-group float-end">
+      <%# Edit Button %>
+      <%= link_to "Edit", nil, remote: true, class: "btn btn-warning", id: "edit-button-#{comment.id}",
+        data: {
+          controller: "comments",
+          action: "comments#toggleForm",
+          comments_form_param: "edit-form-#{comment.id}",
+          comments_body_param: "comment-body-#{comment.id}",
+          comments_edit_param: "edit-button-#{comment.id}"
+        }  
+      %>
+
+      <%# Delete Button %>
+      <%= button_to "Delete", [question, comment], class: "btn btn-danger", method: :delete %>
+    </div>
+
+     <div id="edit-form-<%= comment.id %>" class="d-none" > 
+        <%= render "comments/question_form", question: @question, comment: comment, submit_label: "Update", commentable_type: "question" %>
+     </div>
+  <% end %>
+  
+  <hr />
+  <%# Comment %>
+  <div id="comment-body-<%= comment.id %>" >
+    <%= comment.body %>
+  </div>
+</div>

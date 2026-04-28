@@ -1,43 +1,67 @@
 class CommentsController < ApplicationController
-  before_action :set_writing
+  before_action :set_commentable
 
   def create
-    @comment = @writing.comments.create(comment_params)
+    @comment = Comment.new(comment_params)
     @comment.user = current_user
+    @comment.commentable = @commentable
 
     if @comment.save
       flash[:notice] = "Comment has been created"
-      redirect_to writing_path(@writing)
     else
       flash[:alert] = "Comment has not been created"
-      redirect_to writing_path(@writing)
+    end
+
+    if params[:commentable_type] === "writing"
+      redirect_to writing_path(@commentable)
+
+    elsif params[:commentable_type] === "question"
+      redirect_to question_path(@commentable)
     end
   end
 
   def destroy
-    @comment = @writing.comments.find(params[:id])
+    @comment = Comment.find(params[:id])
+    commentable_type = @comment.commentable_type
+    commentable = @comment.commentable
     @comment.destroy
-    redirect_to writing_path(@writing)
+
+    if commentable_type === "Writing"
+      redirect_to writing_path(commentable)
+
+    elsif commentable_type === "Question"
+      redirect_to question_path(commentable)
+    end
   end
 
 
   def update
-    @comment = @writing.comments.find(params[:id])
+    @comment = @commentable.comments.find(params[:id])
 
-    respond_to do |format|
-      if @comment.update(comment_params)
-        format.html { redirect_to writing_url(@writing), notice: "Comment has been updated" }
-      else
-        format.html { redirect_to writing_url(@writing), alert: "Comment has not been updated" }
-      end
+    if @comment.update(comment_params)
+      flash[:notice] = "Comment has been updated"
+    else
+      flash[:alert] = "Comment has not been updated"
+    end
+
+    if params[:commentable_type] === "writing"
+      redirect_to writing_path(@commentable)
+
+    elsif params[:commentable_type] === "question"
+      redirect_to question_path(@commentable)
     end
   end
 
 
   private
 
-  def set_writing
-    @writing = Writing.find(params[:writing_id])
+  def set_commentable
+    if params[:commentable_type] === "writing"
+      @commentable = Writing.find(params[:writing_id])
+
+    elsif params[:commentable_type] === "question"
+      @commentable = Question.find(params[:question_id])
+    end
   end
 
   def comment_params

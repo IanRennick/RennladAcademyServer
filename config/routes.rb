@@ -16,7 +16,9 @@ Rails.application.routes.draw do
     resources :comments
   end
 
-  resources :questions
+  resources :questions do
+    resources :comments
+  end
 
   # Devise user pages
   devise_for :users, controllers: {
