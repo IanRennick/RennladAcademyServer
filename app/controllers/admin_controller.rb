@@ -7,11 +7,11 @@ class AdminController < ApplicationController
 
   def writings
     # Get all writings
-    @writings = Writing.all.includes(:user, :comments)
+    @writings = Writing.all.includes(:user)
   end
 
   def show_writing
     # Get writing from params
-    @writing = Writing.includes(:user, :comments).find(params[:id])
+    @writing = Writing.find(params[:id])
   end
 end

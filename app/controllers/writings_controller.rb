@@ -4,12 +4,12 @@ class WritingsController < ApplicationController
   # GET /writings or /writings.json
   def index
     # Order writings by created at time
-    @writings = Writing.all.order(created_at: :desc)
+    @writings = Writing.includes([ :user, :rich_text_body ]).all.order(created_at: :desc)
   end
 
   # GET /writings/1 or /writings/1.json
   def show
-    @comments = @writing.comments.order(created_at: :desc)
+    @comments = @writing.comments.includes([ :user, :rich_text_body ]).order(created_at: :desc)
   end
 
   # GET /writings/new
