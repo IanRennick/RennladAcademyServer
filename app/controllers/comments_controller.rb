@@ -2,16 +2,21 @@ class CommentsController < ApplicationController
   before_action :set_commentable
 
   def create
+    # Create new comment
     @comment = Comment.new(comment_params)
+    # Add user
     @comment.user = current_user
+    # Add Writing / question etc
     @comment.commentable = @commentable
 
+    # Save comment
     if @comment.save
       flash[:notice] = "Comment has been created"
     else
       flash[:alert] = "Comment has not been created"
     end
 
+    # Redirect to Writing / question etc
     if params[:commentable_type] === "writing"
       redirect_to writing_path(@commentable)
 
@@ -55,6 +60,7 @@ class CommentsController < ApplicationController
 
   private
 
+  # Check if comment belongs to a question or writing
   def set_commentable
     if params[:commentable_type] === "writing"
       @commentable = Writing.find(params[:writing_id])

@@ -8,7 +8,7 @@
       <%= link_to "Multiple Choice", nil, remote: true, class: "btn btn-primary",
         data: {
           controller: "questions",
-          action: "questions#openMCForm",
+          action: "questions#openForm",
           questions_form_param: "mc-form",
           questions_links_param: "form-btn-group"
         }  
@@ -18,7 +18,7 @@
       <%= link_to "Open Cloze", nil, remote: true, class: "btn btn-primary",
         data: {
           controller: "questions",
-          action: "questions#openOCForm",
+          action: "questions#openForm",
           questions_form_param: "oc-form",
           questions_links_param: "form-btn-group"
         }  
@@ -28,7 +28,7 @@
       <%= link_to "Word Formation", nil, remote: true, class: "btn btn-primary",
         data: {
           controller: "questions",
-          action: "questions#openWFForm",
+          action: "questions#openForm",
           questions_form_param: "wf-form",
           questions_links_param: "form-btn-group"
         }  
@@ -38,7 +38,7 @@
       <%= link_to "Sentence Cloze", nil, remote: true, class: "btn btn-primary",
         data: {
           controller: "questions",
-          action: "questions#openSCForm",
+          action: "questions#openForm",
           questions_form_param: "sc-form",
           questions_links_param: "form-btn-group"
         }  

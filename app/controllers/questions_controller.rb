@@ -7,18 +7,22 @@ class QuestionsController < ApplicationController
   end
 
   def multiple_choices
+    # Get all multiple Choices
     @questions = Question.where(kind: Question.kinds[:multiple_choice]).includes(:comments)
   end
 
   def open_clozes
+    # Get all open CLozes
     @questions = Question.where(kind: Question.kinds[:open_cloze]).includes(:comments)
   end
 
   def word_formations
+    # Get all multiple Choices
     @questions = Question.where(kind: Question.kinds[:word_formation]).includes(:comments)
   end
 
   def sentence_clozes
+    # Get all sentence clozes
     @questions = Question.where(kind: Question.kinds[:sentence_cloze]).includes(:comments)
   end
 
@@ -82,6 +86,6 @@ class QuestionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def question_params
-      params.expect(question: [ :main, :answer, :attempted, :correct ])
+      params.expect(question: [ :main, :answer, :attempted, :correct, :keyword, :prompt, :a, :b, :c, :d ])
     end
 end
