@@ -4,6 +4,10 @@ Rails.application.routes.draw do
   get "info", to: "pages#info"
   get "/u/:id", to: "users#profile", as: "user"
   get "search", to: "search#index"
+  get "multiple_choices", to: "questions#multiple_choices"
+  get "open_clozes", to: "questions#open_clozes"
+  get "word_formations", to: "questions#word_formations"
+  get "sentence_clozes", to: "questions#sentence_clozes"
 
   # Admin Pages
   get "admin", to: "admin#index"

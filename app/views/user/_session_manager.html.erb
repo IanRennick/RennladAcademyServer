@@ -11,7 +11,7 @@
       <%# Admin Page Link %>
       <li><%= link_to "Admin", admin_path, class: "dropdown-item" if current_user.admin? %></li>
 
-      <li><a class="dropdown-item" href="#">Action</a></li>
+      <li><%= link_to "New question", new_question_path, class: "dropdown-item" if current_user.admin? %></li>
 
       <%# Edit Account Link %>
       <li><%= link_to "Edit Account", edit_user_registration_path, class: "dropdown-item" %></li>

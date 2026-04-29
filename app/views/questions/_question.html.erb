@@ -1,5 +1,10 @@
 <div id="<%= dom_id question %>">
   <div>
+    <strong>Kind:</strong>
+    <%= "#{question.kind_before_type_cast.to_i + 1}" %>
+  </div>
+
+  <div>
     <strong>Main:</strong>
     <%= question.main %>
   </div>
@@ -19,4 +24,44 @@
     <%= question.correct %>
   </div>
 
+  <% if question.multiple_choice? %>
+    <div>
+      <strong>Option A:</strong>
+      <%= question.a %>
+    </div>
+
+    <div>
+      <strong>Option B:</strong>
+      <%= question.b %>
+    </div>
+
+    <div>
+      <strong>Option C:</strong>
+      <%= question.c %>
+    </div>
+
+    <div>
+      <strong>Option D:</strong>
+      <%= question.d %>
+    </div>
+  <% end %>
+
+  <% if question.word_formation? %>
+    <div>
+      <strong>Keyword:</strong>
+      <%= question.keyword %>
+    </div>
+  <% end %>
+
+  <% if question.sentence_cloze? %>
+    <div>
+      <strong>Prompt:</strong>
+      <%= question.prompt %>
+    </div>
+
+    <div>
+      <strong>Keyword:</strong>
+      <%= question.keyword %>
+    </div>
+  <% end %>
 </div>

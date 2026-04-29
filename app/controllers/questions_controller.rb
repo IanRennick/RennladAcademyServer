@@ -3,7 +3,23 @@ class QuestionsController < ApplicationController
 
   # GET /questions or /questions.json
   def index
-    @questions = Question.all
+    @questions = Question.all.includes(:comments)
+  end
+
+  def multiple_choices
+    @questions = Question.where(kind: Question.kinds[:multiple_choice]).includes(:comments)
+  end
+
+  def open_clozes
+    @questions = Question.where(kind: Question.kinds[:open_cloze]).includes(:comments)
+  end
+
+  def word_formations
+    @questions = Question.where(kind: Question.kinds[:word_formation]).includes(:comments)
+  end
+
+  def sentence_clozes
+    @questions = Question.where(kind: Question.kinds[:sentence_cloze]).includes(:comments)
   end
 
   # GET /questions/1 or /questions/1.json

@@ -28,9 +28,36 @@ User.create(name: "Bob", email: "test@example.com", password: "password", passwo
   end
 end
 
-# Add test questions
+# Add test multiple choice questions
 10.times do |x|
-  question = Question.create(main: "This is a test question?", answer: "Test answer")
+  question = Question.create(kind: Question.kinds[:multiple_choice], main: "This is a test question?", answer: "Test answer", a: "Option 1", b: "Option 2", c: "Option 3", d: "Option 4")
+
+  5.times do |y|
+    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
+  end
+end
+
+# Add test open cloze questions
+10.times do |x|
+  question = Question.create(kind: Question.kinds[:open_cloze], main: "This is a test question?", answer: "Test answer")
+
+  5.times do |y|
+    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
+  end
+end
+
+# Add test word formation questions
+10.times do |x|
+  question = Question.create(kind: Question.kinds[:word_formation], main: "This is a test question?", answer: "Test answer", keyword: "Test word")
+
+  5.times do |y|
+    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
+  end
+end
+
+# Add test word formation questions
+10.times do |x|
+  question = Question.create(kind: Question.kinds[:sentence_cloze], main: "This is a test question?", answer: "Test answer", prompt: "This is a test prompt", keyword: "Test word")
 
   5.times do |y|
     Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)

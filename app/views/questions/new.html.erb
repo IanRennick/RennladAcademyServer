@@ -1,11 +1,69 @@
-<% content_for :title, "New question" %>
+<div class="container">
+  <% content_for :title, "New question" %>
 
-<h1>New question</h1>
+  <h1>New question</h1>
 
-<%= render "form", question: @question %>
+  <div class="btn-group" id="form-btn-group">
+      <%# Multiple Choice form button %>
+      <%= link_to "Multiple Choice", nil, remote: true, class: "btn btn-primary",
+        data: {
+          controller: "questions",
+          action: "questions#openMCForm",
+          questions_form_param: "mc-form",
+          questions_links_param: "form-btn-group"
+        }  
+      %>
 
-<br>
+      <%# Open Cloze form button %>
+      <%= link_to "Open Cloze", nil, remote: true, class: "btn btn-primary",
+        data: {
+          controller: "questions",
+          action: "questions#openOCForm",
+          questions_form_param: "oc-form",
+          questions_links_param: "form-btn-group"
+        }  
+      %>
 
-<div>
-  <%= link_to "Back to questions", questions_path %>
+      <%# Word Formation form button %>
+      <%= link_to "Word Formation", nil, remote: true, class: "btn btn-primary",
+        data: {
+          controller: "questions",
+          action: "questions#openWFForm",
+          questions_form_param: "wf-form",
+          questions_links_param: "form-btn-group"
+        }  
+      %>
+
+      <%# Sentence Cloze form button %>
+      <%= link_to "Sentence Cloze", nil, remote: true, class: "btn btn-primary",
+        data: {
+          controller: "questions",
+          action: "questions#openSCForm",
+          questions_form_param: "sc-form",
+          questions_links_param: "form-btn-group"
+        }  
+      %>
+    </div>
+
+
+  <div id="mc-form" class="d-none" >
+    <%= render "questions/forms/multiple_choice_form", question: @question %>
+  </div>
+
+  <div id="oc-form" class="d-none" >
+    <%= render "questions/forms/open_cloze_form", question: @question %>
+  </div>
+
+  <div id="wf-form" class="d-none" > 
+    <%= render "questions/forms/word_formation_form", question: @question %>
+  </div>
+
+  <div id="sc-form" class="d-none" > 
+    <%= render "questions/forms/sentence_cloze_form", question: @question %>
+  </div>
+  <br>
+
+  <div>
+    <%= link_to "Back to questions", questions_path %>
+  </div>
 </div>
