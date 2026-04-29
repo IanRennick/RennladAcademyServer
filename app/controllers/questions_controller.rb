@@ -3,32 +3,32 @@ class QuestionsController < ApplicationController
 
   # GET /questions or /questions.json
   def index
-    @questions = Question.all.includes(:comments)
+    @questions = Question.all
   end
 
   def multiple_choices
     # Get all multiple Choices
-    @questions = Question.where(kind: Question.kinds[:multiple_choice]).includes(:comments)
+    @questions = Question.where(kind: Question.kinds[:multiple_choice])
   end
 
   def open_clozes
     # Get all open CLozes
-    @questions = Question.where(kind: Question.kinds[:open_cloze]).includes(:comments)
+    @questions = Question.where(kind: Question.kinds[:open_cloze])
   end
 
   def word_formations
     # Get all multiple Choices
-    @questions = Question.where(kind: Question.kinds[:word_formation]).includes(:comments)
+    @questions = Question.where(kind: Question.kinds[:word_formation])
   end
 
   def sentence_clozes
     # Get all sentence clozes
-    @questions = Question.where(kind: Question.kinds[:sentence_cloze]).includes(:comments)
+    @questions = Question.where(kind: Question.kinds[:sentence_cloze])
   end
 
   # GET /questions/1 or /questions/1.json
   def show
-    @comments = @question.comments.order(created_at: :desc)
+    @comments = @question.comments.includes([ :user, :rich_text_body ]).order(created_at: :desc)
   end
 
   # GET /questions/new

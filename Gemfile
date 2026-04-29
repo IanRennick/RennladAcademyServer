@@ -73,3 +73,6 @@ gem "rack-cors", "~> 3.0"
 
 # Handles Searchbar functionality
 gem "ransack", "~> 4.4"
+
+# Throws errors for optimizing database calls
+gem "bullet", "~> 8.1"

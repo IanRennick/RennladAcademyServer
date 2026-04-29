@@ -1,6 +1,6 @@
 class Comment < ApplicationRecord
   # Associate with parent
-  delegated_type :commentable, types: %w[Question Writing]
+  delegated_type :commentable, types: %w[Question Writing], counter_cache: true
 
   # Associate with user
   belongs_to :user
