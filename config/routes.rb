@@ -24,6 +24,10 @@ Rails.application.routes.draw do
     resources :comments
   end
 
+  resources :rooms do
+    resources :messages
+  end
+
   # Devise user pages
   devise_for :users, controllers: {
     sessions: "users/sessions",

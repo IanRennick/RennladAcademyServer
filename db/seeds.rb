@@ -63,3 +63,8 @@ end
     Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
   end
 end
+
+# Test chat rooms
+Room.create(name: "Test")
+Room.create(name: "General")
+Room.create(name: "Intro")
