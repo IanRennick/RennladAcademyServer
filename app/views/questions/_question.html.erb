@@ -1,29 +1,35 @@
 <div id="<%= dom_id question %>">
+  <%# Question Type %>
   <div>
     <strong>Kind:</strong>
     <%= "#{question.kind_before_type_cast.to_i + 1}" %>
   </div>
 
+  <%# Main %>
   <div>
     <strong>Main:</strong>
     <%= question.main %>
   </div>
 
+  <%# Answer %>
   <div>
     <strong>Answer:</strong>
     <%= question.answer %>
   </div>
 
+  <%# Nuber of times attempted %>
   <div>
     <strong>Attempted:</strong>
     <%= question.attempted %>
   </div>
 
+  <%# Number of correct answers %>
   <div>
     <strong>Correct:</strong>
     <%= question.correct %>
   </div>
 
+  <%# Multiple Choice options %>
   <% if question.multiple_choice? %>
     <div>
       <strong>Option A:</strong>
@@ -46,6 +52,7 @@
     </div>
   <% end %>
 
+  <%# Word Formation Keyword %>
   <% if question.word_formation? %>
     <div>
       <strong>Keyword:</strong>
@@ -53,6 +60,7 @@
     </div>
   <% end %>
 
+  <%# Sentence cloze prompt and keyword %>
   <% if question.sentence_cloze? %>
     <div>
       <strong>Prompt:</strong>

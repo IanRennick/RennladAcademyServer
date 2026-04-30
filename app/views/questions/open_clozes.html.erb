@@ -1,15 +1,27 @@
 <div class="container">
+    <%# Links %>
     <%= render "questions/links" %>
 
 
     <table class="table table-dark table-striped">
         <thead>
             <tr>
+                <%# Question ID Heading %>
                 <th scope="col">Id</th>
+
+                <%# Question main Heading %>
                 <th scope="col">Question</th>
+
+                <%# Answer Heading %>
                 <th scope="col">Answer</th>
+
+                <%# Amount of attempts Heading %>
                 <th scope="col">Attempts</th>
+
+                <%# Amount of correct answers Heading %>
                 <th scope="col">Correct</th>
+
+                <%# Amount of comments Heading %>
                 <th scope="col">Comments</th>
             </tr>
         </thead>
@@ -17,11 +29,22 @@
         <tbody>
             <% @questions.each do |question| %>
                 <tr>
+                    <%# Question ID Heading %>
                     <td><%= link_to question.id, question_path(question) %></td>
+
+                    <%# Question main Heading %>
                     <td><%= question.main %></td>
+
+                    <%# Answer Heading %>
                     <td><%= question.answer %></td>
+
+                    <%# Amount of attempts Heading %>
                     <td><%= question.attempted %></td>
+
+                    <%# Amount of correct answers Heading %>
                     <td><%= question.correct %></td>
+
+                    <%# Amount of comments Heading %>
                     <td><%= pluralize(question.comments.size, "Comment") %></td>
                 </tr>
             <% end %>

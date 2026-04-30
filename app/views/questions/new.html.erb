@@ -1,6 +1,7 @@
 <div class="container">
   <% content_for :title, "New question" %>
 
+  <%# Heading %>
   <h1>New question</h1>
 
   <div class="btn-group" id="form-btn-group">
@@ -45,24 +46,28 @@
       %>
     </div>
 
-
+  <%# Multiple Choice Form %>
   <div id="mc-form" class="d-none" >
     <%= render "questions/forms/multiple_choice_form", question: @question %>
   </div>
 
+  <%# Open Cloze Form %>
   <div id="oc-form" class="d-none" >
     <%= render "questions/forms/open_cloze_form", question: @question %>
   </div>
 
+  <%# Word Formation Form %>
   <div id="wf-form" class="d-none" > 
     <%= render "questions/forms/word_formation_form", question: @question %>
   </div>
 
+  <%# Sentence Cloze Form %>
   <div id="sc-form" class="d-none" > 
     <%= render "questions/forms/sentence_cloze_form", question: @question %>
   </div>
   <br>
 
+  <%# Link back to all questions %>
   <div>
     <%= link_to "Back to questions", questions_path %>
   </div>

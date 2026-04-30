@@ -19,7 +19,8 @@
   <%# Check if current user is author of comment %>
   <% if current_user == comment.user %>
     <div class="btn-group float-end">
-      <%# Edit Button %>
+
+      <%# Edit comment Button %>
       <%= link_to "Edit", nil, remote: true, class: "btn btn-warning", id: "edit-button-#{comment.id}",
         data: {
           controller: "comments",

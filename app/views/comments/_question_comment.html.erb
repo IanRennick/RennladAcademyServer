@@ -34,6 +34,7 @@
       <%= button_to "Delete", [question, comment], class: "btn btn-danger", method: :delete %>
     </div>
 
+    <%# Edit comment form %>
      <div id="edit-form-<%= comment.id %>" class="d-none" > 
         <%= render "comments/question_form", question: @question, comment: comment, submit_label: "Update", commentable_type: "question" %>
      </div>

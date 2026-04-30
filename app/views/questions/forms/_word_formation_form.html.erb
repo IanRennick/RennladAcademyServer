@@ -1,4 +1,5 @@
 <%= form_with(model: question) do |form| %>
+  <%# Throw any errors %>
   <% if question.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(question.errors.count, "error") %> prohibited this question from being saved:</h2>
@@ -11,21 +12,25 @@
     </div>
   <% end %>
 
+  <%# Question main input %>
   <div>
     <%= form.label :main, style: "display: block" %>
     <%= form.text_field :main %>
   </div>
 
+  <%# Question main input %>
   <div>
     <%= form.label :answer, style: "display: block" %>
     <%= form.text_field :answer %>
   </div>
 
+  <%# Keyword Input %>
   <div>
     <%= form.label :keyword, style: "display: block" %>
     <%= form.text_field :keyword %>
   </div>
 
+  <%# Submit button %>
   <div>
     <%= form.submit %>
   </div>
