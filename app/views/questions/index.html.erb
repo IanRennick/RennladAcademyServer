@@ -19,17 +19,8 @@
                     <%# Question Type %>
                     <td><%= "#{question.kind_before_type_cast.to_i + 1}" %></td>
 
-                    <%# Question ID %>
-                    <td><%= link_to question.id, question_path(question) %></td>
-
-                    <%# Amount of attempts %>
-                    <td><%= question.attempted %></td>
-
-                    <%# Amount of correct answers %>
-                    <td><%= question.correct %></td>
-
-                    <%# Amount of comments %>
-                    <td><%= pluralize(question.comments.size, "Comment") %></td>
+                    <%# Shared Bodies %>
+                    <%= render partial: "questions/tables/shared_table_bodies", object: question %>
                 </tr>
             <% end %>
         </tbody>
