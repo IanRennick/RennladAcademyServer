@@ -5,31 +5,22 @@
     <table class="table table-dark table-striped">
         <thead>
             <tr>
-                <%# Question ID Heading %>
-                <th scope="col">Id</th>
-
                 <%# Question Type Heading %>
                 <th scope="col">Type</th>
 
-                <%# Amount of attempts Heading %>
-                <th scope="col">Attempts</th>
-
-                <%# Amount of correct answers Heading %>
-                <th scope="col">Correct</th>
-
-                <%# Amount of comments Heading %>
-                <th scope="col">Comments</th>
+                <%# Shared Headings %>
+                <%= render "questions/tables/shared_table_headings" %>
             </tr>
         </thead>
 
         <tbody>
             <% @questions.each do |question| %>
                 <tr>
-                    <%# Question ID %>
-                    <td><%= link_to question.id, question_path(question) %></td>
-
                     <%# Question Type %>
                     <td><%= "#{question.kind_before_type_cast.to_i + 1}" %></td>
+
+                    <%# Question ID %>
+                    <td><%= link_to question.id, question_path(question) %></td>
 
                     <%# Amount of attempts %>
                     <td><%= question.attempted %></td>
