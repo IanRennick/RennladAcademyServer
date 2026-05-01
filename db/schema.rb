@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_30_220053) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_01_161104) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -97,6 +97,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_30_220053) do
     t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true
   end
 
+  create_table "participants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "room_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["room_id"], name: "index_participants_on_room_id"
+    t.index ["user_id"], name: "index_participants_on_user_id"
+  end
+
   create_table "questions", force: :cascade do |t|
     t.string "a"
     t.string "answer"
@@ -149,5 +158,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_30_220053) do
   add_foreign_key "messages", "rooms"
   add_foreign_key "messages", "users"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
+  add_foreign_key "participants", "rooms"
+  add_foreign_key "participants", "users"
   add_foreign_key "writings", "users"
 end

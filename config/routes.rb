@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   root "pages#home"
   get "info", to: "pages#info"
   get "/u/:id", to: "users#profile", as: "user"
+  get "/u/:id/chat", to: "users#chat", as: "user_chat"
   get "search", to: "search#index"
   get "multiple_choices", to: "questions#multiple_choices"
   get "open_clozes", to: "questions#open_clozes"
