@@ -26,7 +26,7 @@ class RoomsController < ApplicationController
     @rooms = Room.public_rooms
 
     # Get all essages and order by created at
-    @messages = @single_room.messages.order(created_at: :asc)
+    @messages = @single_room.messages.includes([ :user ]).order(created_at: :asc)
 
     # Get all other users
     @users = User.all_except(current_user)

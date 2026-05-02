@@ -1,9 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  connect() {
-  }
-
   // Method for showing correct question form
   openForm(event) {
     event.preventDefault();
