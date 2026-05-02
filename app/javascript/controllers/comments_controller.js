@@ -1,9 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  connect() {
-  }
-
   // Function for changing between normal comment body and the edit form
   toggleForm(event) {
     event.preventDefault();
