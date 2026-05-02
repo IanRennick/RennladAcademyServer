@@ -11,6 +11,10 @@ Rails.application.configure do
   end
 
   # Settings specified here will take precedence over those in config/application.rb.
+  config.action_controller.default_url_options = {
+    host: "localhost",
+    port: 3000
+  }
 
   # Make code changes take effect immediately without server restart.
   config.enable_reloading = true

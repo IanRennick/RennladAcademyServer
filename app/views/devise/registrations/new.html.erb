@@ -5,6 +5,12 @@
   <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
     <%= render "devise/shared/error_messages", resource: resource %>
 
+    <%# Avatar Input %>
+    <div class="field">
+      <p><%= f.label :avatar %></p>
+      <p><%= f.file_field :name %></p>
+    </div>
+
     <%# Email Input %>
     <div class="field">
       <p><%= f.label :email %></p>
