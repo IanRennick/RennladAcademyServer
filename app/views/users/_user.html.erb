@@ -6,8 +6,13 @@
 
 
 <li class="list-group-item d-flex align-items-center justify-content-between user_list_item <%= isActive %> ">
-  <div>
+  <div class="icon-container">
     <%= link_to image_tag(user.chat_avatar, class: "chat_pfp"), user_chat_path(user) %>
+    <%= turbo_stream_from "user_status" %>
+
+    <div>
+      <%= render "users/status", user: user %>
+    </div>
   </div>
 
   <%= link_to user.name, user_chat_path(user), class: "ms-2 me-auto username", data: {turbo: "false"} %>
