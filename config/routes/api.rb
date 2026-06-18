@@ -5,8 +5,12 @@ namespace :api do
       post "/", to: "registrations#create", as: :user_registration
     end
 
-    # API Routes
-    resources :writings
+    # Question routes
+    get "/questions/random", to: "questions#random"
+    get "/questions/multiple_choice", to: "questions#multiple_choice"
+    get "/questions/open_cloze", to: "questions#open_cloze"
+    get "/questions/sentence_cloze", to: "questions#sentence_cloze"
+    get "/questions/word_formation", to: "questions#word_formation"
   end
 end
 
