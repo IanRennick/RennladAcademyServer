@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../app/decorators/custom_token_response"
+
 Doorkeeper.configure do
   # Change the ORM that doorkeeper will use (requires ORM extensions installed).
   # Check the list of supported ORMs here: https://github.com/doorkeeper-gem/doorkeeper#orms
@@ -553,3 +555,32 @@ Doorkeeper.configure do
   #
   # realm "Doorkeeper"
 end
+
+
+Rails.application.config.to_prepare do
+  Doorkeeper::OAuth::RefreshTokenRequest.class_eval do
+    alias_method :original_initialize, :initialize
+
+    def initialize(server, refresh_token, credentials, parameters = {})
+      # If the refresh_token is missing from the HTTP request body params...
+      if parameters[:refresh_token].blank? && Current.request.present?
+        # Extract the true decrypted token string value out of the cookie jar
+        cookie_token = Current.request.cookie_jar.encrypted[:_refresh_token]
+
+        if cookie_token.present?
+          # 1. Safely inject it into the parameters hash for Doorkeeper's parser
+          parameters[:refresh_token] = cookie_token
+
+          # 2. Query the database using Doorkeeper's token model to fetch the true instance
+          # This replaces our raw string with the exact object Doorkeeper expects.
+          refresh_token = Doorkeeper::AccessToken.by_refresh_token(cookie_token)
+        end
+      end
+
+      # Forward the parameters safely into the original initializer loop
+      original_initialize(server, refresh_token, credentials, parameters)
+    end
+  end
+end
+
+Doorkeeper::OAuth::TokenResponse.prepend CustomTokenResponse
