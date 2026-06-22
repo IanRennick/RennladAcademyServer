@@ -1,4 +1,5 @@
 require_relative "boot"
+require_relative "../lib/request_store_middleware"
 
 require "rails/all"
 
@@ -10,6 +11,9 @@ module Server
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
+
+    # Execute this early in the stack to track the context safely
+    config.middleware.use RequestStoreMiddleware
 
     config.after_initialize do |_config|
       User.update_all(status: User.statuses[:offline])
