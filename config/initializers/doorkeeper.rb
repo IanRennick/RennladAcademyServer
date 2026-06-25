@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../app/decorators/custom_token_response"
 
 Doorkeeper.configure do
   # Change the ORM that doorkeeper will use (requires ORM extensions installed).
@@ -583,4 +582,3 @@ Rails.application.config.to_prepare do
   end
 end
 
-Doorkeeper::OAuth::TokenResponse.prepend CustomTokenResponse
