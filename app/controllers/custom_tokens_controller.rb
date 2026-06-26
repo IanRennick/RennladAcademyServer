@@ -2,6 +2,9 @@ class CustomTokensController < Doorkeeper::TokensController
   # Include cookie helpers since Doorkeeper's base controller lacks them
   include ActionController::Cookies
 
+  # Intercept the revoke action BEFORE Doorkeeper runs its logic
+  before_action :inject_refresh_token_into_params, only: [ :revoke ]
+
   def create
     # Let Doorkeeper process the request and build the initial response
     super
@@ -33,11 +36,29 @@ class CustomTokensController < Doorkeeper::TokensController
     super
 
     # 2. Clear the refresh token cookie from the client's browser
-    cookies.delete(:_refresh_token)
+    cookies.delete(:_refresh_token, path: "/")
   end
 
 
   private
+
+
+  # Decrypts the cookie and places it where Doorkeeper natively expects it
+  def inject_refresh_token_into_params
+    # 1. Read and decrypt the cookie
+    refresh_token = cookies.encrypted[:_refresh_token]
+
+    if refresh_token.present?
+      # 2. Doorkeeper looks inside params[:token] to find the database record to revoke
+      params[:token] = refresh_token
+
+      # 3. Optimize the database lookup by telling Doorkeeper it's a refresh token
+      params[:token_type_hint] = "refresh_token"
+    end
+  end
+
+
+
 
   # Extract token from Doorkeeper result and place it safely into a cookie
   def set_refresh_token_cookie

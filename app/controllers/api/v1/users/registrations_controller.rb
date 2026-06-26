@@ -15,7 +15,7 @@ module Api
 
           # Send error if can't find Doorkeeper Application
           unless client_app
-            render json: { error: I18n.t("doorkeeper.errors.messages.invalid_client") }, status: :unauthorized
+            return render json: { error: I18n.t("doorkeeper.errors.messages.invalid_client") }, status: :unauthorized
           end
 
           # Create New User
