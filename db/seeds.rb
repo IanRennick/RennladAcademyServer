@@ -30,7 +30,7 @@ end
 
 # Add test multiple choice questions
 10.times do |x|
-  question = Question.create(kind: Question.kinds[:multiple_choice], main: "This is a test question?", answer: "Test answer", a: "Option 1", b: "Option 2", c: "Option 3", d: "Option 4")
+  question = Question.create(kind: Question.kinds[:multiple_choice], main: "This is a test question?", answer: "Test answer", options: [ "Dublin", "Cork", "Galway", "Limerick" ])
 
   5.times do |y|
     Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)

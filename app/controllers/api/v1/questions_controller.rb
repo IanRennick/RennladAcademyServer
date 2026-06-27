@@ -1,32 +1,43 @@
 class Api::V1::QuestionsController < ApiController
-  # GET /questions or /questions.json
   def random
-    # Return random question
-    @question = Question.all.sample(1)
-    render json: @question.first
+    # Fetch questions filtered by type if provided, otherwise fetch all
+    questions = params[:type].present? ? Question.where(kind: params[:type]) : Question.all
+
+    # Use database-level random sampling for better performance than .all.sample
+    @question = questions.order("RANDOM()").first
+
+    if @question
+      render json: format_response(@question)
+    else
+      render json: { error: "No questions found" }, status: :not_found
+    end
   end
 
-  def multiple_choice
-    # Get all multiple Chices
-    @question = Question.where(kind: Question.kinds[:multiple_choice]).sample(1)
-    render json: @question.first
-  end
+  private
 
-  def open_cloze
-    # Get all open CLozes
-    @question = Question.where(kind: Question.kinds[:open_cloze]).sample(1)
-    render json: @question.first
-  end
+  # Helper method to shape the response based on the puzzle type
+  def format_response(question)
+    case question.kind
 
-  def word_formation
-    # Get all multiple Choices
-    @question = Question.where(kind: Question.kinds[:word_formation]).sample(1)
-    render json: @question.first
-  end
+    # Multiple Choice response:
+    when "multiple_choice"
+      { id: question.id, kind: question.kind, main: question.main, options: question.options, answer: question.answer }
 
-  def sentence_cloze
-    # Get all sentence clozes
-    @question = Question.where(kind: Question.kinds[:sentence_cloze]).sample(1)
-    render json: @question.first
+    # Open Cloze response:
+    when "open_cloze"
+      { id: question.id, kind: question.kind, main: question.main, answer: question.answer }
+
+    # Word Formation response:
+    when "word_formation"
+      { id: question.id, kind: question.kind, main: question.main, answer: question.answer, keyword: question.keyword }
+
+    # Sentence Cloze response:
+    when "sentence_cloze"
+      { id: question.id, kind: question.kind, main: question.main, answer: question.answer, keyword: question.keyword, prompt: question.prompt }
+
+    # Fallback response:
+    else
+      question.as_json
+    end
   end
 end

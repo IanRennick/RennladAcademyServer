@@ -24,28 +24,21 @@
     <%= form.text_field :answer %>
   </div>
 
-  <%# Option A input %>
+  <%# Multiple Choice Options (Rendered as an array layout) %>
   <div>
-    <%= form.label :a, style: "display: block" %>
-    <%= form.text_field :answer %>
-  </div>
-
-  <%# Option B input %>
-  <div>
-    <%= form.label :b, style: "display: block" %>
-    <%= form.text_field :b %>
-  </div>
-
-  <%# Option C input %>
-  <div>
-    <%= form.label :c, style: "display: block" %>
-    <%= form.text_field :c %>
-  </div>
-
-  <%# Option B input %>
-  <div>
-    <%= form.label :d, style: "display: block" %>
-    <%= form.text_field :d %>
+    <label style="display: block">Multiple Choice Options (Optional)</label>
+    
+    <%# Option 1 %>
+    <%= text_field_tag "question[options][]", question.options&.[](0), placeholder: "Option 1" %>
+    
+    <%# Option 2 %>
+    <%= text_field_tag "question[options][]", question.options&.[](1), placeholder: "Option 2" %>
+    
+    <%# Option 3 %>
+    <%= text_field_tag "question[options][]", question.options&.[](2), placeholder: "Option 3" %>
+    
+    <%# Option 4 %>
+    <%= text_field_tag "question[options][]", question.options&.[](3), placeholder: "Option 4" %>
   </div>
 
   <%# Submit button %>

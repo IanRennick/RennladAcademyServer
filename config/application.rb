@@ -15,9 +15,12 @@ module Server
     # Execute this early in the stack to track the context safely
     config.middleware.use RequestStoreMiddleware
 
-    config.after_initialize do |_config|
-      User.update_all(status: User.statuses[:offline])
-    end
+    # Remove or comment out this entire block:
+    # config.after_initialize do |_config|
+    #   if ActiveRecord::Base.connection.table_exists?(:users)
+    #     User.update_all(status: User.statuses[:offline])
+    #   end
+    # end
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
