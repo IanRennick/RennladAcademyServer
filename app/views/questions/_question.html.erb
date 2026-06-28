@@ -11,10 +11,10 @@
     <%= question.main %>
   </div>
 
-  <%# Answer %>
+  <%# Answers (Displays multiple choices separated by commas, or just the one) %>
   <div>
-    <strong>Answer:</strong>
-    <%= question.answer %>
+    <strong>Accepted Answers:</strong>
+    <%= question.answers.join(", ") %>
   </div>
 
   <%# Nuber of times attempted %>
@@ -32,23 +32,12 @@
   <%# Multiple Choice options %>
   <% if question.multiple_choice? %>
     <div>
-      <strong>Option A:</strong>
-      <%= question.a %>
-    </div>
-
-    <div>
-      <strong>Option B:</strong>
-      <%= question.b %>
-    </div>
-
-    <div>
-      <strong>Option C:</strong>
-      <%= question.c %>
-    </div>
-
-    <div>
-      <strong>Option D:</strong>
-      <%= question.d %>
+      <strong>Options:</strong>
+      <ul>
+        <% question.options.each do |option| %>
+          <li><%= option %></li>
+        <% end %>
+      </ul>
     </div>
   <% end %>
 

@@ -12,16 +12,39 @@
     </div>
   <% end %>
 
+  <%# Subtypes Input %>
+  <div>
+    <%= form.label :subtype, "Multiple Choice Category", style: "display: block;" %>
+    <%= form.select :subtype, 
+      Question::SUBTYPES_BY_KIND["multiple_choice"].map { |s| [s.to_s.titleize, s] }, 
+      include_blank: "Select Subtype" 
+    %>
+  </div>
+
   <%# Question main input %>
   <div>
     <%= form.label :main, style: "display: block" %>
     <%= form.text_field :main %>
   </div>
 
-  <%# Answer input %>
-  <div>
-    <%= form.label :answer, style: "display: block" %>
-    <%= form.text_field :answer %>
+  <%# Dynamic Answers Section %>
+  <div style="margin-bottom: 20px;">
+    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Accepted Answers</label>
+    
+    <div id="answers-container">
+      <%# Render up to 5 inputs. Loop ensures existing answers populate on edit %>
+      <% 5.times do |i| %>
+        <% current_value = question.answers&.[](i) %>
+        <div class="answer-field-group" style="margin-bottom: 8px; <%= 'display: none;' if i > 0 && current_value.blank? %>" data-index="<%= i %>">
+          <%= text_field_tag "question[answers][]", current_value, placeholder: "Answer #{i + 1}", style: "width: 80%; max-width: 400px;" %>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Simple button to show the next hidden answer field %>
+    <button type="button" id="add-answer-btn" style="margin-top: 5px; font-size: 12px; cursor: pointer;">
+      + Add Another Valid Answer
+    </button>
   </div>
 
   <%# Multiple Choice Options (Rendered as an array layout) %>
@@ -46,3 +69,34 @@
     <%= form.submit %>
   </div>
 <% end %>
+
+
+<%# Place this at the very bottom of your _form.html.erb file %>
+<script>
+  // This function sets up the event listener for your button
+  function setupAnswerToggler() {
+    const btn = document.getElementById("add-answer-btn");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      // Find all hidden answer fields
+      const hiddenFields = document.querySelectorAll(".answer-field-group[style*='display: none']");
+      
+      if (hiddenFields.length > 0) {
+        // Reveal the first hidden field in the list
+        hiddenFields[0].style.display = "block";
+      }
+      
+      // If that was the last hidden field, hide the "+ Add" button entirely
+      if (hiddenFields.length <= 1) {
+        btn.style.display = "none";
+      }
+    });
+  }
+
+  // Runs on modern Rails dynamic page loads (Hotwire/Turbo)
+  document.addEventListener("turbo:load", setupAnswerToggler);
+  
+  // Runs on classic full-page loads as a fallback
+  document.addEventListener("DOMContentLoaded", setupAnswerToggler);
+</script>

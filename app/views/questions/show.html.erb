@@ -12,6 +12,14 @@
     <%= button_to "Destroy this question", @question, method: :delete %>
   </div>
 
+  <%# Common wrong answers %>
+  <h3>Common Wrong Submissions</h3>
+  <ul>
+    <% @question.wrong_answers.order(count: :desc).limit(5).each do |wa| %>
+      <li><strong>"<%= wa.answer_text %>"</strong> — Submitted <%= pluralize(wa.count, "time") %></li>
+    <% end %>
+  </ul>
+
 
   <%# Comment Form %>
   <%= render "comments/question_form", question: @question, comment: @question.comments.build, submit_label: "Reply", commentable_type: "question" %>
