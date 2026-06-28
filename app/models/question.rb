@@ -31,6 +31,10 @@ class Question < ApplicationRecord
   validate :subtype_must_match_kind
 
 
+  has_many :wrong_answers, dependent: :destroy
+
+  # Ensure tracking integers default to zero instead of nil
+  after_initialize :set_defaults, if: :new_record?
 
 
   private
@@ -49,5 +53,10 @@ class Question < ApplicationRecord
     if allowed_subtypes.nil? || !allowed_subtypes.include?(subtype.to_sym)
       errors.add(:subtype, "is not valid for a #{kind.humanize} puzzle")
     end
+  end
+
+  def set_defaults
+    self.attempted ||= 0
+    self.correct ||= 0
   end
 end

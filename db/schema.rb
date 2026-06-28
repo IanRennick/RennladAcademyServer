@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_27_233300) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_28_000127) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -151,6 +151,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_27_233300) do
     t.index ["user_id"], name: "index_writings_on_user_id"
   end
 
+  create_table "wrong_answers", force: :cascade do |t|
+    t.string "answer_text"
+    t.integer "count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.integer "question_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["question_id"], name: "index_wrong_answers_on_question_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
@@ -160,4 +169,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_27_233300) do
   add_foreign_key "participants", "rooms"
   add_foreign_key "participants", "users"
   add_foreign_key "writings", "users"
+  add_foreign_key "wrong_answers", "questions"
 end

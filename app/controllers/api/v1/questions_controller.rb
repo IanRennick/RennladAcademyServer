@@ -1,26 +1,85 @@
 class Api::V1::QuestionsController < ApiController
   def random
-    # Filter by primary type if provided
-    if params[:type].present?
-      resolved_type = params[:type].match?(/\A\d+\z/) ? Question.kinds.key(params[:type].to_i) : params[:type]
-      questions = questions.where(kind: resolved_type)
+    # 1. Start with a fallback to all questions so it can never be nil
+    questions = Question.all
+    type_param = params[:type]
+
+    # 2. Filter by primary type if provided
+    if type_param.present?
+      # Resolve integer string ("1") to enum symbol, or use the string direct
+      resolved_type = type_param.match?(/\A\d+\z/) ? Question.kinds.key(type_param.to_i) : type_param
+
+      # Only filter if the type actually exists in our enum configuration
+      if resolved_type.present? && Question.kinds.has_key?(resolved_type.to_s)
+        questions = questions.where(kind: resolved_type)
+      else
+        # If an invalid type was sent, fallback to an empty ActiveRecord collection 
+        # instead of nil, so .order("RANDOM()") still safely works
+        questions = Question.none
+      end
     end
 
-    # Filter by subtype if provided
+    # 3. Filter by subtype if provided
     if params[:subtype].present?
-      resolved_subtype = params[:subtype].match?(/\A\d+\z/) ? Question.subtypes.key(params[:subtype].to_i) : params[:subtype]
-      questions = questions.where(subtype: resolved_subtype)
+      subtype_param = params[:subtype]
+      resolved_subtype = subtype_param.match?(/\A\d+\z/) ? Question.subtypes.key(subtype_param.to_i) : subtype_param
+
+      if resolved_subtype.present? && Question.subtypes.has_key?(resolved_subtype.to_s)
+        questions = questions.where(subtype: resolved_subtype)
+      else
+        questions = Question.none
+      end
     end
 
-    # Use database-level random sampling for better performance than .all.sample
+    # Now questions is guaranteed to be an ActiveRecord Relation, never nil!
     @question = questions.order("RANDOM()").first
 
     if @question
       render json: format_response(@question)
     else
-      render json: { error: "No questions found" }, status: :not_found
+      render json: { error: "No questions found matching criteria" }, status: :not_found
     end
   end
+
+
+
+  # POST /api/v1/questions/:id/submit_answer
+  def submit_answer
+    @question = Question.find(params[:id])
+
+    # Strip whitespace and make lowercase for case-insensitive verification
+    submitted_raw = params[:answer].to_s.strip
+    submitted = submitted_raw.downcase
+
+    # Normalize your DB answers array to lowercase for an accurate comparison
+    is_correct = @question.answers.map { |ans| ans.to_s.strip.downcase }.include?(submitted)
+
+    # Use increment! to safely skip model validations and instantly hit the DB
+    @question.increment!(:attempted)
+    @question.increment!(:correct) if is_correct
+
+    unless is_correct
+      # Find the row or build a new one
+      wrong_log = @question.wrong_answers.find_or_initialize_by(answer_text: submitted_raw)
+
+      if wrong_log.new_record?
+        wrong_log.count = 1
+        wrong_log.save # ✅ Saves a fresh new wrong answer to the database
+      else
+        wrong_log.increment!(:count) # ✅ Safely increments an existing record
+      end
+    end
+
+    # Correct way to return a blank response to the frontend
+    head :no_content
+
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Question not found" }, status: :not_found
+  end
+
+
+
+
 
   private
 
@@ -33,19 +92,19 @@ class Api::V1::QuestionsController < ApiController
 
     # Multiple Choice response:
     when "multiple_choice"
-      { options: question.options }
+      base.merge(options: question.options)
 
     # Open Cloze response:
     when "open_cloze"
-      {}
+      base
 
     # Word Formation response:
     when "word_formation"
-      { keyword: question.keyword }
+      base.merge(keyword: question.keyword)
 
     # Sentence Cloze response:
     when "sentence_cloze"
-      { keyword: question.keyword, prompt: question.prompt }
+      base.merge(keyword: question.keyword, prompt: question.prompt)
 
     # Fallback response:
     else
