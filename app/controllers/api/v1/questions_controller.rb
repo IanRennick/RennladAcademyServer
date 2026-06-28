@@ -1,7 +1,16 @@
 class Api::V1::QuestionsController < ApiController
   def random
-    # Fetch questions filtered by type if provided, otherwise fetch all
-    questions = params[:type].present? ? Question.where(kind: params[:type]) : Question.all
+    # Filter by primary type if provided
+    if params[:type].present?
+      resolved_type = params[:type].match?(/\A\d+\z/) ? Question.kinds.key(params[:type].to_i) : params[:type]
+      questions = questions.where(kind: resolved_type)
+    end
+
+    # Filter by subtype if provided
+    if params[:subtype].present?
+      resolved_subtype = params[:subtype].match?(/\A\d+\z/) ? Question.subtypes.key(params[:subtype].to_i) : params[:subtype]
+      questions = questions.where(subtype: resolved_subtype)
+    end
 
     # Use database-level random sampling for better performance than .all.sample
     @question = questions.order("RANDOM()").first
@@ -17,27 +26,30 @@ class Api::V1::QuestionsController < ApiController
 
   # Helper method to shape the response based on the puzzle type
   def format_response(question)
+    # Base payload structure
+    base = { id: question.id, kind: question.kind, subtype: question.subtype, main: question.main, answers: question.answers }
+
     case question.kind
 
     # Multiple Choice response:
     when "multiple_choice"
-      { id: question.id, kind: question.kind, main: question.main, options: question.options, answer: question.answer }
+      { options: question.options }
 
     # Open Cloze response:
     when "open_cloze"
-      { id: question.id, kind: question.kind, main: question.main, answer: question.answer }
+      {}
 
     # Word Formation response:
     when "word_formation"
-      { id: question.id, kind: question.kind, main: question.main, answer: question.answer, keyword: question.keyword }
+      { keyword: question.keyword }
 
     # Sentence Cloze response:
     when "sentence_cloze"
-      { id: question.id, kind: question.kind, main: question.main, answer: question.answer, keyword: question.keyword, prompt: question.prompt }
+      { keyword: question.keyword, prompt: question.prompt }
 
     # Fallback response:
     else
-      question.as_json
+      base
     end
   end
 end

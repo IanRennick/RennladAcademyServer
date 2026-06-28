@@ -1,6 +1,5 @@
 class QuestionsController < ApplicationController
   before_action :set_question, only: %i[ show edit update destroy ]
-  before_save :clean_options
 
   # GET /questions or /questions.json
   def index
@@ -87,12 +86,6 @@ class QuestionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def question_params
-      params.expect(question: [ :main, :answer, :attempted, :correct, :keyword, :prompt,  options: [] ])
-    end
-
-
-    def clean_options
-    # Removes any empty strings from the form array
-    self.options = options.reject(&:blank?) if options.is_indexable? || options.is_a?(Array)
+      params.expect(question: [ :main, :subtype, :attempted, :correct, :keyword, :prompt,  options: [], answers: [] ])
     end
 end

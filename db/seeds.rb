@@ -30,7 +30,7 @@ end
 
 # Add test multiple choice questions
 10.times do |x|
-  question = Question.create(kind: Question.kinds[:multiple_choice], main: "This is a test question?", answer: "Test answer", options: [ "Dublin", "Cork", "Galway", "Limerick" ])
+  question = Question.create(kind: Question.kinds[:multiple_choice], main: "This is a test question?", answers: [ "Dublin" ], options: [ "Dublin", "Cork", "Galway", "Limerick" ])
 
   5.times do |y|
     Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
@@ -39,7 +39,7 @@ end
 
 # Add test open cloze questions
 10.times do |x|
-  question = Question.create(kind: Question.kinds[:open_cloze], main: "This is a test question?", answer: "Test answer")
+  question = Question.create(kind: Question.kinds[:open_cloze], main: "This is a test question?", answers: [ "Dublin" ])
 
   5.times do |y|
     Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
@@ -48,7 +48,7 @@ end
 
 # Add test word formation questions
 10.times do |x|
-  question = Question.create(kind: Question.kinds[:word_formation], main: "This is a test question?", answer: "Test answer", keyword: "Test word")
+  question = Question.create(kind: Question.kinds[:word_formation], main: "This is a test question?", answers: [ "Dublin", "Turkey" ], keyword: "Test word")
 
   5.times do |y|
     Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
@@ -57,7 +57,7 @@ end
 
 # Add test word formation questions
 10.times do |x|
-  question = Question.create(kind: Question.kinds[:sentence_cloze], main: "This is a test question?", answer: "Test answer", prompt: "This is a test prompt", keyword: "Test word")
+  question = Question.create(kind: Question.kinds[:sentence_cloze], main: "This is a test question?", answers: [ "Dublin", "France, Gernmay" ], prompt: "This is a test prompt", keyword: "Test word")
 
   5.times do |y|
     Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
