@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_05_180715) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_200939) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -144,6 +144,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_180715) do
     t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
+  create_table "user_stats", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "stat_key"
+    t.string "stat_type"
+    t.integer "times_correct"
+    t.integer "times_done"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_user_stats_on_user_id"
+  end
+
+  create_table "user_tag_stats", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.json "stats_json"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_user_tag_stats_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
@@ -186,6 +205,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_180715) do
   add_foreign_key "participants", "users"
   add_foreign_key "question_tags", "questions"
   add_foreign_key "question_tags", "tags"
+  add_foreign_key "user_stats", "users"
+  add_foreign_key "user_tag_stats", "users"
   add_foreign_key "writings", "users"
   add_foreign_key "wrong_answers", "questions"
 end

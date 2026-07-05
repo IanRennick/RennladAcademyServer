@@ -66,6 +66,8 @@ class Api::V1::QuestionsController < ApiController
   # POST /api/v1/questions/:id/submit_answer
   def submit_answer
     @question = Question.find(params[:id])
+    # Doorkeeper token lookup method
+    user = current_user
 
     # Strip whitespace and make lowercase for case-insensitive verification
     submitted_raw = params[:answer].to_s.strip
@@ -89,6 +91,29 @@ class Api::V1::QuestionsController < ApiController
         wrong_log.increment!(:count) # ✅ Safely increments an existing record
       end
     end
+
+    # 2. Update User Personal Metrics (Kind, Subtype & Tags)
+    if user.present?
+      # A. Core Question Type Tally (e.g. Multiple Choice, Open Cloze)
+      kind_int = Question.kinds[@question.kind]
+      kind_stat = user.user_stats.find_or_create_by!(stat_type: "kind", stat_key: kind_int)
+      kind_stat.increment!(:times_done)
+      kind_stat.increment!(:times_correct) if is_correct
+
+      # B. Question Subtype Tally (Only runs if the puzzle has a subtype)
+      if @question.subtype.present?
+        subtype_int = Question.subtypes[@question.subtype]
+        subtype_stat = user.user_stats.find_or_create_by!(stat_type: "subtype", stat_key: subtype_int)
+        subtype_stat.increment!(:times_done)
+        subtype_stat.increment!(:times_correct) if is_correct
+      end
+
+      # C. Tag Tally (Calculates nested elements inside the JSON file)
+      if @question.tags.any?
+        user.update_tag_metrics(@question.tags.map(&:name), is_correct)
+      end
+    end
+
 
     # Correct way to return a blank response to the frontend
     head :no_content

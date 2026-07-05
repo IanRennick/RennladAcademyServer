@@ -63,6 +63,30 @@ class User < ApplicationRecord
   end
 
 
+
+
+  # Stats
+  has_many :user_stats, dependent: :destroy
+  has_one :user_tag_stat, dependent: :destroy
+
+  # Automatically hook an empty scoreboard setup right on signup
+  after_create :build_initial_tag_stat
+
+  # Handles complex, dynamic string array calculations in background space
+  def update_tag_metrics(tag_names, was_correct)
+    stat_record = user_tag_stat || create_user_tag_stat
+    current_json = stat_record.stats_json.dup
+
+    tag_names.each do |tag|
+      current_json[tag] ||= { "done" => 0, "correct" => 0 }
+      current_json[tag]["done"] += 1
+      current_json[tag]["correct"] += 1 if was_correct
+    end
+
+    stat_record.update!(stats_json: current_json)
+  end
+
+
   private
   def add_default_avatar
     return if avatar.attached?
@@ -72,5 +96,9 @@ class User < ApplicationRecord
       filename: "default_avatar.jpg",
       content_type: "image/jpg"
     )
+  end
+
+  def build_initial_tag_stat
+    create_user_tag_stat(stats_json: {})
   end
 end
