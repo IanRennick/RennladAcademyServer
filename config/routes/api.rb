@@ -13,6 +13,8 @@ namespace :api do
         post :submit_answer # POST /api/v1/questions/:id/submit_answer
       end
     end
+
+    resource :stats, only: [ :show ]
   end
 end
 
