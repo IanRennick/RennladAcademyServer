@@ -63,6 +63,28 @@ class Api::V1::QuestionsController < ApiController
 
 
 
+  def review_queue
+    user = current_user # Uses your working API user helper
+
+    if user.nil?
+      render json: { error: "Unauthorized" }, status: :unauthorized
+      return
+    end
+
+    # Gather questions where needs_review is true for this user
+    # .includes(:tags) optimizes database lookups to keep things fast
+    wrong_questions = Question.joins(:user_histories)
+                              .where(user_histories: { user_id: user.id, needs_review: true })
+                              .includes(:tags)
+
+    # Pass every question through your unified format_response serializer layout
+    formatted_queue = wrong_questions.map { |q| format_response(q) }
+
+    render json: formatted_queue
+  end
+
+
+
   # POST /api/v1/questions/:id/submit_answer
   def submit_answer
     @question = Question.find(params[:id])
@@ -111,6 +133,27 @@ class Api::V1::QuestionsController < ApiController
       # C. Tag Tally (Calculates nested elements inside the JSON file)
       if @question.tags.any?
         user.update_tag_metrics(@question.tags.map(&:name), is_correct)
+      end
+
+      # NEW LOGIC: User First-Try & Review Queue tracking
+      # ----------------------------------------------------
+      # Check if this user has ever attempted this question before
+      history = user.user_histories.find_by(question_id: @question.id)
+
+      if history.nil?
+        # This is their FIRST ATTEMPT ever. Lock in the metrics forever.
+        user.user_histories.create!(
+          question_id: @question.id,
+          first_attempt_correct: is_correct,
+          needs_review: !is_correct, # Enters review queue if answer is incorrect
+          original_wrong_answer: is_correct ? nil : submitted_raw
+        )
+      else
+        # This is a REPEAT ATTEMPT.
+        # If they are currently in the review queue and finally got it right, clear them!
+        if history.needs_review && is_correct
+          history.update!(needs_review: false)
+        end
       end
     end
 

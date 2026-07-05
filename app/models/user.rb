@@ -86,6 +86,8 @@ class User < ApplicationRecord
     stat_record.update!(stats_json: current_json)
   end
 
+  has_many :user_histories, dependent: :destroy
+
 
   private
   def add_default_avatar

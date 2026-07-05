@@ -56,6 +56,7 @@ class Question < ApplicationRecord
     tags.map(&:name).join(", ")
   end
 
+  has_many :user_histories, dependent: :destroy
 
   private
 
