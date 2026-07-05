@@ -13,7 +13,7 @@ class Api::V1::QuestionsController < ApiController
       if resolved_type.present? && Question.kinds.has_key?(resolved_type.to_s)
         questions = questions.where(kind: resolved_type)
       else
-        # If an invalid type was sent, fallback to an empty ActiveRecord collection 
+        # If an invalid type was sent, fallback to an empty ActiveRecord collection
         # instead of nil, so .order("RANDOM()") still safely works
         questions = Question.none
       end
@@ -29,6 +29,15 @@ class Api::V1::QuestionsController < ApiController
       else
         questions = Question.none
       end
+    end
+
+    # 4. New: Filter by Tag if provided (e.g. ?tag=conditional)
+    if params[:tag].present?
+      # We clean up the parameter to lowercase to match our model creation rule
+      tag_name = params[:tag].to_s.strip.downcase
+
+      # .joins(:tags) looks through the join table to find matches securely
+      questions = questions.joins(:tags).where(tags: { name: tag_name })
     end
 
     # Now questions is guaranteed to be an ActiveRecord Relation, never nil!
@@ -97,7 +106,7 @@ class Api::V1::QuestionsController < ApiController
   # Helper method to shape the response based on the puzzle type
   def format_response(question)
     # Base payload structure
-    base = { id: question.id, kind: question.kind, subtype: question.subtype, main: question.main, answers: question.answers }
+    base = { id: question.id, kind: question.kind, subtype: question.subtype, main: question.main, answers: question.answers, tags: question.tags.map(&:name) }
 
     case question.kind
 

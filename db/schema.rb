@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_28_000127) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_180715) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -106,6 +106,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_000127) do
     t.index ["user_id"], name: "index_participants_on_user_id"
   end
 
+  create_table "question_tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "question_id", null: false
+    t.integer "tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["question_id"], name: "index_question_tags_on_question_id"
+    t.index ["tag_id"], name: "index_question_tags_on_tag_id"
+  end
+
   create_table "questions", force: :cascade do |t|
     t.json "answers", default: []
     t.integer "attempted", default: 0
@@ -126,6 +135,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_000127) do
     t.boolean "is_private", default: false
     t.string "name"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -168,6 +184,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_000127) do
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
   add_foreign_key "participants", "rooms"
   add_foreign_key "participants", "users"
+  add_foreign_key "question_tags", "questions"
+  add_foreign_key "question_tags", "tags"
   add_foreign_key "writings", "users"
   add_foreign_key "wrong_answers", "questions"
 end
