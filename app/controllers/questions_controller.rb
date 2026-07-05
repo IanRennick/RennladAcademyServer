@@ -86,6 +86,6 @@ class QuestionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def question_params
-      params.expect(question: [ :main, :subtype, :attempted, :correct, :keyword, :prompt,  options: [], answers: [] ])
+      params.expect(question: [ :main, :subtype, :attempted, :correct, :keyword, :prompt, :tag_list,  options: [], answers: [] ])
     end
 end

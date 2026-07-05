@@ -59,6 +59,15 @@
     <%= form.text_field :prompt %>
   </div>
 
+  <div style="margin-top: 15px; margin-bottom: 15px;">
+    <%= form.label :tag_list, "Tags (Separated by commas)", style: "display: block; font-weight: bold; margin-bottom: 5px;" %>
+    <%= form.text_field :tag_list, 
+                        value: question.tag_list, 
+                        placeholder: "e.g. phrasal_verb, conditional, past_tense", 
+                        style: "width: 100%; max-width: 400px; padding: 6px;" %>
+    <small style="color: #666; display: block; margin-top: 3px;">Tags will automatically be saved in lowercase.</small>
+  </div>
+
   <%# Submit button %>
   <div>
     <%= form.submit %>

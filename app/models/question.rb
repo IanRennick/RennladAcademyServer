@@ -7,6 +7,12 @@ class Question < ApplicationRecord
   # Associate with Comments
   has_many :comments, as: :commentable, dependent: :destroy
 
+  # Allows the form to pass a custom string method
+  attr_accessor :tag_list
+
+  # Run this right before saving to assign the tags safely
+  before_save :assign_tags
+
   # Define all possible subtypes as a flat enum list mapping to integers
   enum :subtype, {
     mc_phrasal_verb: 0,
@@ -41,6 +47,15 @@ class Question < ApplicationRecord
   # Ensure tracking integers default to zero instead of nil
   after_initialize :set_defaults, if: :new_record?
 
+  # Tagging system
+  has_many :question_tags, dependent: :destroy
+  has_many :tags, through: :question_tags
+
+  # This allows your edit form to pre-populate with the existing tags as a string
+  def tag_list
+    tags.map(&:name).join(", ")
+  end
+
 
   private
 
@@ -63,5 +78,17 @@ class Question < ApplicationRecord
   def set_defaults
     self.attempted ||= 0
     self.correct ||= 0
+  end
+
+  def assign_tags
+    return if @tag_list.blank?
+
+    # 1. Break the string by commas, strip extra spaces, make lowercase, and remove duplicates
+    tag_names = @tag_list.split(",").map { |name| name.strip.downcase }.uniq.reject(&:blank?)
+
+    # 2. Find existing tags or initialize new ones, then assign them to the question
+    self.tags = tag_names.map do |name|
+      Tag.find_or_create_by!(name: name)
+    end
   end
 end
