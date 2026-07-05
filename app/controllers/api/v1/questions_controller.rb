@@ -42,6 +42,17 @@ class Api::V1::QuestionsController < ApiController
   end
 
 
+  def show
+    @question = Question.find(params[:id])
+
+    # Reuse existing format_response method to shape the JSON
+    render json: format_response(@question)
+  rescue ActiveRecord::RecordNotFound
+    # Safely handle the error if the frontend requests an ID that doesn't exist
+    render json: { error: "Question not found" }, status: :not_found
+  end
+
+
 
   # POST /api/v1/questions/:id/submit_answer
   def submit_answer

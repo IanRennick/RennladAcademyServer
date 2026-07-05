@@ -16,16 +16,21 @@ class Question < ApplicationRecord
     wf_noun: 4,
     wf_verb: 5,
     sc_conditional: 6,
-    sc_passive: 7
+    sc_passive: 7,
+    oc_determiner: 8,
+    oc_preposition: 9,
+    wf_adverb: 10,
+    sc_reported_speech: 11,
+    sc_hypothetical: 12
   }
 
 
   # A map to organize which subtypes belong to which kind
   SUBTYPES_BY_KIND = {
-    "multiple_choice" => [:mc_phrasal_verb, :mc_collocation],
-    "open_cloze"      => [:oc_phrasal_verb, :oc_auxiliary_verb],
-    "word_formation"  => [:wf_noun, :wf_verb],
-    "sentence_cloze"  => [:sc_conditional, :sc_passive]
+    "multiple_choice" => [ :mc_phrasal_verb, :mc_collocation ],
+    "open_cloze"      => [ :oc_phrasal_verb, :oc_auxiliary_verb, :oc_determiner, :oc_preposition ],
+    "word_formation"  => [ :wf_noun, :wf_verb, :wf_adverb ],
+    "sentence_cloze"  => [ :sc_conditional, :sc_passive, :sc_reported_speech, :sc_hypothetical ]
   }.freeze
 
   validate :subtype_must_match_kind

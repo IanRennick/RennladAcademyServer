@@ -29,40 +29,26 @@ User.create(name: "Bob", email: "test@example.com", password: "password", passwo
 end
 
 # Add test multiple choice questions
-10.times do |x|
-  question = Question.create(kind: Question.kinds[:multiple_choice], main: "This is a test question?", answers: [ "Dublin" ], options: [ "Dublin", "Cork", "Galway", "Limerick" ])
+Question.create(kind: Question.kinds[:multiple_choice], subtype: Question.subtypes[:mc_phrasal_verb], main: "On the night of 21 October 1931, millions of Americans * part in a coast-to-coast ceremony to commemorate the passing of Thomas Edison.", answers: [ "took" ], options: [ "joined", "held", "took", "were" ])
+Question.create(kind: Question.kinds[:multiple_choice], subtype: Question.subtypes[:mc_collocation], main: "Few inventors have * such an impact on everyday life as Thomas Edison.", answers: [ "had" ], options: [ "put", "had", "served", "set" ])
 
-  5.times do |y|
-    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
-  end
-end
+
 
 # Add test open cloze questions
-10.times do |x|
-  question = Question.create(kind: Question.kinds[:open_cloze], main: "This is a test question?", answers: [ "Dublin" ])
+Question.create(kind: Question.kinds[:open_cloze], subtype: Question.subtypes[:oc_determiner], main: "The scenery still amazes visitors to * city of Vancouver today.", answers: [ "the" ])
+Question.create(kind: Question.kinds[:open_cloze], subtype: Question.subtypes[:oc_preposition], main: "Tourists are usually directed to a beach about ten minutes * the city centre.", answers: [ "from" ])
 
-  5.times do |y|
-    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
-  end
-end
+
 
 # Add test word formation questions
-10.times do |x|
-  question = Question.create(kind: Question.kinds[:word_formation], main: "This is a test question?", answers: [ "Dublin", "Turkey" ], keyword: "Test word")
+Question.create(kind: Question.kinds[:word_formation], subtype: Question.subtypes[:wf_noun], main: "Naturally, the * of the stunt performer is of the utmost importance.", answers: [ "safety" ], keyword: "safe")
+Question.create(kind: Question.kinds[:word_formation], subtype: Question.subtypes[:wf_adverb], main: "The work is * demanding,.", answers: [ "incredibly" ], keyword: "incredible")
 
-  5.times do |y|
-    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
-  end
-end
 
 # Add test word formation questions
-10.times do |x|
-  question = Question.create(kind: Question.kinds[:sentence_cloze], main: "This is a test question?", answers: [ "Dublin", "France, Gernmay" ], prompt: "This is a test prompt", keyword: "Test word")
+Question.create(kind: Question.kinds[:sentence_cloze], subtype: Question.subtypes[:sc_reported_speech], main: "Our teacher * in front of the computer for too long.", answers: [ "warned us not to sit" ], prompt: "'Don't sit in front of the computer for too long,' our teacher told us.", keyword: "warned")
+Question.create(kind: Question.kinds[:sentence_cloze], subtype: Question.subtypes[:sc_hypothetical], main: "I wish that * more sport when I was at school.", answers: [ "I could have done" ], prompt: "It's a pity we didn't do more sport when I was at school.", keyword: "could")
 
-  5.times do |y|
-    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: question)
-  end
-end
 
 # Test chat rooms
 Room.create(name: "Test")

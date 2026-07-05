@@ -5,7 +5,7 @@ namespace :api do
       post "/", to: "registrations#create", as: :user_registration
     end
 
-    resources :questions, only: [] do
+    resources :questions, only: [ :show ] do
       collection do
         get :random
       end
