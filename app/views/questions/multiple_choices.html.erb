@@ -10,16 +10,16 @@
                 <%= render "questions/tables/common_table_headings" %>
 
                 <%# Option A Heading %>
-                <th scope="col">Option A</th>
+                <th scope="col">A</th>
 
                 <%# Option B Heading %>
-                <th scope="col">Option B</th>
+                <th scope="col">B</th>
 
                 <%# Option C Heading %>
-                <th scope="col">Option C</th>
+                <th scope="col">C</th>
 
                 <%# Option D Heading %>
-                <th scope="col">Option D</th>
+                <th scope="col">D</th>
 
                 <%# Shared Headings %>
                 <%= render "questions/tables/shared_table_headings" %>
@@ -32,17 +32,12 @@
                     <%# Common Bodies %>
                     <%= render partial: "questions/tables/common_table_bodies", object: question %>
 
-                    <%# Option A %>
-                    <td><%= question.a %></td>
+                    <%# Safe array index lookups that output a blank string if an option doesn't exist %>
+                    <td><%= question.options&.[](0) %></td>
+                    <td><%= question.options&.[](1) %></td>
+                    <td><%= question.options&.[](2) %></td>
+                    <td><%= question.options&.[](3) %></td>
 
-                    <%# Option B %>
-                    <td><%= question.b %></td>
-
-                    <%# Option C %>
-                    <td><%= question.c %></td>
-
-                    <%# Option D %>
-                    <td><%= question.d %></td>
 
                     <%# Shared Bodies %>
                     <%= render partial: "questions/tables/shared_table_bodies", object: question %>

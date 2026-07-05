@@ -8,6 +8,7 @@ namespace :api do
     resources :questions, only: [ :show ] do
       collection do
         get :random
+        get :review_queue
       end
       member do
         post :submit_answer # POST /api/v1/questions/:id/submit_answer
