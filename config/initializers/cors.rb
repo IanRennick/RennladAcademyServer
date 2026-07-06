@@ -3,7 +3,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     origins "localhost:3001"
     resource "*",
       headers: :any,
-      methods: [:get, :post, :put, :patch, :delete, :options, :head],
+      methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
       credentials: true # Crucial for secure cookie transmission
   end
 end

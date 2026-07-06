@@ -20,13 +20,9 @@ class User < ApplicationRecord
 
   enum :status, { offline: 0, away: 1, online: 2 }
 
-  # Associate with Writing
+  # Associations with writings, comments, messages
   has_many :writings, dependent: :destroy
-
-  # Associate with Comments
   has_many :comments, dependent: :destroy
-
-  # Associate with Messages
   has_many :messages
 
   has_one_attached :avatar
