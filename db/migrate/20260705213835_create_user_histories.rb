@@ -11,6 +11,6 @@ class CreateUserHistories < ActiveRecord::Migration[8.1]
     end
 
     # Crucial index: Guarantees a user only gets ONE first-try row per puzzle
-    add_index :user_histories, [:user_id, :question_id], unique: true
+    add_index :user_histories, [ :user_id, :question_id ], unique: true
   end
 end

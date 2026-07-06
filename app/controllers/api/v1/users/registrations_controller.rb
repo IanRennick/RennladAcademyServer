@@ -3,7 +3,7 @@ module Api
     module Users
       class RegistrationsController < ApiController
         # Skip logged in check when registering new user
-        skip_before_action :doorkeeper_authorize!, only: %i[create]
+        skip_before_action :doorkeeper_authorize!, only: [ :create ], raise: false
 
         # Include concern
         include DoorkeeperRegisterable

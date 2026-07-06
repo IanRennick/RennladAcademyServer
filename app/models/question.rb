@@ -4,8 +4,13 @@ class Question < ApplicationRecord
   # Different exam question types
   enum :kind, { multiple_choice: 0, open_cloze: 1, word_formation: 2, sentence_cloze: 3 }
 
-  # Associate with Comments
+  # Associations with comments, wrong answers, tags, user history
   has_many :comments, as: :commentable, dependent: :destroy
+  has_many :wrong_answers, dependent: :destroy
+  has_many :question_tags, dependent: :destroy
+  has_many :tags, through: :question_tags
+  has_many :user_histories, dependent: :destroy
+
 
   # Allows the form to pass a custom string method
   attr_accessor :tag_list
@@ -42,21 +47,17 @@ class Question < ApplicationRecord
   validate :subtype_must_match_kind
 
 
-  has_many :wrong_answers, dependent: :destroy
 
   # Ensure tracking integers default to zero instead of nil
   after_initialize :set_defaults, if: :new_record?
 
-  # Tagging system
-  has_many :question_tags, dependent: :destroy
-  has_many :tags, through: :question_tags
+
 
   # This allows your edit form to pre-populate with the existing tags as a string
   def tag_list
     tags.map(&:name).join(", ")
   end
 
-  has_many :user_histories, dependent: :destroy
 
   private
 
@@ -77,8 +78,8 @@ class Question < ApplicationRecord
   end
 
   def set_defaults
-    self.attempted ||= 0
-    self.correct ||= 0
+    self.times_done ||= 0
+    self.times_correct ||= 0
   end
 
   def assign_tags

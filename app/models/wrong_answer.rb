@@ -1,7 +1,7 @@
-# app/models/wrong_answer.rb
 class WrongAnswer < ApplicationRecord
+  # Association with question
   belongs_to :question
 
-  # Clean user string data before evaluating
+  # Validate inputs
   validates :answer_text, presence: true
 end
