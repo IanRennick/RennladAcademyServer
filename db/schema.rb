@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_05_213835) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_06_192051) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -117,9 +117,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_213835) do
 
   create_table "questions", force: :cascade do |t|
     t.json "answers", default: []
-    t.integer "attempted", default: 0
     t.integer "comments_count"
-    t.integer "correct", default: 0
     t.datetime "created_at", null: false
     t.string "keyword"
     t.integer "kind"
@@ -127,6 +125,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_213835) do
     t.json "options", default: []
     t.string "prompt"
     t.integer "subtype"
+    t.integer "times_correct", default: 0
+    t.integer "times_done", default: 0
     t.datetime "updated_at", null: false
   end
 

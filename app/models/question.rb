@@ -78,8 +78,8 @@ class Question < ApplicationRecord
   end
 
   def set_defaults
-    self.attempted ||= 0
-    self.correct ||= 0
+    self.times_done ||= 0
+    self.times_correct ||= 0
   end
 
   def assign_tags

@@ -99,8 +99,8 @@ class Api::V1::QuestionsController < ApiController
     is_correct = @question.answers.map { |ans| ans.to_s.strip.downcase }.include?(submitted)
 
     # Use increment! to safely skip model validations and instantly hit the DB
-    @question.increment!(:attempted)
-    @question.increment!(:correct) if is_correct
+    @question.increment!(:times_done)
+    @question.increment!(:times_correct) if is_correct
 
     unless is_correct
       # Find the row or build a new one
@@ -173,8 +173,12 @@ class Api::V1::QuestionsController < ApiController
 
   # Helper method to shape the response based on the puzzle type
   def format_response(question)
+    # Translate the string representations into their raw database integer values
+    kind_integer = Question.kinds[question.kind]
+    subtype_integer = question.subtype ? Question.subtypes[question.subtype] : nil
+
     # Base payload structure
-    base = { id: question.id, kind: question.kind, subtype: question.subtype, main: question.main, answers: question.answers, tags: question.tags.map(&:name) }
+    base = { id: question.id, kind: kind_integer, subtype: subtype_integer, main: question.main, answers: question.answers, tags: question.tags.map(&:name) }
 
     case question.kind
 
