@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_160417) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_07_203558) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -134,6 +134,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_160417) do
     t.string "main"
     t.json "options", default: []
     t.string "prompt"
+    t.integer "rating", default: 1200, null: false
     t.integer "subtype"
     t.integer "times_correct", default: 0
     t.integer "times_done", default: 0
@@ -170,6 +171,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_160417) do
 
   create_table "user_stats", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "rating", default: 1200, null: false
     t.integer "stat_key", null: false
     t.string "stat_type", null: false
     t.integer "times_correct", default: 0, null: false
@@ -193,6 +195,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_160417) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "name"
+    t.integer "rating", default: 1200, null: false
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"

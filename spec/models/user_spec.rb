@@ -31,22 +31,17 @@ RSpec.describe User, type: :model do
         password_confirmation: "securepassword123"
       )
 
-      # Scenario A: User answers a question with 'phrasal' and 'future' tags CORRECTLY
-      user.update_tag_metrics([ "phrasal", "future" ], true)
-
-      # Refresh the record to read the database update
-      user.reload
-      expect(user.user_tag_stat.stats_json["phrasal"]).to eq({ "done" => 1, "correct" => 1 })
-      expect(user.user_tag_stat.stats_json["future"]).to eq({ "done" => 1, "correct" => 1 })
-
-      # Scenario B: User answers another question with the 'phrasal' tag INCORRECTLY
-      user.update_tag_metrics([ "phrasal" ], false)
+      # Scenario A: Correct response creates the tags with provisional Elo boost
+      user.update_tag_metrics([ "phrasal" ], 1200, true)
 
       user.reload
-      # Phrasal 'done' should increment to 2, but 'correct' stays at 1
-      expect(user.user_tag_stat.stats_json["phrasal"]).to eq({ "done" => 2, "correct" => 1 })
-      # Future should remain unchanged
-      expect(user.user_tag_stat.stats_json["future"]).to eq({ "done" => 1, "correct" => 1 })
+      expect(user.user_tag_stat.stats_json["phrasal"]).to eq({ "done" => 1, "correct" => 1, "rating" => 1232 })
+
+      # Scenario B: Incorrect response increments done tally and calculates Elo drop
+      user.update_tag_metrics([ "phrasal" ], 1200, false)
+
+      user.reload
+      expect(user.user_tag_stat.stats_json["phrasal"]).to eq({ "done" => 2, "correct" => 1, "rating" => 1197 })
     end
   end
 end

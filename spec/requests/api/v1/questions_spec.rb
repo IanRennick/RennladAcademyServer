@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe "Api::V1::Questions", type: :request do
+  # Add a default level record so your question creations don't break
+  let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1200 } }
+  let!(:c1_level) { Level.find_or_create_by!(name: "C1") { |l| l.initial_rating = 1500 } }
+
   # Create a user and puzzle in test database
   let!(:user) { User.create!(email: "tester@example.com", password: "password123", password_confirmation: "password123") }
 
@@ -8,6 +12,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
     Question.create!(
       kind: :multiple_choice,
       subtype: :mc_phrasal_verb,
+      level: b2_level,
       main: "He decided to ___ smoking.",
       options: [ "give up", "take up", "look up" ],
       answers: [ "give up" ]
@@ -38,6 +43,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
 
         # Verify the serialized structure matches `format_response` method
         expect(json["id"]).to eq(question.id)
+        expect(json["level"]).to eq("B2")
         expect(json["main"]).to eq("He decided to ___ smoking.")
         expect(json["options"]).to eq([ "give up", "take up", "look up" ])
         expect(json["answers"]).to eq([ "give up" ])
@@ -70,6 +76,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
       Question.create!(
         kind: :word_formation,
         subtype: :wf_noun,
+        level: c1_level,
         main: "Complete the sentence with the correct form of the word.",
         answers: [ "beautifully" ],
         keyword: "BEAUTY"
@@ -216,6 +223,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
         kind_stat = user.user_stats.find_by(stat_type: "kind", stat_key: 0) # 0 = multiple_choice
         expect(kind_stat.times_done).to eq(1)
         expect(kind_stat.times_correct).to eq(1)
+        expect(kind_stat.rating).to eq(1232)
 
         subtype_stat = user.user_stats.find_by(stat_type: "subtype", stat_key: 0) # 0 = mc_phrasal_verb
         expect(subtype_stat.times_done).to eq(1)
@@ -223,7 +231,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
 
         # Verify Tag JSON scoreboard registered the win
         user.reload
-        expect(user.user_tag_stat.stats_json["grammar"]).to eq({ "done" => 1, "correct" => 1 })
+        expect(user.user_tag_stat.stats_json["grammar"]).to eq({ "done" => 1, "correct" => 1, "rating" => 1232 })
 
         # Verify UserHistory logged a first-try success and left the review queue empty
         history = user.user_histories.find_by(question_id: question.id)
@@ -255,9 +263,10 @@ RSpec.describe "Api::V1::Questions", type: :request do
         kind_stat = user.user_stats.find_by(stat_type: "kind", stat_key: 0)
         expect(kind_stat.times_done).to eq(1)
         expect(kind_stat.times_correct).to eq(0)
+        expect(kind_stat.rating).to eq(1168)
 
         user.reload
-        expect(user.user_tag_stat.stats_json["grammar"]).to eq({ "done" => 1, "correct" => 0 })
+        expect(user.user_tag_stat.stats_json["grammar"]).to eq({ "done" => 1, "correct" => 0, "rating" => 1168 })
 
         # Verify UserHistory successfully triggered the review queue toggle switch
         history = user.user_histories.find_by(question_id: question.id)
