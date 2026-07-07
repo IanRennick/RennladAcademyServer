@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_06_192051) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_07_160417) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -57,6 +57,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_192051) do
     t.integer "user_id", null: false
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "levels", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.integer "initial_rating", default: 1200, null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_levels_on_name", unique: true
   end
 
   create_table "messages", force: :cascade do |t|
@@ -121,6 +130,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_192051) do
     t.datetime "created_at", null: false
     t.string "keyword"
     t.integer "kind"
+    t.integer "level_id", null: false
     t.string "main"
     t.json "options", default: []
     t.string "prompt"
@@ -128,6 +138,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_192051) do
     t.integer "times_correct", default: 0
     t.integer "times_done", default: 0
     t.datetime "updated_at", null: false
+    t.index ["level_id"], name: "index_questions_on_level_id"
   end
 
   create_table "rooms", force: :cascade do |t|
@@ -159,18 +170,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_192051) do
 
   create_table "user_stats", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "stat_key"
-    t.string "stat_type"
-    t.integer "times_correct"
-    t.integer "times_done"
+    t.integer "stat_key", null: false
+    t.string "stat_type", null: false
+    t.integer "times_correct", default: 0, null: false
+    t.integer "times_done", default: 0, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["user_id", "stat_type", "stat_key"], name: "index_user_stats_on_user_id_and_stat_type_and_stat_key", unique: true
     t.index ["user_id"], name: "index_user_stats_on_user_id"
   end
 
   create_table "user_tag_stats", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.json "stats_json"
+    t.json "stats_json", default: {}, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_user_tag_stats_on_user_id"
@@ -218,6 +230,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_192051) do
   add_foreign_key "participants", "users"
   add_foreign_key "question_tags", "questions"
   add_foreign_key "question_tags", "tags"
+  add_foreign_key "questions", "levels"
   add_foreign_key "user_histories", "questions"
   add_foreign_key "user_histories", "users"
   add_foreign_key "user_stats", "users"

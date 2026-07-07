@@ -10,6 +10,7 @@ class Question < ApplicationRecord
   has_many :question_tags, dependent: :destroy
   has_many :tags, through: :question_tags
   has_many :user_histories, dependent: :destroy
+  belongs_to :level, optional: true
 
 
   # Allows the form to pass a custom string method

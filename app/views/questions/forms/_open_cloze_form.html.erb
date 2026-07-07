@@ -12,6 +12,12 @@
     </div>
   <% end %>
 
+  <%# Levels Input %>
+  <div style="margin-top: 15px; margin-bottom: 15px;">
+    <%= form.label :level_id, "Target Language Level", style: "display: block; font-weight: bold; margin-bottom: 5px;" %>
+    <%= form.collection_select :level_id, Level.order(:name), :id, :name, { include_blank: "No Level Assigned" }, { style: "width: 100%; max-width: 400px; padding: 6px;" } %>
+  </div>
+
   <%# Subtypes Input %>
   <div>
     <%= form.label :subtype, "Word Formation Category", style: "display: block;" %>
