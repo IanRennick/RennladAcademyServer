@@ -40,6 +40,13 @@ class Api::V1::QuestionsController < ApiController
       questions = questions.joins(:tags).where(tags: { name: tag_name })
     end
 
+    # 5. Filter by Level parameter if provided (e.g. ?level=b2)
+    if params[:level].present?
+      clean_level_name = params[:level].to_s.strip.upcase
+      # Joins your level lookup table and securely extracts matching rows
+      questions = questions.joins(:level).where(levels: { name: clean_level_name })
+    end
+
     # Now questions is guaranteed to be an ActiveRecord Relation, never nil!
     @question = questions.order("RANDOM()").first
 
@@ -178,7 +185,7 @@ class Api::V1::QuestionsController < ApiController
     subtype_integer = question.subtype ? Question.subtypes[question.subtype] : nil
 
     # Base payload structure
-    base = { id: question.id, kind: kind_integer, subtype: subtype_integer, main: question.main, answers: question.answers, tags: question.tags.map(&:name) }
+    base = { id: question.id, level: question.level&.name, kind: kind_integer, subtype: subtype_integer, main: question.main, answers: question.answers, tags: question.tags.map(&:name) }
 
     case question.kind
 
