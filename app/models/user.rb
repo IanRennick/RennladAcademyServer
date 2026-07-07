@@ -24,6 +24,7 @@ class User < ApplicationRecord
   has_many :writings, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :messages
+  has_many :user_histories, dependent: :destroy
 
   has_one_attached :avatar
 
@@ -68,21 +69,31 @@ class User < ApplicationRecord
   # Automatically hook an empty scoreboard setup right on signup
   after_create :build_initial_tag_stat
 
-  # Handles complex, dynamic string array calculations in background space
-  def update_tag_metrics(tag_names, was_correct)
+  def update_tag_metrics(tag_names, question_rating, was_correct)
     stat_record = user_tag_stat || create_user_tag_stat
     current_json = stat_record.stats_json.dup
 
     tag_names.each do |tag|
-      current_json[tag] ||= { "done" => 0, "correct" => 0 }
+      # Initialize default data structure including a starting Elo of 1200
+      current_json[tag] ||= { "done" => 0, "correct" => 0, "rating" => 1200 }
+
+      # 1. Run the Elo adjustment exclusively for this specific tag
+      new_user_tag_elo, _new_q_elo = EloCalculator.calculate(
+        current_json[tag]["rating"], 
+        question_rating, 
+        was_correct, 
+        current_json[tag]["done"]
+      )
+
+      # 2. Commit metrics back to the memory block
       current_json[tag]["done"] += 1
       current_json[tag]["correct"] += 1 if was_correct
+      current_json[tag]["rating"] = new_user_tag_elo
     end
 
     stat_record.update!(stats_json: current_json)
   end
 
-  has_many :user_histories, dependent: :destroy
 
 
   private

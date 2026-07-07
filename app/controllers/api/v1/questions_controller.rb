@@ -105,9 +105,27 @@ class Api::V1::QuestionsController < ApiController
     # Normalize your DB answers array to lowercase for an accurate comparison
     is_correct = @question.answers.map { |ans| ans.to_s.strip.downcase }.include?(submitted)
 
-    # Use increment! to safely skip model validations and instantly hit the DB
+
+    # 1. Run Core Overall Elo Math BEFORE saving any data increments
+    old_q_rating = @question.rating
+    if user.present?
+      # Calculate global user total count using your puzzle-kind tracking row sum
+      user_total = user.user_stats.where(stat_type: "kind").sum(:times_done).to_i
+
+      # PASS BOTH total counts into the upgraded service now
+      new_global_user_elo, new_global_q_elo = EloCalculator.calculate(
+        user.rating,
+        old_q_rating,
+        is_correct,
+        user_total,
+        @question.times_done.to_i # Passes how many times this question was done historically
+      )
+    end
+
+    # 2. Standard Global Question Updates
     @question.increment!(:times_done)
     @question.increment!(:times_correct) if is_correct
+    @question.update!(rating: new_global_q_elo) if user.present?
 
     unless is_correct
       # Find the row or build a new one
@@ -121,46 +139,42 @@ class Api::V1::QuestionsController < ApiController
       end
     end
 
-    # 2. Update User Personal Metrics (Kind, Subtype & Tags)
+    # 3. Update User Personal Metrics (Kind, Subtype & Tags, ELOS)
     if user.present?
-      # A. Core Question Type Tally (e.g. Multiple Choice, Open Cloze)
+      # A. Update Global User Elo
+      user.update!(rating: new_global_user_elo)
+
+      # B. Update Puzzle Kind Stat & Kind Elo
       kind_int = Question.kinds[@question.kind]
       kind_stat = user.user_stats.find_or_create_by!(stat_type: "kind", stat_key: kind_int)
+
+      new_kind_user_elo, _ = EloCalculator.calculate(kind_stat.rating, old_q_rating, is_correct, kind_stat.times_done)
       kind_stat.increment!(:times_done)
       kind_stat.increment!(:times_correct) if is_correct
+      kind_stat.update!(rating: new_kind_user_elo)
 
-      # B. Question Subtype Tally (Only runs if the puzzle has a subtype)
+      # C. Update Subtype Stat & Subtype Elo
       if @question.subtype.present?
         subtype_int = Question.subtypes[@question.subtype]
         subtype_stat = user.user_stats.find_or_create_by!(stat_type: "subtype", stat_key: subtype_int)
+
+        new_sub_user_elo, _ = EloCalculator.calculate(subtype_stat.rating, old_q_rating, is_correct, subtype_stat.times_done)
         subtype_stat.increment!(:times_done)
         subtype_stat.increment!(:times_correct) if is_correct
+        subtype_stat.update!(rating: new_sub_user_elo)
       end
 
-      # C. Tag Tally (Calculates nested elements inside the JSON file)
+      # D. Update Tag Stats & Tag Elos
       if @question.tags.any?
-        user.update_tag_metrics(@question.tags.map(&:name), is_correct)
+        user.update_tag_metrics(@question.tags.map(&:name), old_q_rating, is_correct)
       end
 
-      # NEW LOGIC: User First-Try & Review Queue tracking
-      # ----------------------------------------------------
-      # Check if this user has ever attempted this question before
+      # E. User History Queue Trackers
       history = user.user_histories.find_by(question_id: @question.id)
-
       if history.nil?
-        # This is their FIRST ATTEMPT ever. Lock in the metrics forever.
-        user.user_histories.create!(
-          question_id: @question.id,
-          first_attempt_correct: is_correct,
-          needs_review: !is_correct, # Enters review queue if answer is incorrect
-          original_wrong_answer: is_correct ? nil : submitted_raw
-        )
-      else
-        # This is a REPEAT ATTEMPT.
-        # If they are currently in the review queue and finally got it right, clear them!
-        if history.needs_review && is_correct
-          history.update!(needs_review: false)
-        end
+        user.user_histories.create!(question_id: @question.id, first_attempt_correct: is_correct, needs_review: !is_correct, original_wrong_answer: is_correct ? nil : submitted_raw)
+      elsif history.needs_review && is_correct
+        history.update!(needs_review: false)
       end
     end
 

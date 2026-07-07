@@ -9,13 +9,9 @@ class Api::V1::StatsController < ApiController
     end
 
     render json: {
-      # 1. Structure the Core Type scores (e.g. Multiple Choice, Open Cloze)
+      global_rating: user.rating,
       puzzle_types: format_stats(user, "kind", Question.kinds),
-
-      # 2. Structure the Subtype scores
       subtypes: format_stats(user, "subtype", Question.subtypes),
-
-      # 3. Pull the dynamic tags map directly from your JSON column
       tags: user.user_tag_stat&.stats_json || {}
     }
   end
@@ -28,7 +24,7 @@ class Api::V1::StatsController < ApiController
 
     # Pre-populate all available enums with zeros so the frontend doesn't get empty data
     enum_mapping.keys.each do |key|
-      stats_hash[key] = { done: 0, correct: 0 }
+      stats_hash[key] = { done: 0, correct: 0, rating: 1200 }
     end
 
     # Fetch the actual user data from the database
@@ -39,7 +35,8 @@ class Api::V1::StatsController < ApiController
       if key_name.present?
         stats_hash[key_name] = {
           done: stat.times_done,
-          correct: stat.times_correct
+          correct: stat.times_correct,
+          rating: stat.rating
         }
       end
     end

@@ -1,5 +1,6 @@
 class Question < ApplicationRecord
   before_save :clean_data
+  before_create :set_initial_elo_from_level
 
   # Different exam question types
   enum :kind, { multiple_choice: 0, open_cloze: 1, word_formation: 2, sentence_cloze: 3 }
@@ -92,6 +93,13 @@ class Question < ApplicationRecord
     # 2. Find existing tags or initialize new ones, then assign them to the question
     self.tags = tag_names.map do |name|
       Tag.find_or_create_by!(name: name)
+    end
+  end
+
+  def set_initial_elo_from_level
+    # If the question was given a level, and that level has an initial rating, use it!
+    if level.present? && level.initial_rating.present?
+      self.rating = level.initial_rating
     end
   end
 end
