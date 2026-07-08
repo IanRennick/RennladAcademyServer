@@ -34,7 +34,19 @@ class Question < ApplicationRecord
     oc_preposition: 9,
     wf_adverb: 10,
     sc_reported_speech: 11,
-    sc_hypothetical: 12
+    sc_unreal_past: 12,
+    sc_structure_change: 13,
+    sc_tense_change: 14,
+    sc_intensifiers: 15,
+    sc_modals: 16,
+    sc_fixed_expression: 17,
+    sc_verb_patterns: 18,
+    sc_stative_verbs: 19,
+    sc_relative_clauses: 20,
+    sc_phrasal: 21,
+    sc_linkers: 22,
+    sc_comparisons: 23,
+    sc_quantifier: 24
   }
 
 
@@ -43,7 +55,7 @@ class Question < ApplicationRecord
     "multiple_choice" => [ :mc_phrasal_verb, :mc_collocation ],
     "open_cloze"      => [ :oc_phrasal_verb, :oc_auxiliary_verb, :oc_determiner, :oc_preposition ],
     "word_formation"  => [ :wf_noun, :wf_verb, :wf_adverb ],
-    "sentence_cloze"  => [ :sc_conditional, :sc_passive, :sc_reported_speech, :sc_hypothetical ]
+    "sentence_cloze"  => [ :sc_conditional, :sc_passive, :sc_reported_speech, :sc_unreal_past, :sc_structure_change, :sc_tense_change, :sc_intensifiers, :sc_modals, :sc_fixed_expression, :sc_verb_patterns, :sc_stative_verbs, :sc_relative_clauses, :sc_phrasal, :sc_linkers, :sc_comparisons, :sc_quantifier ]
   }.freeze
 
   validate :subtype_must_match_kind
