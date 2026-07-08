@@ -77,3 +77,6 @@ gem "ransack", "~> 4.4"
 
 # Throws errors for optimizing database calls
 gem "bullet", "~> 8.1"
+
+# Rakes csv files
+gem "csv"
