@@ -3,8 +3,7 @@ require 'rails_helper'
 RSpec.describe "CustomTokens", type: :request do
   # Setup an active, verified application and user record in Doorkeeper's schema registry
   let!(:application) { Doorkeeper::Application.create!(name: "Frontend Client", redirect_uri: "urn:ietf:wg:oauth:2.0:oob", uid: "123", secret: "456") }
-  let!(:user) { User.create!(email: "auth_tester@example.com", password: "password123", password_confirmation: "password123") }
-
+  let!(:user) { User.create!(username: "auth_tester", email: "auth_tester@example.com", password: "password123", password_confirmation: "password123") }
   # Test with valid credentials
   describe "POST /api/v1/oauth/token" do
     context "when authenticating with a valid password grant" do

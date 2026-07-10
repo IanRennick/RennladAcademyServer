@@ -8,7 +8,7 @@ RSpec.describe "Api::V1::Registrations", type: :request do
     let(:valid_attributes) do
       {
         email: "new_student@example.com",
-        name: "Jeff",
+        username: "Jeff",
         password: "password123",
         password_confirmation: "password123",
         client_id: application.uid # Passes the mock frontend client_id

@@ -13,6 +13,7 @@ RSpec.describe User, type: :model do
     # Test that an empty scoreboard is created for a new user
     it "automatically creates an empty user_tag_stat record after creation" do
       user = User.create!(
+        username: "test_student",
         email: "student@example.com",
         password: "securepassword123",
         password_confirmation: "securepassword123"
@@ -26,6 +27,7 @@ RSpec.describe User, type: :model do
     it "successfully initializes and updates nested tag metrics inside the JSON payload" do
       # Create test User
       user = User.create!(
+        username: "test_student_two",
         email: "student2@example.com",
         password: "securepassword123",
         password_confirmation: "securepassword123"

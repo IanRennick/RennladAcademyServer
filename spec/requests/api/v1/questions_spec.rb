@@ -6,7 +6,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
   let!(:c1_level) { Level.find_or_create_by!(name: "C1") { |l| l.initial_rating = 1500 } }
 
   # Create a user and puzzle in test database
-  let!(:user) { User.create!(email: "tester@example.com", password: "password123", password_confirmation: "password123") }
+  let!(:user) { User.create!(username: "global_tester", email: "tester@example.com", password: "password123", password_confirmation: "password123") }
 
   let!(:question) do
     Question.create!(

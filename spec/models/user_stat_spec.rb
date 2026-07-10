@@ -14,7 +14,7 @@ RSpec.describe UserStat, type: :model do
     # Test uniqueness of the combination
     context "uniqueness index" do
       # Create a test user
-      let(:user) { User.create!(email: "test@example.com", password: "password123") }
+      let(:user) { User.create!(username: "stat_tester", email: "test@example.com", password: "password123") }
 
       # Link our test subject to the newly created user
       subject { UserStat.new(user_id: user.id, stat_type: "kind", stat_key: 0) }
