@@ -15,7 +15,7 @@
             <% @writings.each do |writing| %>
                 <tr>
                     <td><%= link_to writing.id, admin_writing_path(writing) %></td>
-                    <td><%= writing.user.name %></td>
+                    <td><%= writing.user.username %></td>
                     <td><%= pluralize(writing.comments.size, "Comment") %></td>
                 </tr>
             <% end %>

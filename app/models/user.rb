@@ -29,8 +29,9 @@ class User < ApplicationRecord
   has_one_attached :avatar
 
   # Doorkeeper method to check password and return user
-  def self.authenticate(email, password)
-    user = User.find_for_authentication(email: email)
+  def self.authenticate(login_credentials, password)
+    # Passes the credentials directly into our new virtual lookup system
+    user = User.find_for_database_authentication(login: login_credentials)
     user&.valid_password?(password) ? user : nil
   end
 
@@ -93,6 +94,28 @@ class User < ApplicationRecord
 
     stat_record.update!(stats_json: current_json)
   end
+
+
+
+
+  # Create a virtual memory attribute for handling incoming login credentials
+  attr_accessor :login
+
+  # Enforce explicit handle validations (No spaces allowed, letters/numbers/underscores only)
+  validates :username, presence: true, uniqueness: { case_sensitive: false },
+                       format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" }
+
+  # Overwrite Devise's lookup query tool to handle BOTH usernames and emails interchangeably
+  def self.find_for_database_authentication(warden_conditions)
+    conditions = warden_conditions.dup
+    if (login = conditions.delete(:login))
+      # This performs a secure case-insensitive OR lookup inside the database engine
+      where(conditions.to_h).where([ "lower(username) = :value OR lower(email) = :value", { value: login.downcase } ]).first
+    else
+      where(conditions.to_h).first
+    end
+  end
+
 
 
 
