@@ -9,8 +9,8 @@
  * Consider organizing styles into separate files for maintainability.
  */
 
- body {
-  overflow: hidden;
+body {
+ /*  overflow: hidden; */
 }
 .msg-form {
   width: 100%;

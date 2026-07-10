@@ -24,8 +24,8 @@ class Question < ApplicationRecord
   enum :subtype, {
     mc_phrasal_verb: 0,
     mc_collocation: 1,
-    oc_phrasal_verb: 2,
-    oc_auxiliary_verb: 3,
+    oc_phrasal: 2,
+    oc_auxiliary: 3,
     wf_noun: 4,
     wf_verb: 5,
     sc_conditional: 6,
@@ -46,14 +46,25 @@ class Question < ApplicationRecord
     sc_phrasal: 21,
     sc_linkers: 22,
     sc_comparisons: 23,
-    sc_quantifier: 24
+    sc_quantifier: 24,
+    oc_linkers: 25,
+    oc_relative_pronoun: 26,
+    oc_article: 27,
+    oc_as_like: 28,
+    oc_negation: 29,
+    oc_inversion: 30,
+    oc_causative: 31,
+    oc_fixed_expressions: 32,
+    oc_comparison: 33,
+    oc_quantifier: 34,
+    oc_conditional: 35
   }
 
 
   # A map to organize which subtypes belong to which kind
   SUBTYPES_BY_KIND = {
     "multiple_choice" => [ :mc_phrasal_verb, :mc_collocation ],
-    "open_cloze"      => [ :oc_phrasal_verb, :oc_auxiliary_verb, :oc_determiner, :oc_preposition ],
+    "open_cloze"      => [ :oc_phrasal, :oc_auxiliary, :oc_determiner, :oc_preposition, :oc_linkers, :oc_relative_pronoun, :oc_article, :oc_as_like, :oc_negation, :oc_inversion, :oc_causative, :oc_fixed_expressions, :oc_comparison, :oc_quantifier, :oc_conditional ],
     "word_formation"  => [ :wf_noun, :wf_verb, :wf_adverb ],
     "sentence_cloze"  => [ :sc_conditional, :sc_passive, :sc_reported_speech, :sc_unreal_past, :sc_structure_change, :sc_tense_change, :sc_intensifiers, :sc_modals, :sc_fixed_expression, :sc_verb_patterns, :sc_stative_verbs, :sc_relative_clauses, :sc_phrasal, :sc_linkers, :sc_comparisons, :sc_quantifier ]
   }.freeze
@@ -70,6 +81,27 @@ class Question < ApplicationRecord
   # This allows your edit form to pre-populate with the existing tags as a string
   def tag_list
     tags.map(&:name).join(", ")
+  end
+
+
+
+  # Custom casting nodes to turn JSON arrays into searchable text blocks for Ransack
+  ransacker :options_as_text do |parent|
+    Arel.sql("CAST(questions.options AS TEXT)")
+  end
+
+  ransacker :answers_as_text do |parent|
+    Arel.sql("CAST(questions.answers AS TEXT)")
+  end
+
+  # Whitelist attributes for security rules
+  def self.ransackable_attributes(auth_object = nil)
+    [ "id", "main", "prompt", "keyword", "subtype", "kind", "rating", "options_as_text", "answers_as_text" ]
+  end
+
+  # Whitelist associations for table joins
+  def self.ransackable_associations(auth_object = nil)
+    [ "tags", "level" ]
   end
 
 

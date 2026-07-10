@@ -1,8 +1,10 @@
 <%= search_form_for(@query, url: search_path, method: :get, class: "d-flex") do |f| %>
-    <%= f.search_field :main_i_cont_any, 
-        placeholder: "Search...",
-        class: "form-control me-2"
-    %>
+  <%# Queries main text, prompts, keywords, options, answers, and tags all at once! %>
+  <%= f.search_field :main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any, 
+      placeholder: "Search text, keywords, options, tags...",
+      class: "form-control me-2",
+      style: "min-width: 350px;"
+  %>
 
-    <%= f.submit "Search!", class: "btn btn-outline-success" %>
-<% end %> 
+  <%= f.submit "Search!", class: "btn btn-outline-success" %>
+<% end %>

@@ -1,29 +1,29 @@
 class QuestionsController < ApplicationController
-  before_action :set_question, only: %i[ show edit update destroy ]
+  before_action :set_question, only: %i[ show ]
 
   # GET /questions or /questions.json
   def index
-    @questions = Question.all
+    @questions = Question.all.includes([ :level ])
   end
 
   def multiple_choices
     # Get all multiple Choices
-    @questions = Question.where(kind: Question.kinds[:multiple_choice])
+    @questions = Question.where(kind: Question.kinds[:multiple_choice]).includes([ :level ])
   end
 
   def open_clozes
     # Get all open CLozes
-    @questions = Question.where(kind: Question.kinds[:open_cloze])
+    @questions = Question.where(kind: Question.kinds[:open_cloze]).includes([ :level ])
   end
 
   def word_formations
     # Get all multiple Choices
-    @questions = Question.where(kind: Question.kinds[:word_formation])
+    @questions = Question.where(kind: Question.kinds[:word_formation]).includes([ :level ])
   end
 
   def sentence_clozes
     # Get all sentence clozes
-    @questions = Question.where(kind: Question.kinds[:sentence_cloze])
+    @questions = Question.where(kind: Question.kinds[:sentence_cloze]).includes([ :level ])
   end
 
   # GET /questions/1 or /questions/1.json
@@ -31,61 +31,10 @@ class QuestionsController < ApplicationController
     @comments = @question.comments.includes([ :user, :rich_text_body ]).order(created_at: :desc)
   end
 
-  # GET /questions/new
-  def new
-    @question = Question.new
-  end
-
-  # GET /questions/1/edit
-  def edit
-  end
-
-  # POST /questions or /questions.json
-  def create
-    @question = Question.new(question_params)
-
-    respond_to do |format|
-      if @question.save
-        format.html { redirect_to @question, notice: "Question was successfully created." }
-        format.json { render :show, status: :created, location: @question }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @question.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /questions/1 or /questions/1.json
-  def update
-    respond_to do |format|
-      if @question.update(question_params)
-        format.html { redirect_to @question, notice: "Question was successfully updated.", status: :see_other }
-        format.json { render :show, status: :ok, location: @question }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @question.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /questions/1 or /questions/1.json
-  def destroy
-    @question.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to questions_path, notice: "Question was successfully destroyed.", status: :see_other }
-      format.json { head :no_content }
-    end
-  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_question
       @question = Question.find(params.expect(:id))
-    end
-
-    # Only allow a list of trusted parameters through.
-    def question_params
-      params.expect(question: [ :main, :level_id, :subtype, :attempted, :correct, :keyword, :prompt, :tag_list,  options: [], answers: [] ])
     end
 end

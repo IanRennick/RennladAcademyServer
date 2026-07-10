@@ -105,6 +105,8 @@ class Api::V1::QuestionsController < ApiController
     # Normalize your DB answers array to lowercase for an accurate comparison
     is_correct = @question.answers.map { |ans| ans.to_s.strip.downcase }.include?(submitted)
 
+    # Check if the user requested practice mode
+    is_practice_mode = params[:mode].to_s.strip.downcase == "practice"
 
     # 1. Run Core Overall Elo Math BEFORE saving any data increments
     old_q_rating = @question.rating
@@ -125,7 +127,9 @@ class Api::V1::QuestionsController < ApiController
     # 2. Standard Global Question Updates
     @question.increment!(:times_done)
     @question.increment!(:times_correct) if is_correct
-    @question.update!(rating: new_global_q_elo) if user.present?
+    if user.present?
+      @question.update!(rating: new_global_q_elo)
+    end
 
     unless is_correct
       # Find the row or build a new one
@@ -142,7 +146,9 @@ class Api::V1::QuestionsController < ApiController
     # 3. Update User Personal Metrics (Kind, Subtype & Tags, ELOS)
     if user.present?
       # A. Update Global User Elo
-      user.update!(rating: new_global_user_elo)
+      unless is_practice_mode
+        user.update!(rating: new_global_user_elo)
+      end
 
       # B. Update Puzzle Kind Stat & Kind Elo
       kind_int = Question.kinds[@question.kind]
@@ -151,7 +157,7 @@ class Api::V1::QuestionsController < ApiController
       new_kind_user_elo, _ = EloCalculator.calculate(kind_stat.rating, old_q_rating, is_correct, kind_stat.times_done)
       kind_stat.increment!(:times_done)
       kind_stat.increment!(:times_correct) if is_correct
-      kind_stat.update!(rating: new_kind_user_elo)
+      kind_stat.update!(rating: new_kind_user_elo) unless is_practice_mode
 
       # C. Update Subtype Stat & Subtype Elo
       if @question.subtype.present?
@@ -161,12 +167,25 @@ class Api::V1::QuestionsController < ApiController
         new_sub_user_elo, _ = EloCalculator.calculate(subtype_stat.rating, old_q_rating, is_correct, subtype_stat.times_done)
         subtype_stat.increment!(:times_done)
         subtype_stat.increment!(:times_correct) if is_correct
-        subtype_stat.update!(rating: new_sub_user_elo)
+        subtype_stat.update!(rating: new_sub_user_elo) unless is_practice_mode
       end
 
       # D. Update Tag Stats & Tag Elos
       if @question.tags.any?
-        user.update_tag_metrics(@question.tags.map(&:name), old_q_rating, is_correct)
+        if is_practice_mode
+          # Custom Practice Rule: Just increment the tag counts without altering tag Elo!
+          stat_record = user.user_tag_stat || user.create_user_tag_stat(stats_json: {})
+          current_json = stat_record.stats_json.dup
+          @question.tags.map(&:name).each do |tag|
+            current_json[tag] ||= { "done" => 0, "correct" => 0, "rating" => 1200 }
+            current_json[tag]["done"] += 1
+            current_json[tag]["correct"] += 1 if is_correct
+          end
+          stat_record.update!(stats_json: current_json)
+        else
+          # Standard Mode: Run the full Elo adjustments for tags
+          user.update_tag_metrics(@question.tags.map(&:name), old_q_rating, is_correct)
+        end
       end
 
       # E. User History Queue Trackers
