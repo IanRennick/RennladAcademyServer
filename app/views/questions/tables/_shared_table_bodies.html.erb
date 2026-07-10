@@ -1,11 +1,11 @@
 <%# Question ID %>
 <td><%= link_to shared_table_bodies.id, question_path(shared_table_bodies) %></td>
 
-<%# Amount of attempts %>
-<td><%= shared_table_bodies.attempted %></td>
+<%# ELO %>
+<td><%= shared_table_bodies.rating %></td>
 
-<%# Amount of correct answers %>
-<td><%= shared_table_bodies.correct %></td>
+<%# Level %>
+<td><%= shared_table_bodies.level&.name || "N/A" %></td>
 
-<%# Amount of comments %>
-<td><%= pluralize(shared_table_bodies.comments.size, "Comment") %></td>
+<%# Subtype %>
+<td><%= shared_table_bodies.subtype.present? ? shared_table_bodies.subtype.to_s.humanize : "None" %></td>

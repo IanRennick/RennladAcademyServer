@@ -3,7 +3,7 @@ module Api
     module Users
       class RegistrationsController < ApiController
         # Skip logged in check when registering new user
-        skip_before_action :doorkeeper_authorize!, only: %i[create]
+        skip_before_action :doorkeeper_authorize!, only: [ :create ], raise: false
 
         # Include concern
         include DoorkeeperRegisterable
@@ -15,7 +15,7 @@ module Api
 
           # Send error if can't find Doorkeeper Application
           unless client_app
-            render json: { error: I18n.t("doorkeeper.errors.messages.invalid_client") }, status: :unauthorized
+            return render json: { error: I18n.t("doorkeeper.errors.messages.invalid_client") }, status: :unauthorized
           end
 
           # Create New User
@@ -34,7 +34,7 @@ module Api
 
         private
         def user_params
-          params.permit(:email, :password, :client_id)
+          params.permit(:email, :username, :password, :client_id)
         end
       end
     end

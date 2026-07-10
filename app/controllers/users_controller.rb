@@ -1,6 +1,15 @@
 class UsersController < ApplicationController
   before_action :set_user
   def profile
+    # Extract their current active review queue items
+    @review_queue = @user.user_histories.where(needs_review: true).order(updated_at: :desc)
+
+    # Grab their 15 most recent question attempts total
+    @recent_activity = @user.user_histories.order(created_at: :desc).limit(15)
+
+    # Load their Kind and Subtype Elo stats scoreboards
+    @kind_stats = @user.user_stats.where(stat_type: "kind")
+    @subtype_stats = @user.user_stats.where(stat_type: "subtype")
   end
 
   def chat
