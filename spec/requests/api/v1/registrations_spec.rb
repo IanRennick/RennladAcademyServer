@@ -33,7 +33,7 @@ RSpec.describe "Api::V1::Registrations", type: :request do
       it "does not create a user and returns validation errors" do
         invalid_attributes = {
           email: "bad_email@example.com",
-          name: "Jeff",
+          username: "Jeff",
           password: "",
           client_id: application.uid
         }

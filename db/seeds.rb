@@ -14,10 +14,10 @@ if Doorkeeper::Application.count.zero?
 end
 
 # Add admin user
-User.create(name: "Rennick", email: "renn@example.com", password: "password", password_confirmation: "password", role: User.roles[:admin])
+User.create(username: "Rennick", email: "renn@example.com", password: "password", password_confirmation: "password", role: User.roles[:admin])
 
 # Add test user
-User.create(name: "Bob", email: "test@example.com", password: "password", password_confirmation: "password")
+User.create(username: "Bob", email: "test@example.com", password: "password", password_confirmation: "password")
 
 # Add levels
 levels_data = [
