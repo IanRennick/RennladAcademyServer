@@ -38,19 +38,23 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.0"
 
 gem "mini_magick"
 
 group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
-
-  # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
-
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # ✅ Added RSpec and core API testing tools
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "shoulda-matchers"
+
+  # ✅ Kept your system testing tools safe here just in case
+  gem "capybara"
+  gem "selenium-webdriver"
 end
 
 group :development do
@@ -58,11 +62,6 @@ group :development do
   gem "web-console"
 end
 
-group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem "capybara"
-  gem "selenium-webdriver"
-end
 
 # Handles User functionality
 gem "devise"
@@ -78,3 +77,6 @@ gem "ransack", "~> 4.4"
 
 # Throws errors for optimizing database calls
 gem "bullet", "~> 8.1"
+
+# Rakes csv files
+gem "csv"

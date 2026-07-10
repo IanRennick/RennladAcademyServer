@@ -3,14 +3,17 @@
   <%= render @question %>
 
   <div>
-    <%# Edit question button %>
-    <%= link_to "Edit this question", edit_question_path(@question) %> |
     <%# Link back to all questions %>
     <%= link_to "Back to questions", questions_path %>
-
-    <%# Delete question button %>
-    <%= button_to "Destroy this question", @question, method: :delete %>
   </div>
+
+  <%# Common wrong answers %>
+  <h3>Common Wrong Submissions</h3>
+  <ul>
+    <% @question.wrong_answers.order(count: :desc).limit(5).each do |wa| %>
+      <li><strong>"<%= wa.answer_text %>"</strong> — Submitted <%= pluralize(wa.count, "time") %></li>
+    <% end %>
+  </ul>
 
 
   <%# Comment Form %>

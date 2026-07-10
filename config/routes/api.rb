@@ -5,8 +5,17 @@ namespace :api do
       post "/", to: "registrations#create", as: :user_registration
     end
 
-    # API Routes
-    resources :writings
+    resources :questions, only: [ :show ] do
+      collection do
+        get :random
+        get :review_queue
+      end
+      member do
+        post :submit_answer # POST /api/v1/questions/:id/submit_answer
+      end
+    end
+
+    resource :stats, only: [ :show ]
   end
 end
 
@@ -14,6 +23,8 @@ scope :api do
   scope :v1 do
     use_doorkeeper do
       skip_controllers :authorizations, :applications, :authorized_applications
+      # Map BOTH creation and revocation to custom controller
+      controllers tokens: "custom_tokens", token_revocations: "custom_tokens"
     end
   end
 end

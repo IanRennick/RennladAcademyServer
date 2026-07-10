@@ -1,3 +1,131 @@
-<div class="container">
-  <h1><%= @user.name %></h1>
+<div class="container my-5 text-white">
+  <%# Header Profile Row %>
+  <div class="d-flex justify-content-between align-middle border-bottom border-secondary pb-3 mb-4">
+    <div>
+      <h1 class="mb-0 fw-bold"><%= @user.email %></h1>
+      <p class="text-muted mb-0">Student Account Analytics Profile Matrix</p>
+    </div>
+    <div class="text-end">
+      <span class="badge bg-info text-dark p-3 fs-4" style="font-weight: bold;">
+        <%= @user.rating %> Global Elo
+      </span>
+    </div>
+  </div>
+
+  <div class="row">
+    <%# LEFT SIDEBAR: Dynamic Elo Multi-Dimensional Cards %>
+    <div class="col-md-4 mb-4">
+      <h3 class="fw-bold mb-3">Skill Tiers</h3>
+      
+      <div class="card bg-dark text-white border-secondary mb-3">
+        <div class="card-header border-secondary fw-bold bg-secondary bg-opacity-25">Category Focus Ratings</div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush bg-transparent">
+            <% if @kind_stats.any? %>
+              <% @kind_stats.each do |stat| %>
+                <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-secondary">
+                  <span><%= Question.kinds.key(stat.stat_key).to_s.humanize %></span>
+                  <span class="badge bg-primary"><%= stat.rating %> Elo</span>
+                </li>
+              <% end %>
+            <% else %>
+              <li class="list-group-item bg-transparent text-muted border-secondary p-3">No category data logged yet.</li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card bg-dark text-white border-secondary">
+        <div class="card-header border-secondary fw-bold bg-secondary bg-opacity-25">Tag Scoreboard (JSON Hash Preview)</div>
+        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+          <% if @user.user_tag_stat&.stats_json&.any? %>
+            <% @user.user_tag_stat.stats_json.each do |tag_name, metrics| %>
+              <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-b text-sm border-secondary border-opacity-25">
+                <span class="badge bg-outline-light border border-secondary text-white">#<%= tag_name %></span>
+                <small class="text-muted">(<%= metrics['correct'] %>/<%= metrics['done'] %>)</small>
+                <span class="badge bg-success bg-opacity-70"><%= metrics['rating'] %> Elo</span>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-muted mb-0">No grammar tags calculated yet.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# RIGHT MAIN CONTENT: Review Queue & Recent History Feeds %>
+    <div class="col-md-8">
+      <%# 1. Active Review Queue Component %>
+      <div class="mb-5">
+        <h3 class="fw-bold mb-3 text-warning">⚠️ Active Review Queue (<%= @review_queue.count %> Items)</h3>
+        <% if @review_queue.any? %>
+          <div class="list-group border border-warning border-opacity-50">
+            <% @review_queue.each do |history| %>
+              <div class="list-group-item bg-dark text-white border-secondary">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1 text-info fw-bold">Question #<%= history.question_id %></h5>
+                  <small class="text-muted">Failed: <%= distance_of_time_in_words(history.updated_at, Time.current) %> ago</small>
+                </div>
+                <p class="mb-1 font-monospace text-light bg-black p-2 bg-opacity-50 border border-secondary rounded">
+                  <%= history.question.main %>
+                </p>
+                <small class="text-danger fw-bold">
+                  Original Mistake Submitted: <code class="text-danger bg-danger bg-opacity-10 px-2 py-1">"<%= history.original_wrong_answer %>"</code>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25">
+            🎉 Clean slate! This student currently has no unresolved mistakes waiting in their review queue.
+          </div>
+        <% end %>
+      </div>
+
+      <%# 2. Universal Recent Activity Feed %>
+      <div>
+        <h3 class="fw-bold mb-3 text-info">⏱️ Recent Question Activity Feed</h3>
+        <% if @recent_activity.any? %>
+          <div class="table-responsive">
+            <table class="table table-dark table-striped align-middle border border-secondary">
+              <thead>
+                <tr>
+                  <th>Question</th>
+                  <th>Outcome</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @recent_activity.each do |activity| %>
+                  <tr>
+                    <td>
+                      <small class="text-muted d-block">#<%= activity.question_id %></small>
+                      <span class="text-white-50"><%= activity.question.main %></span>
+                    </td>
+                    <td>
+                      <% if activity.first_attempt_correct %>
+                        <span class="badge bg-success p-2">Correct</span>
+                      <% else %>
+                        <span class="badge bg-danger p-2 d-block mb-1">Failed First Try</span>
+                        <% if activity.original_wrong_answer.present? %>
+                          <small class="text-muted d-block text-nowrap">Typed: "<%= activity.original_wrong_answer %>"</small>
+                        <% end %>
+                      <% end %>
+                    </td>
+                    <td>
+                      <small class="text-muted text-nowrap">
+                        <%= activity.created_at.strftime("%b %d, %H:%M") %>
+                      </small>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <p class="text-muted p-3 border border-secondary rounded text-center">No question attempts have been made by this profile yet.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>

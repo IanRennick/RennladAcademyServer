@@ -6,22 +6,22 @@
     <table class="table table-dark table-striped">
         <thead>
             <tr>
-                <%# Common Headings %>
-                <%= render "questions/tables/common_table_headings" %>
-
                 <%# Shared Headings %>
                 <%= render "questions/tables/shared_table_headings" %>
+                
+                <%# Common Headings %>
+                <%= render "questions/tables/common_table_headings" %>
             </tr>
         </thead>
 
         <tbody>
             <% @questions.each do |question| %>
                 <tr>
-                    <%# Common Bodies %>
-                    <%= render partial: "questions/tables/common_table_bodies", object: question %>
-
                     <%# Shared Bodies %>
                     <%= render partial: "questions/tables/shared_table_bodies", object: question %>
+
+                    <%# Common Bodies %>
+                    <%= render partial: "questions/tables/common_table_bodies", object: question %>
                 </tr>
             <% end %>
         </tbody>

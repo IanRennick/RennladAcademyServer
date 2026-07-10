@@ -11,9 +11,10 @@ module DoorkeeperRegisterable
     end
   end
 
-  # Method to return a User Object after Registration
-  def render_user(user, client_app, token_type = "Bearer")
-    access_token = Doorkeeper::AccessToken.create(
+  # Method to return a User Object after Registration with Secure Cookies
+  def render_user(user, client_app)
+    # 1. Create the native Doorkeeper Access Token
+    access_token = Doorkeeper::AccessToken.create!(
       resource_owner_id: user.id,
       application_id: client_app.id,
       refresh_token: generate_refresh_token,
@@ -21,14 +22,19 @@ module DoorkeeperRegisterable
       scopes: ""
     )
 
-    # Format of User Object
+    # 2. Write the refresh token securely into cookies (Matches CustomTokensController)
+    cookies.encrypted[:_refresh_token] = {
+      value: access_token.refresh_token,
+      httponly: true,                         # Protects against XSS
+      secure: Rails.env.production?,          # Only HTTPS in production
+      same_site: :lax,                        # Protects against CSRF
+      expires: 14.days.from_now,
+      path: "/"                               # Global path matching logout
+    }
+
+    # 3. Format of the Response Body (Keep ONLY the access token)
     {
-      id: user.id,
-      access_token: access_token.token,
-      token_type: token_type,
-      expires_in: access_token.expires_in,
-      refresh_token: access_token.refresh_token,
-      created_at: access_token.created_at.to_time.to_i
+      access_token: access_token.token
     }
   end
 end
