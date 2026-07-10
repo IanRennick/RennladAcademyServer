@@ -79,9 +79,9 @@ class User < ApplicationRecord
 
       # 1. Run the Elo adjustment exclusively for this specific tag
       new_user_tag_elo, _new_q_elo = EloCalculator.calculate(
-        current_json[tag]["rating"], 
-        question_rating, 
-        was_correct, 
+        current_json[tag]["rating"],
+        question_rating,
+        was_correct,
         current_json[tag]["done"]
       )
 

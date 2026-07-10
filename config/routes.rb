@@ -21,9 +21,10 @@ Rails.application.routes.draw do
     resources :comments
   end
 
-  resources :questions do
+  resources :questions, only: [ :index, :show ] do
     resources :comments
   end
+
 
   resources :rooms do
     resources :messages

@@ -1,0 +1,157 @@
+kind,subtype,level,main,answers,tag_list
+open_cloze,oc_preposition,B2,The city of Alexandria in Egypt was named * Alexander the Great.,after,"fixed_expressions, dependent_prep"
+open_cloze,oc_preposition,B2,The football stadium is named * the club's most successful manager.,after,"fixed_expressions, dependent_prep"
+open_cloze,oc_preposition,B2,Many streets in the capital are named * famous writers and artists.,after,"fixed_expressions, dependent_prep"
+open_cloze,oc_preposition,B2,Alex was the last person * leave the office that evening.,to,using_infinitive
+open_cloze,oc_preposition,B2,This was the only route * reach the village during the winter.,to,using_infinitive
+open_cloze,oc_preposition,B2,She was the last customer * enter the shop before it closed.,to,using_infinitive
+open_cloze,oc_auxiliary,B2,"When the scientists examined the cave, it * already been discovered many years earlier.",had,"past_tenses, auxiliary_verbs"
+open_cloze,oc_auxiliary,B2,"By the time the students entered the classroom, the exam papers * already been handed out.",had,"past_tenses, auxiliary_verbs"
+open_cloze,oc_auxiliary,B2,"Before the firefighters arrived, the building * already been evacuated.",had,"past_tenses, auxiliary_verbs"
+open_cloze,oc_linkers,B2,"The concert went ahead, even * many people expected it to be cancelled.",though,"linkers, linkers_contrast"
+open_cloze,oc_linkers,B2,"Sarah bought the jacket, even * it was more expensive than she had expected.",though,"linkers, linkers_contrast"
+open_cloze,oc_linkers,B2,"Daniel finished the race, even * he had injured his ankle.",though,"linkers, linkers_contrast"
+open_cloze,oc_relative_pronoun,B2,The coach thanked everyone * had supported the team throughout the season.,"who, that",relative_clause
+open_cloze,oc_relative_pronoun,B2,The hotel offered a free drink to everyone * stayed for more than three nights.,"who, that",relative_clause
+open_cloze,oc_relative_pronoun,B2,Everyone * attended the meeting received a copy of the report.,"who, that",relative_clause
+open_cloze,oc_article,B2,Thousands of tourists visit * city of Prague every year.,the,articles
+open_cloze,oc_article,B2,The exhibition tells the story of * city of Rome during ancient times.,the,articles
+open_cloze,oc_article,B2,Scientists are studying the wildlife in * Amazon rainforest.,the,articles
+open_cloze,oc_preposition,B2,Travellers who are * search of a quiet holiday often choose the smaller islands.,in,"fixed_expressions, prepositions"
+open_cloze,oc_preposition,B2,The rescue team spent hours * search of the missing climbers.,in,"fixed_expressions, prepositions"
+open_cloze,oc_preposition,B2,he documentary follows a photographer * search of the world's most endangered animals.,in,"fixed_expressions, prepositions"
+open_cloze,oc_preposition,B2,The castle is approximately fifteen minutes * the town by car.,from,prepositions
+open_cloze,oc_preposition,B2,The hotel is only a short drive * the national park.,from,prepositions
+open_cloze,oc_preposition,B2,The campsite is about twenty minutes * the nearest village.,from,prepositions
+open_cloze,oc_as_like,B2,The village has been recognised * one of the country's most beautiful places.,as,as_or_like
+open_cloze,oc_as_like,B2,The scientist is widely regarded * an expert in climate change.,as,as_or_like
+open_cloze,oc_as_like,B2,The island has often been described * a paradise for nature lovers.,as,as_or_like
+open_cloze,oc_determiner,B2,The nature reserve welcomes school groups * single day during the spring.,every,determiners
+open_cloze,oc_determiner,B2,The exhibition is visited by thousands of tourists *  single month.,every,determiners
+open_cloze,oc_determiner,B2,More than a million people visit the museum * single year.,every,determiners
+open_cloze,oc_negation,B2,There is * better way to learn a language than by using it every day.,no,negation
+open_cloze,oc_negation,B2,There is * place I'd rather spend my holidays than by the sea.,no,negation
+open_cloze,oc_negation,B2,"For many people, there is * substitute for practical experience.","no, little",negation
+open_cloze,oc_as_like,B2,There is no other restaurant in town quite * this one.,like,"as_or_like, comparisons"
+open_cloze,oc_as_like,B2,There is no feeling quite * winning your first competition.,like,"as_or_like, comparisons"
+open_cloze,oc_as_like,B2,The atmosphere at the festival was unlike anything I'd experienced before; there was nothing quite * it.,like,"as_or_like, comparisons"
+open_cloze,oc_inversion,B2,"The course teaches students not just grammar, * also how to communicate confidently.",but,"inversion, negetion, linkers, linkers_addition"
+open_cloze,oc_inversion,B2,"The festival offers not only live music, * also workshops for young artists.",but,"inversion, negetion, linkers, linkers_addition"
+open_cloze,oc_inversion,B2,"The city is famous not only for its history, * also for its excellent restaurants.",but,"inversion, negetion, linkers, linkers_addition"
+open_cloze,oc_article,B2,The library is one of * largest public buildings in the city.,the,articles
+open_cloze,oc_article,B2,The island is one of * most beautiful places I've ever visited.,the,articles
+open_cloze,oc_article,B2,This is one of * most popular tourist attractions in the region.,the,articles
+open_cloze,oc_negation,B2,"Despite the renovation work, the building doesn't look different at *.",all,"prepostions, negation"
+open_cloze,oc_negation,B2,The weather forecast hasn't improved at * since yesterday.,all,"prepostions, negation"
+open_cloze,oc_negation,B2,The museum has hardly changed at * over the last fifty years.,all,"prepostions, negation"
+open_cloze,oc_negation,B2,The bridge is * longer safe for heavy vehicles.,no,negation
+open_cloze,oc_negation,B2,The building is * longer used as a railway station.,no,negation
+open_cloze,oc_negation,B2,This phone model is * longer available in shops.,no,negation
+open_cloze,oc_auxiliary,B2,The company isn't as successful as it once *.,was,"auxiliary_verbs, subtitution"
+open_cloze,oc_auxiliary,B2,The town is no longer the busy port that it once *.,was,"auxiliary_verbs, subtitution"
+open_cloze,oc_auxiliary,B2,The neighbourhood isn't as crowded as it once *.,was,"auxiliary_verbs, subtitution"
+open_cloze,oc_auxiliary,B2,"A hundred years ago, this railway station * to serve thousands of passengers every day.",used,past_tenses
+open_cloze,oc_auxiliary,B2,The building * to be a school before it became a museum.,used,past_tenses
+open_cloze,oc_auxiliary,B2,This road * to be much quieter before the new motorway was built.,used,past_tenses
+open_cloze,oc_auxiliary,B2,"Before online shopping became popular, the town centre would have * full of customers every Saturday.",been,"auxiliary_verbs, past_tenses"
+open_cloze,oc_auxiliary,B2,"In the past, the castle halls would have * crowded with visitors during festivals.",been,"auxiliary_verbs, past_tenses"
+open_cloze,oc_auxiliary,B2,"At the height of the mining industry, the village would have * home to thousands of workers.",been,"auxiliary_verbs, past_tenses"
+open_cloze,oc_causative,B2,"The app has a simple design, which * it easy for beginners to use.","makes, made",causative
+open_cloze,oc_causative,B2,"The roads are well signposted, which * the village easy to find.","makes, made",causative
+open_cloze,oc_causative,B2,"he bus service runs every ten minutes, which * travelling around the city much easier.","makes, made",causative
+open_cloze,oc_preposition,B2,"Although buses are available, many tourists prefer to discover the town * foot.","on, by",prepositions
+open_cloze,oc_preposition,B2,"The castle is only a short distance away, so it's best to continue * foot.","on, by",prepositions
+open_cloze,oc_preposition,B2,"Once you reach the old bridge, you can only cross it * foot.","on, by",prepositions
+open_cloze,oc_negation,B2,Technology has changed * only the way we work but also the way we communicate.,not,negation
+open_cloze,oc_negation,B2,The scholarship is available * only to university students but to apprentices as well.,not,negation
+open_cloze,oc_negation,B2,The storm affected * only the coast but inland areas too.,not,negation
+open_cloze,oc_fixed_expressions,B2,The museum is so authentic that you feel you * a step back into the nineteenth century.,take,fixed_expressions
+open_cloze,oc_fixed_expressions,B2,The narrow streets make you feel as though you * a step back into the Middle Ages.,take,fixed_expressions
+open_cloze,oc_fixed_expressions,B2,"Visiting the traditional village, you'll * a step back into history.",take,fixed_expressions
+open_cloze,oc_linkers,B2,"As * as providing free Wi-Fi, the hotel has a fitness centre and a swimming pool.",well,"lnkers, linkers_addition"
+open_cloze,oc_linkers,B2,"As * as offering guided tours, the museum organises workshops for children.",well,"lnkers, linkers_addition"
+open_cloze,oc_linkers,B2,"As * as enjoying football, Mia loves playing tennis.",well,"lnkers, linkers_addition"
+open_cloze,oc_preposition,B2,The island is well known * its beautiful beaches.,for,"prepostions, dependent_prep"
+open_cloze,oc_preposition,B2,The region is famous * producing excellent wines.,for,"prepostions, dependent_prep"
+open_cloze,oc_preposition,B2,The museum is famous * its collection of ancient sculptures.,for,"prepostions, dependent_prep"
+open_cloze,oc_conditional,B2,"However, * you spend a little more time exploring, you'll discover some hidden cafés.","if, should",conditional
+open_cloze,oc_conditional,B2,"However, * you arrive early, you'll have time to visit the museum before it gets busy.","if, should",conditional
+open_cloze,oc_conditional,B2,"However, * you book your tickets online, you may get a discount.","if, should",conditional
+open_cloze,oc_phrasal,B2,Many families throw * perfectly good food every week.,away,phrasal_verbs
+open_cloze,oc_phrasal,B2,"Instead of throwing * broken furniture, some people repair it.",away,phrasal_verbs
+open_cloze,oc_phrasal,B2,"Rather than throwing * old toys, many families donate them to charity.",away,phrasal_verbs
+open_cloze,oc_phrasal,B2,You should never burn rubbish just to get * of it.,rid,phrasal_verbs
+open_cloze,oc_phrasal,B2,The company is hoping to get * of outdated equipment by the end of the year.,rid,phrasal_verbs
+open_cloze,oc_phrasal,B2,I finally managed to get * of all the old newspapers in the garage.,rid,phrasal_verbs
+open_cloze,oc_phrasal,B2,The chef turned simple ingredients * a delicious meal.,into,phrasal_verbs
+open_cloze,oc_phrasal,B2,The software can turn handwritten notes * digital text.,into,phrasal_verbs
+open_cloze,oc_phrasal,B2,The abandoned railway line has been turned * a popular cycling route.,into,phrasal_verbs
+open_cloze,oc_article,B2,The committee took * long time to reach a decision.,a,articles
+open_cloze,oc_article,B2,It may take * long time for the forest to recover after the fire.,a,articles
+open_cloze,oc_article,B2,Researchers spent * long time studying the effects of climate change.,a,articles
+open_cloze,oc_comparison,B2,Finding accommodation was harder * we expected.,than,comparisons
+open_cloze,oc_comparison,B2,Electric cars are becoming more popular * ever before.,than,comparisons
+open_cloze,oc_comparison,B2,Learning to drive is often more difficult * people expect.,thank,comparisons
+open_cloze,oc_preposition,B2,"Many old laptops can still be repaired, but it's often difficult to do this * newer models.",with,prepositions
+open_cloze,oc_preposition,B2,"Some vegetables can be frozen, but it's not recommended to do this * leafy salads.",with,prepositions
+open_cloze,oc_preposition,B2,These techniques work well * small groups of students but are less effective in larger classes.,with,prepositions
+open_cloze,oc_quantifier,B2,Only a * students chose to study Latin at school.,few,quantifiers
+open_cloze,oc_quantifier,B2,A * visitors knew about the hidden garden behind the museum.,few,quantifiers
+open_cloze,oc_quantifier,B2,A * books from the original library are still in excellent condition.,few,quantifiers
+open_cloze,oc_quantifier,B2,The new software can detect almost * types of computer viruses.,all,quantifiers
+open_cloze,oc_quantifier,B2,he new machine can process almost * kinds of plastic.,all,quantifiers
+open_cloze,oc_quantifier,B2,"The museum's collection survived the fire almost completely, with almost * the paintings remaining undamaged.",all,quantifiers
+open_cloze,oc_preposition,B2,he charity has found a simple method * collecting unwanted clothes.,of,prepositions
+open_cloze,oc_preposition,B2,Farmers are experimenting with a new method * growing crops without chemicals.,of,prepositions
+open_cloze,oc_preposition,B2,The company is looking for a cheaper method * transporting goods.,of,prepositions
+open_cloze,oc_negation,B2,"The equipment is fully automatic, so it does * need constant supervision.",not,negation
+open_cloze,oc_negation,B2,The application process is simple and does * involve an interview.,not,negation
+open_cloze,oc_negation,B2,The software is easy to install and does * require any technical knowledge.,not,negation
+open_cloze,oc_preposition,B2,Instructions are printed directly * the packaging.,on,prepositions
+open_cloze,oc_preposition,B2,Small price stickers were accidentally left * several of the books.,on,prepositions
+open_cloze,oc_preposition,B2,The child's name had been written * the inside of the jacket.,on,prepositions
+open_cloze,oc_linkers,B2,The application form should be completed * returned by Friday.,and,"linkers, linkers_addition"
+open_cloze,oc_linkers,B2,he photographs are scanned * stored digitally.,and,"linkers, linkers_addition"
+open_cloze,oc_linkers,B2,The bottles are cleaned * filled automatically.,and,"linkers, linkers_addition"
+open_cloze,oc_linkers,B2,The food is stored in a cool place * that it stays fresh for longer.,so,"linkers, linkers_purpose"
+open_cloze,oc_linkers,B2,The seats were arranged in a circle * that everyone could see each other.,so,"linkers, linkers_purpose"
+open_cloze,oc_linkers,B2,The museum has installed audio guides * that visitors can learn more about the exhibits.,so,"linkers, linkers_purpose"
+open_cloze,oc_preposition,B2,One * the greatest advantages of online learning is its flexibility.,of,comparisons
+open_cloze,oc_preposition,B2,One * the finest examples of modern architecture can be found in the city centre.,of,comparisons
+open_cloze,oc_preposition,B2,One * the largest forests in Europe is located in Poland.,of,comparisons
+open_cloze,oc_article,B2,The company's profits are more than double * amount recorded last year.,the,"articles, comparisons"
+open_cloze,oc_article,B2,This bridge is nearly double * length of the original bridge.,the,"articles, comparisons"
+open_cloze,oc_article,B2,The population of the city is nearly double * figure recorded twenty years ago.,the,"articles, comparisons"
+open_cloze,oc_quantifier,B2,The road was * narrow for two buses to pass safely.,too,quantifiers
+open_cloze,oc_quantifier,B2,The mountain was * steep to climb without special equipment.,too,quantifiers
+open_cloze,oc_quantifier,B2,The suitcase was * heavy to lift without help.,too,quantifiers
+open_cloze,oc_fixed_expressions,B2,"Because the statue was so fragile, it couldn't be moved in * piece.",one,fixed_expressions
+open_cloze,oc_fixed_expressions,B2,The machine was far too heavy to be delivered in * piece.,one,fixed_expressions
+open_cloze,oc_fixed_expressions,B2,"The enormous sculpture couldn't be removed in * piece, so it was taken apart first.",one,fixed_expressions
+open_cloze,oc_preposition,B2,The project took six months * total to complete.,in,prepositions
+open_cloze,oc_preposition,B2,There were twelve performances * total during the festival.,in,prepositions
+open_cloze,oc_preposition,B2,"The journey covered over 2,500 kilometres * total.",in,prepositions
+open_cloze,oc_relative_pronoun,B2,"The tower is over 300 metres tall, * makes it one of the highest buildings in the country.",which,relative_clause
+open_cloze,oc_relative_pronoun,B2,"The museum receives more than a million visitors each year, * is far more than expected.",which,relative_clause
+open_cloze,oc_relative_pronoun,B2,"The new stadium can hold 60,000 spectators, * is twice the capacity of the old one.",which,relative_clause
+open_cloze,oc_fixed_expressions,B2,"As * as price is concerned, this hotel is excellent value for money.",far,fixed_expressions
+open_cloze,oc_fixed_expressions,B2,"As * as public transport is concerned, the city is very well connected.",far,fixed_expressions
+open_cloze,oc_fixed_expressions,B2,"As * as customer service is concerned, the company has an excellent reputation.",far,fixed_expressions
+open_cloze,oc_preposition,B2,The equipment has been specially designed * use in extreme temperatures.,for,prepositions
+open_cloze,oc_preposition,B2,The playground includes equipment designed * children with additional needs.,for,prepositions
+open_cloze,oc_preposition,B2,These gloves are specially designed * cyclists riding in cold weather.,for,prepositions
+open_cloze,oc_preposition,B2,"The journey takes * to three hours, depending on traffic.",up,prepositions
+open_cloze,oc_preposition,B2,The machine can produce * to 500 bottles every hour.,up,prepositions
+open_cloze,oc_preposition,B2,The battery lasts for * to twelve hours on a single charge.,up,prepositions
+open_cloze,oc_determiner,B2,The sports centre offers activities to suit * ability and interest.,"every, each",determiners
+open_cloze,oc_determiner,B2,The campsite has facilities to suit * need and budget.,"every, each",determiners
+open_cloze,oc_determiner,B2,The shop sells gifts for * occasion and budget.,"every, each",determiners
+open_cloze,oc_fixed_expressions,B2,Scientists hope their discovery will benefit future generations for years to *.,come,fixed_expressions
+open_cloze,oc_fixed_expressions,B2,This decision is likely to affect the company for a long time to *.,come,fixed_expressions
+open_cloze,oc_fixed_expressions,B2,The research is expected to influence medical treatment for decades to *.,come,fixed_expressions
+open_cloze,oc_auxiliary,B2,"Thanks to the extra funding, the school will be * to buy new computers.",able,"modal_verbs, modals_ability"
+open_cloze,oc_auxiliary,B2,"With a map, you'll be * to find the village quite easily.",able,"modal_verbs, modals_ability"
+open_cloze,oc_auxiliary,B2,The new software will be * to process much larger files.,able,"modal_verbs, modals_ability"
+open_cloze,oc_auxiliary,B2,"To complete the course successfully, you'll * to pass all four modules.","have, need","modal_verbs, modals_obligation"
+open_cloze,oc_auxiliary,B2,Anyone wishing to apply will * to complete the online form.,"have, need","modal_verbs, modals_obligation"
+open_cloze,oc_auxiliary,B2,You'll * to leave early if you want to avoid the traffic.,"have, need","modal_verbs, modals_obligation"

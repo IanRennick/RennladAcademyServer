@@ -275,5 +275,32 @@ RSpec.describe "Api::V1::Questions", type: :request do
         expect(history.original_wrong_answer).to eq("look down")
       end
     end
+
+    # Test practice mode
+    context "when answering in PRACTICE MODE" do
+      it "increments all history logs and attempt counters, but leaves all Elo ratings unchanged" do
+        # 1. Capture the exact Elo ratings before sending the request
+        original_user_elo = user.rating
+        original_q_elo = question.rating
+
+        # 2. ACTION: Submit a correct answer but include the mode: "practice" query param
+        post "/api/v1/questions/#{question.id}/submit_answer", params: { answer: "give up", mode: "practice" }
+
+        expect(response).to have_http_status(:no_content)
+
+        # 3. ASSERTIONS: Verify global attempts incremented
+        question.reload
+        expect(question.times_done).to eq(1)
+        expect(question.rating).to_not eq(original_q_elo) # The question rating HAS shifted to stay accurate!
+
+        # 4. ASSERTIONS: Verify user stats incremented counters but froze ratings
+        kind_stat = user.user_stats.find_by(stat_type: "kind", stat_key: 0)
+        expect(kind_stat.times_done).to eq(1)
+        expect(kind_stat.rating).to eq(1200) #  User rating remains frozen at baseline
+
+        user.reload
+        expect(user.rating).to eq(original_user_elo) #  Global user rating remains frozen
+      end
+    end
   end
 end
