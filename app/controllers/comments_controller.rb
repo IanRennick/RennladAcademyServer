@@ -1,44 +1,28 @@
+# app/controllers/comments_controller.rb
 class CommentsController < ApplicationController
-  before_action :set_commentable
+  # Using standard Rails polymorphism to extract parent elements dynamically
+  before_action :set_commentable, only: [ :create, :update ]
 
   def create
-    # Create new comment
-    @comment = Comment.new(comment_params)
-    # Add user
+    @comment = @commentable.comments.new(comment_params)
     @comment.user = current_user
-    # Add Writing / question etc
     @comment.commentable = @commentable
 
-    # Save comment
+    # Threading Rule: Read the optional parent_id if replying to a thread
+    if params[:parent_id].present?
+      @comment.parent_id = params[:parent_id].to_i
+    end
+
     if @comment.save
       flash[:notice] = "Comment has been created"
     else
-      flash[:alert] = "Comment has not been created"
+      Rails.logger.info "Comment Validation Errors: #{@comment.errors.full_messages.join(', ')}"
+      flash[:alert] = "Comment could not be created"
     end
 
-    # Redirect to Writing / question etc
-    if params[:commentable_type] === "writing"
-      redirect_to writing_path(@commentable)
-
-    elsif params[:commentable_type] === "question"
-      redirect_to question_path(@commentable)
-    end
+    # POLYMORPHIC REDIRECT: Automatically routes to question_path or writing_path!
+    redirect_to polymorphic_path(@commentable), status: :see_other
   end
-
-  def destroy
-    @comment = Comment.find(params[:id])
-    commentable_type = @comment.commentable_type
-    commentable = @comment.commentable
-    @comment.destroy
-
-    if commentable_type === "Writing"
-      redirect_to writing_path(commentable)
-
-    elsif commentable_type === "Question"
-      redirect_to question_path(commentable)
-    end
-  end
-
 
   def update
     @comment = @commentable.comments.find(params[:id])
@@ -46,28 +30,34 @@ class CommentsController < ApplicationController
     if @comment.update(comment_params)
       flash[:notice] = "Comment has been updated"
     else
-      flash[:alert] = "Comment has not been updated"
+      flash[:alert] = "Comment could not be updated"
     end
 
-    if params[:commentable_type] === "writing"
-      redirect_to writing_path(@commentable)
-
-    elsif params[:commentable_type] === "question"
-      redirect_to question_path(@commentable)
-    end
+    redirect_to polymorphic_path(@commentable), status: :see_other
   end
 
+  def destroy
+    @comment = Comment.find(params[:id])
+
+    # ✅ Thread Safety: Trace up to find the root question/writing, even if this is a sub-reply
+    root_target = @comment.commentable
+
+    @comment.destroy
+    flash[:notice] = "Comment has been moderated"
+
+    redirect_to polymorphic_path(root_target), status: :see_other
+  end
 
   private
 
-  # Check if comment belongs to a question or writing
+  # CLEAN FINDER: Uses meta-programming to find parents without hardcoded ifs
   def set_commentable
-    if params[:commentable_type] === "writing"
-      @commentable = Writing.find(params[:writing_id])
-
-    elsif params[:commentable_type] === "question"
-      @commentable = Question.find(params[:question_id])
-    end
+    # Automatically extracts :question_id or :writing_id from the active path route parameters!
+    resource, id = request.path.split("/")[1..2]
+    @commentable = resource.singularize.classify.constantize.find(id)
+  rescue
+    flash[:alert] = "Target asset context not found."
+    redirect_to root_path
   end
 
   def comment_params

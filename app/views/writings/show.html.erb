@@ -15,11 +15,11 @@
 </div>
 
 <div class="container">
-  <%# Comment Form %>
-  <%= render "comments/writing_form", writing: @writing, comment: @writing.comments.build, submit_label: "Reply", commentable_type: "writing" %>
+  <%# Render the central thread creation form %>
+  <%= render "shared/comment_form", commentable: @question, comment: @question.comments.build, submit_label: "Post Comment" %>
 
-  <%# Comments %>
+  <%# Loop and print out the root comment tree threads %>
   <% @comments.each do |comment| %>
-    <%= render "comments/writing_comment", writing: @writing, comment: comment %>
+    <%= render "shared/comment", commentable: @question, comment: comment %>
   <% end %>
 </div>

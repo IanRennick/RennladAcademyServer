@@ -28,7 +28,7 @@ class QuestionsController < ApplicationController
 
   # GET /questions/1 or /questions/1.json
   def show
-    @comments = @question.comments.includes([ :user, :rich_text_body ]).order(created_at: :desc)
+    @comments = @question.comments.root_threads.includes(:user)
   end
 
 

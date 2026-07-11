@@ -1,0 +1,18 @@
+<%# app/views/shared/_comment_form.html.erb %>
+<%= form_with(model: [commentable, comment]) do |f| %>
+  <div class="form-control bg-dark border-secondary p-3 rounded">
+    
+    <%# Threading Rule: If replying to a sub-thread, pass the parent ID down to the controller %>
+    <% if comment.parent_id.present? %>
+      <%= hidden_field_tag :parent_id, comment.parent_id %>
+    <% end %>
+
+    <%# ActionText Rich Body Input %>
+    <%= f.rich_text_area :body, placeholder: "Type your thoughts or doubts here...", class: "bg-white text-dark rounded" %>
+
+    <%# Submit Button %>
+    <div class="text-end">
+      <%= f.submit submit_label, class: "btn btn-primary mt-2 px-4" %>
+    </div>
+  </div>
+<% end %>

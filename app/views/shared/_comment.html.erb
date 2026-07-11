@@ -1,0 +1,51 @@
+<%# app/views/shared/_comment.html.erb %>
+<div class="comment-<%= comment.id %> container mb-3 p-3 bg-dark text-white rounded border border-secondary" style="margin-left: <%= comment.parent_id ? '30px' : '0px' %>;">
+  
+  <div class="d-flex justify-content-between text-muted text-sm mb-2">
+    <span><strong><%= comment.user.username %></strong></span>
+    <span>
+      <% if comment.created_at != comment.updated_at %>
+        <small class="text-warning">(Edited)</small> Posted <%= time_ago_in_words(comment.updated_at) %> ago
+      <% else %>
+        Posted <%= time_ago_in_words(comment.created_at) %> ago
+      <% end %>
+    </span>
+  </div>
+
+  <div id="comment-body-<%= comment.id %>" class="my-2 p-2 bg-black bg-opacity-25 rounded text-light">
+    <%= comment.body %>
+  </div>
+
+  <%# ADMIN INTERFACE CONTROLS %>
+  <div class="mt-2 text-end btn-group">
+    <button class="btn btn-sm btn-outline-warning" 
+            data-controller="comments" 
+            data-action="comments#toggleForm"
+            data-comments-form-param="edit-form-<%= comment.id %>"
+            data-comments-body-param="comment-body-<%= comment.id %>"
+            data-comments-edit-param="edit-btn-<%= comment.id %>"
+            id="edit-btn-<%= comment.id %>">
+      Edit
+    </button>
+    
+    <%# POLYMORPHIC DELETE LINK: Automatically evaluates to question_comment_path or writing_comment_path %>
+    <%= button_to "Delete", [comment.commentable || commentable, comment], 
+                  class: "btn btn-sm btn-outline-danger", 
+                  method: :delete, 
+                  data: { confirm: "Are you sure you want to moderate this conversation segment?" } %>
+  </div>
+
+  <%# Inline Edit Form %>
+  <div id="edit-form-<%= comment.id %>" class="d-none mt-3"> 
+    <%= render "shared/comment_form", commentable: (comment.commentable || commentable), comment: comment, submit_label: "Update" %>
+  </div>
+
+  <%# RECURSIVE REPLIES SYSTEM: Calls itself recursively using the shared path location %>
+  <% if comment.replies.any? %>
+    <div class="replies-container mt-3 border-start border-secondary ps-2">
+      <% comment.replies.includes(:user).each do |reply| %>
+        <%= render "shared/comment", commentable: (comment.commentable || commentable), comment: reply %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
