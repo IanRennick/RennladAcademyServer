@@ -16,6 +16,7 @@ namespace :api do
     end
 
     resource :stats, only: [ :show ]
+    resources :comments, only: [ :create, :update, :destroy ]
   end
 end
 

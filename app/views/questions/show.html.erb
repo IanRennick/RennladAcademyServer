@@ -14,13 +14,14 @@
       <li><strong>"<%= wa.answer_text %>"</strong> — Submitted <%= pluralize(wa.count, "time") %></li>
     <% end %>
   </ul>
+</div>
 
+<div class="container">
+  <%# Render the central thread creation form %>
+  <%= render "shared/comment_form", commentable: @question, comment: @question.comments.build, submit_label: "Post Comment" %>
 
-  <%# Comment Form %>
-  <%= render "comments/question_form", question: @question, comment: @question.comments.build, submit_label: "Reply", commentable_type: "question" %>
-
-  <%# Comments %>
+  <%# Loop and print out the root comment tree threads %>
   <% @comments.each do |comment| %>
-    <%= render "comments/question_comment", question: @question, comment: comment %>
+    <%= render "shared/comment", commentable: @question, comment: comment %>
   <% end %>
 </div>

@@ -217,8 +217,12 @@ class Api::V1::QuestionsController < ApiController
     kind_integer = Question.kinds[question.kind]
     subtype_integer = question.subtype ? Question.subtypes[question.subtype] : nil
 
+    # Fetch only the main thread-starters (where parent_id is nil)
+    root_comments = question.comments.root_threads.includes(:user)
+
+
     # Base payload structure
-    base = { id: question.id, level: question.level&.name, kind: kind_integer, subtype: subtype_integer, main: question.main, answers: question.answers, tags: question.tags.map(&:name) }
+    base = { id: question.id, level: question.level&.name, kind: kind_integer, subtype: subtype_integer, main: question.main, answers: question.answers, tags: question.tags.map(&:name), comments: serialize_comments_tree(root_comments) }
 
     case question.kind
 
@@ -241,6 +245,22 @@ class Api::V1::QuestionsController < ApiController
     # Fallback response:
     else
       base
+    end
+  end
+
+  # Recursive Helper Method for Threaded Comments
+  def serialize_comments_tree(comments_collection)
+    comments_collection.map do |comment|
+      {
+        id: comment.id,
+        parent_id: comment.parent_id,
+        author: comment.user.username,
+        body: comment.body.to_s, # Converts ActionText rich formatting to a clean HTML markup string!
+        timestamp: comment.created_at.strftime("%b %d, %H:%M"),
+        # Recursively crawls down to grab any sub-replies nested beneath this comment
+        # Eager loads the sub-users to guarantee high-performance execution speed
+        replies: serialize_comments_tree(comment.replies.includes(:user))
+      }
     end
   end
 end
