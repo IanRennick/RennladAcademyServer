@@ -1,0 +1,157 @@
+kind,subtype,level,main,options,answers,tag_list
+multiple_choice,mc_phrasal,B2,Only a few employees * part in the company's training programme.,"joined, held, took, were",took,phrasal_verbs
+multiple_choice,mc_phrasal,B2,Thousands of local residents * to watch the city's annual fireworks display.,"turned out, came off, went out,  put off",took,phrasal_verbs
+multiple_choice,mc_phrasal,B2,Volunteers from all over the country * part in the beach clean-up.,"turned out, came off, went out,  put off",took,phrasal_verbs
+multiple_choice,mc_phrasal,B2,"During the power cut, every light in the building *.","turned out, came off, went out,  put off",went out,phrasal_verbs
+multiple_choice,mc_phrasal,B2,The lights * for a few seconds before coming back on again.,"turned out, came off, went out,  put off",went out,phrasal_verbs
+multiple_choice,mc_phrasal,B2,The television switched itself off when the electricity *.,"turned out, came off, went out,  put off",went out,phrasal_verbs
+multiple_choice,mc_definition,B2,The publication of her first novel * the beginning of a successful career.,"marked, distinguised, noted, indicated",marked,
+multiple_choice,mc_definition,B2,The publication of the report * a major change in the way scientists understood the problem.,"marked, distinguised, noted, indicated",marked,
+multiple_choice,mc_definition,B2,The city organised a festival that * the 200th anniversary of its foundation.,"marked, distinguised, noted, indicated",marked,
+multiple_choice,mc_fixed_expressions,B2,She is considered one of the greatest athletes of * time.,"whole, full, entire, all",all,
+multiple_choice,mc_fixed_expressions,B2,He is widely recognised as one of the most successful footballers of * time.,"whole, full, entire, all",all,
+multiple_choice,mc_fixed_expressions,B2,Many critics describe it as the greatest performance of * time..,"whole, full, entire, all",all,
+multiple_choice,mc_collocation,B2,His work has * a positive impact on thousands of young people.,"put, had, served, set",had,collocations
+multiple_choice,mc_collocation,B2,Few scientists have * such a significant impact on modern medicine.,"put, had, served, set",had,collocations
+multiple_choice,mc_collocation,B2,The discovery of electricity * a revolutionary impact on human progress.,"put, had, served, set",had,collocations
+multiple_choice,mc_collocation,B2,Scientists believe that exercise plays an important * in maintaining good health.,"effect, place, role, share",role,collocations
+multiple_choice,mc_collocation,B2,The government hopes that tourism will play a key * in the country's economic recovery.,"effect, place, role, share",role,collocations
+multiple_choice,mc_collocation,B2,Technology has played a major * in changing the way we work.,"effect, place, role, share",role,collocations
+multiple_choice,mc_definition,B2,You should never * the importance of good communication skills.,"underestimate, lower, mislead, decrease",underestimate,
+multiple_choice,mc_definition,B2,Parents should never * the influence they have on their children.,"underestimate, lower, mislead, decrease",underestimate,
+multiple_choice,mc_definition,B2,People often * how difficult it is to learn a new language.,"underestimate, lower, mislead, decrease",underestimate,
+multiple_choice,mc_phrasal,B2,The engineer * up machines that could change the future of transport.,"creates, shapes, dreams, forms",dreams,phrasal_verbs
+multiple_choice,mc_phrasal,B2,The young entrepreneur * up ideas that eventually become successful businesses.,"creates, shapes, dreams, forms",dreams,phrasal_verbs
+multiple_choice,mc_phrasal,B2,The writer * up stories that capture the imagination of millions of readers.,"creates, shapes, dreams, forms",dreams,phrasal_verbs
+multiple_choice,mc_collocation,B2,They were confident they could * a success of the event despite the bad weather.,"gain, make, achieve, get",make,collocations
+multiple_choice,mc_collocation,B2,The team worked together to * a success of the project.,"gain, make, achieve, get",make,collocations
+multiple_choice,mc_collocation,B2,"If you are prepared to work hard, you can * a success of almost any opportunity.","gain, make, achieve, get",make,collocations
+multiple_choice,mc_definition,B2,The company celebrated the occasion by * the launch of its newest product.,"announcing, instructing, informing, notifying",announcing,
+multiple_choice,mc_definition,B2,"The government held a press conference, * a number of new environmental measures.","announcing, instructing, informing, notifying",announcing,
+multiple_choice,mc_definition,B2,The museum attracted national attention by * the discovery of a rare painting.,"announcing, instructing, informing, notifying",announcing,
+multiple_choice,mc_linkers,B2,"The match ended in a defeat, but * the team played much better than last week.","by far, at least, even though, for all",at least,"linkers, linkers_contrast"
+multiple_choice,mc_linkers,B2,"His first attempt wasn't successful, but * he learned something useful from the experience.","by far, at least, even though, for all",at least,"linkers, linkers_contrast"
+multiple_choice,mc_linkers,B2,"The restaurant was expensive, but * the food was excellent.","by far, at least, even though, for all",at least,"linkers, linkers_contrast"
+multiple_choice,mc_collocation,B2,The scientist took no * of the negative comments and continued with her research.,"notice, regard, attention, view",notice,collocations
+multiple_choice,mc_collocation,B2,He took no * of his friends' warnings and went ahead with the plan.,"notice, regard, attention, view",notice,collocations
+multiple_choice,mc_collocation,B2,The coach told the players to take no * of the crowd's criticism.,"notice, regard, attention, view",notice,collocations
+multiple_choice,mc_definition,B2,Her suggestion was * with great enthusiasm by the committee.,"gathered, caught, drawn. received",received,
+multiple_choice,mc_definition,B2,Their performance was * with standing ovations every night.,"gathered, caught, drawn. received",received,
+multiple_choice,mc_definition,B2,"The proposal was * with scepticism at first, but people soon changed their minds.","gathered, caught, drawn. received",received,
+multiple_choice,mc_definition,B2,The historic town square is the public * of the city and attracts thousands of visitors each year.,"face, outline, surface, top",face,
+multiple_choice,mc_definition,B2,The impressive museum has become the cultural * of the capital.,"face, outline, surface, top",face,
+multiple_choice,mc_definition,B2,"Although she rarely appears on television, she is the public * of the charity.","face, outline, surface, top",face,
+multiple_choice,mc_quantifier,B2,"Although most residents supported the proposal, a small * remained opposed.","number, amount, total, few",amount,quantifier
+multiple_choice,mc_quantifier,B2,"The vast majority were satisfied with the service, but a tiny * complained.","number, amount, total, few",amount,quantifier
+multiple_choice,mc_quantifier,B2,Only a small * of visitors were aware of the museum's hidden collection.,"number, amount, total, few",amount,quantifier
+multiple_choice,mc_definition,B2,The old railway tracks were * over when the new road was built.,"covered, protected, hidden, sheltered",covered,
+multiple_choice,mc_definition,B2,The ruins were gradually * over by sand over hundreds of years.,"covered, protected, hidden, sheltered",covered,
+multiple_choice,mc_definition,B2,The entrance to the tunnel was * over to prevent people from going inside.,"covered, protected, hidden, sheltered",covered,
+multiple_choice,mc_definition,B2,"The original painting has been lost, and all that * is a black-and-white copy.","stays, stops, remains, keeps",remains,
+multiple_choice,mc_definition,B2,"The factory closed many years ago, and all that * now is an empty building.","stays, stops, remains, keeps",remains,
+multiple_choice,mc_definition,B2,"The village has changed completely, and all that * of the old school is the bell tower.","stays, stops, remains, keeps",remains,
+multiple_choice,mc_definition,B2,The destruction of the old theatre was an enormous * to the town.,"miss, absence, waste, loss",loss,
+multiple_choice,mc_definition,B2,The death of the famous scientist was a great * to modern medicine.,"miss, absence, waste, loss",loss,
+multiple_choice,mc_definition,B2,The historic building's demolition was a serious * to the city's architectural heritage.,"miss, absence, waste, loss",loss,
+multiple_choice,mc_definition,B2,"The town was * a busy fishing port, but tourism has now replaced the industry.","once, past, prior, then",once,
+multiple_choice,mc_definition,B2,"The company, * one of the largest in Europe, now employs only a few hundred people.","once, past, prior, then",once,
+multiple_choice,mc_definition,B2,This * popular holiday destination has become much quieter in recent years.,"once, past, prior, then",once,
+multiple_choice,mc_definition,B2,Thousands of people gathered on the * of the river to watch the fireworks.,"borders, coasts, banks, rims",banks,
+multiple_choice,mc_definition,B2,Farmers have lived on the fertile * of the river for generations.,"borders, coasts, banks, rims",banks,
+multiple_choice,mc_definition,B2,Many of the city's oldest buildings stand on the * of the River Thames.,"borders, coasts, banks, rims",banks,
+multiple_choice,mc_definition,B2,Meltwater from the mountains * into the valley below.,"gets, flows, leaks, lets",flows,
+multiple_choice,mc_definition,B2,The stream * into a larger river a few kilometres from the village.,"gets, flows, leaks, lets",flows,
+multiple_choice,mc_definition,B2,The River Severn * into the Bristol Channel.,"gets, flows, leaks, lets",flows,
+multiple_choice,mc_definition,B2,"The university * over 20,000 students from around the world.","holds, contains, has, consists",has,
+multiple_choice,mc_definition,B2,"The island * a population of fewer than 5,000 people.","holds, contains, has, consists",has,
+multiple_choice,mc_definition,B2,The city * an excellent public transport system.,"holds, contains, has, consists",has,
+multiple_choice,mc_collocation,B2,"As the train passed, we caught a * glimpse of the castle in the distance.","rapid. brief, fast, sharp",brief,collocations
+multiple_choice,mc_collocation,B2,The photographer managed to catch a * glimpse of the rare bird before it flew away.,"rapid. brief, fast, sharp",brief,collocations
+multiple_choice,mc_collocation,B2,"The curtain opened for a moment, allowing the audience to catch a * glimpse of the stage.","rapid. brief, fast, sharp",brief,collocations
+multiple_choice,mc_linkers,B2,"* the building is over 300 years old, it remains in excellent condition.","despite, unless, although, since",although,"linkers, linkers_contrast"
+multiple_choice,mc_linkers,B2,"* the museum is small, it attracts visitors from all over the world.","despite, unless, although, since",although,"linkers, linkers_contrast"
+multiple_choice,mc_linkers,B2,"* many people doubted his idea, he refused to give up.","despite, unless, although, since",although,"linkers, linkers_contrast"
+multiple_choice,mc_collocation,B2,Many ancient ruins * abandoned deep in the forest.,"lie, last, lay, live",lie,collocations
+multiple_choice,mc_collocation,B2,Many historic buildings * empty after years of neglect.,"lie, last, lay, live",lie,collocations
+multiple_choice,mc_collocation,B2,Thousands of old photographs * hidden in the museum's archives.,"lie, last, lay, live",lie,collocations
+multiple_choice,mc_phrasal,B2,Many of the houses were * down during the redevelopment of the area.,"pulled, broken, cut, brought",pulled,phrasal_verbs
+multiple_choice,mc_phrasal,B2,Several unsafe buildings have been * down after the earthquake.,"pulled, broken, cut, brought",pulled,phrasal_verbs
+multiple_choice,mc_phrasal,B2,The factory was * down and replaced with modern apartments.,"pulled, broken, cut, brought",pulled,phrasal_verbs
+multiple_choice,mc_definition,B2,"When she accepted the job, she little * that it would completely change her life.","wondered, suspected, doubted, judged",suspected,
+multiple_choice,mc_definition,B2,"At the beginning of the season, the team little * how successful they would become.","wondered, suspected, doubted, judged",suspected,
+multiple_choice,mc_definition,B2,"When they bought the old house, they little * that it contained a hidden room.","wondered, suspected, doubted, judged",suspected,
+multiple_choice,mc_definition,B2,She ran all the way to the station but still managed to * her train.,"catch, pick, find, gain",catch,
+multiple_choice,mc_definition,B2,They got up at five o'clock to * an early flight to Rome.,"catch, pick, find, gain",catch,
+multiple_choice,mc_definition,B2,We set off before sunrise to * the morning ferry to the island.,"catch, pick, find, gain",catch,
+multiple_choice,mc_collocation,B2,"During the holidays, she decided to * her time well by learning a new language.","take, serve, exercise, use",use,collocations
+multiple_choice,mc_collocation,B2,"We only had one afternoon in the city, so we wanted to * our time well.","take, serve, exercise, use",use,collocations
+multiple_choice,mc_collocation,B2,The students were encouraged to * their study time well before the exams.,"take, serve, exercise, use",use,collocations
+multiple_choice,mc_definition,B2,The price doesn't * the cost of transport to the airport.,"include, contain, enclose, consist",include,
+multiple_choice,mc_definition,B2,The tour will * visits to three historic castles.,"include, contain, enclose, consist",include,
+multiple_choice,mc_definition,B2,The course will * both practical and theoretical lessons.,"include, contain, enclose, consist",include,
+multiple_choice,mc_definition,B2,The hotel is in a * location for exploring the city on foot.,"capable, ready, favourable, convenient",convenient,
+multiple_choice,mc_definition,B2,"The supermarket is only a short walk away, making it very * for local residents.","capable, ready, favourable, convenient",convenient,
+multiple_choice,mc_definition,B2,"The meeting time wasn't * for everyone, so it had to be changed.","capable, ready, favourable, convenient",convenient,
+multiple_choice,mc_definition,B2,A footbridge * across the river to the old village.,"connects, leads, rides, moves",leads,
+multiple_choice,mc_definition,B2,The main road * through several picturesque villages.,"connects, leads, rides, moves",leads,
+multiple_choice,mc_definition,B2,A woodland path * down to a quiet beach.,"connects, leads, rides, moves",leads,
+multiple_choice,mc_fixed_expressions,B2,"In my *, learning a language is easier if you practise every day.","experience, knowledge, observation, information",experience,
+multiple_choice,mc_fixed_expressions,B2,"In my *, small hotels often provide better service than large ones.","experience, knowledge, observation, information",experience,
+multiple_choice,mc_fixed_expressions,B2,"In my *, it's worth arriving at the airport earlier than you think you need to.","experience, knowledge, observation, information",experience,
+multiple_choice,mc_definition,B2,"Most children enjoy stories, and my younger brother is no *.","difference, change, exception, contrast",exception,fixed_expressions
+multiple_choice,mc_definition,B2,"The restaurant is famous for excellent service, and this visit was no *.","difference, change, exception, contrast",exception,fixed_expressions
+multiple_choice,mc_definition,B2,"The company has a reputation for high quality, and its latest product is no *.","difference, change, exception, contrast",exception,fixed_expressions
+multiple_choice,mc_phrasal,B2,The old house turned * to be much larger than it looked from the outside.,"up, out, in, over",out,phrasal_verbs
+multiple_choice,mc_phrasal,B2,The restaurant turned * to be one of the best in the city.,"up, out, in, over",out,phrasal_verbs
+multiple_choice,mc_phrasal,B2,The noise turned * to be coming from the attic.,"up, out, in, over",out,phrasal_verbs
+multiple_choice,mc_definition,B2,They encouraged us to * them for a drink after work.,"greet, join, see, approach",join,
+multiple_choice,mc_definition,B2,Our host insisted that we * the family for Sunday lunch.,"greet, join, see, approach",join,
+multiple_choice,mc_definition,B2,She asked whether I could * her family for breakfast the following morning.,"greet, join, see, approach",join,
+multiple_choice,mc_dependence,B2,She had * for someone to look after the children while she was away.,"arranged, fixed, settled, ordered",arranged,dependent_prep
+multiple_choice,mc_dependence,B2,The organisers had * for extra buses to take spectators home after the concert.,"arranged, fixed, settled, ordered",arranged,dependent_prep
+multiple_choice,mc_dependence,B2,The travel agent had * for our luggage to be sent directly to the hotel.,"arranged, fixed, settled, ordered",arranged,dependent_prep
+multiple_choice,mc_fixed_expressions,B2,She packed us some sandwiches and * us on our way.,"passed, sent, begun, put",sent,fixed_expressions
+multiple_choice,mc_fixed_expressions,B2,"After giving us a map, the receptionist * us on our way.","passed, sent, begun, put",sent,fixed_expressions
+multiple_choice,mc_fixed_expressions,B2,The doctor gave me some advice and * me on my way.,"passed, sent, begun, put",sent,fixed_expressions
+multiple_choice,mc_fixed_expressions,B2,A strong cup of coffee usually keeps him * during the afternoon.,"doing, making, going, being",going,fixed_expressions
+multiple_choice,mc_fixed_expressions,B2,"We only had a few sandwiches, but they kept us * until we reached the village.","doing, making, going, being",going,fixed_expressions
+multiple_choice,mc_fixed_expressions,B2,The encouraging messages kept the team * through a difficult period.,"doing, making, going, being",going,fixed_expressions
+multiple_choice,mc_definition,B2,Teaching young children can be demanding but extremely *.,"priceless, rewarding, precious, prized",rewarding,
+multiple_choice,mc_definition,B2,"Although learning a musical instrument takes years, it is highly *.","priceless, rewarding, precious, prized",rewarding,
+multiple_choice,mc_definition,B2,"Looking after animals is hard work, but many people find it *.","priceless, rewarding, precious, prized",rewarding,
+multiple_choice,mc_collocation,B2,A good leader must * excellent communication skills.,"own, hold, control, possess",possess,collocation
+multiple_choice,mc_collocation,B2,"To work in customer service, you need to * strong interpersonal skills.","own, hold, control, possess",possess,collocation
+multiple_choice,mc_collocation,B2,The ideal candidate will * both confidence and creativity.,"own, hold, control, possess",possess,collocation
+multiple_choice,mc_definition,B2,Learning a foreign language * patience and regular practice.,"requires, insists, calls, orders",requires,
+multiple_choice,mc_definition,B2,Success in this profession * both talent and determination.,"requires, insists, calls, orders",requires,
+multiple_choice,mc_definition,B2,The position * previous experience in customer service.,"requires, insists, calls, orders",requires,
+multiple_choice,mc_definition,B2,"Before crossing the bridge, we had to check whether it would * the weight of the truck.","supply, provide, support, offer",support,
+multiple_choice,mc_definition,B2,The walls were strengthened so they could * the new roof.,"supply, provide, support, offer",support,
+multiple_choice,mc_definition,B2,Engineers tested whether the structure could * the additional load.,"supply, provide, support, offer",support,
+multiple_choice,mc_phrasal,B2,Scientists are still trying to * out what caused the unusual weather.,"work, try, stand, set",work,phrasal_verbs
+multiple_choice,mc_phrasal,B2,I couldn't * out how to use the new software without reading the instructions.,"work, try, stand, set",work,phrasal_verbs
+multiple_choice,mc_phrasal,B2,It took us several hours to * out the solution to the puzzle.,"work, try, stand, set",work,phrasal_verbs
+multiple_choice,mc_collocation,B2,The child was told to * hold of his father's hand while crossing the road.,"keep, stay, continue, maintain",keep,collocation
+multiple_choice,mc_collocation,B2,The instructor reminded everyone to * hold of the handlebars during the descent.,"keep, stay, continue, maintain",keep,collocation
+multiple_choice,mc_collocation,B2,The guide advised us to * hold of the safety rail at all times.,"keep, stay, continue, maintain",keep,collocation
+multiple_choice,mc_definition,B2,She * the new employee where to find the necessary documents.,"indicates, signals, points, shows",shows,
+multiple_choice,mc_definition,B2,The volunteer * tourists how to get to the museum.,"indicates, signals, points, shows",shows,
+multiple_choice,mc_definition,B2,The instructor * beginners which equipment to use.,"indicates, signals, points, shows",shows,
+multiple_choice,mc_definition,B2,The bridge was inspected to make sure it was * for pedestrians to cross.,"safe, sure, dependable, reliable",safe,
+multiple_choice,mc_definition,B2,he lifeguard decided it wasn't * for anyone to swim because of the strong currents.,"safe, sure, dependable, reliable",safe,
+multiple_choice,mc_definition,B2,The engineer confirmed that the building was * to enter again.,"safe, sure, dependable, reliable",safe,
+multiple_choice,mc_collocation,B2,Luck sometimes * a significant part in sporting success.,"acts, does, plays, makes",plays,collocation
+multiple_choice,mc_collocation,B2,Confidence * an important part in performing well during interviews.,"acts, does, plays, makes",plays,collocation
+multiple_choice,mc_collocation,B2,Tourism * a vital part in the local economy.,"acts, does, plays, makes",plays,collocation
+multiple_choice,mc_definition,B2,Workers were * a path through the thick undergrowth.,"cutting, tearing, breaking, splitting",cutting,
+multiple_choice,mc_definition,B2,The hikers took turns * footholds into the frozen slope.,"cutting, tearing, breaking, splitting",cutting,
+multiple_choice,mc_definition,B2,The sculptor began * a detailed pattern into the wood.,"cutting, tearing, breaking, splitting",cutting,
+multiple_choice,mc_definition,B2,He slipped towards the edge but was * back to safety by his friend.,"given, pulled, put, sent",pulled,
+multiple_choice,mc_definition,B2,"Thanks to the safety rope, he was * back to safety within seconds.","given, pulled, put, sent",pulled,
+multiple_choice,mc_definition,B2,The rescue team * the injured climber back to safety with a rope.,"given, pulled, put, sent",pulled,
+multiple_choice,mc_collocation,B2,The problems * by local farmers have become more serious in recent years.,"marked, touched, left, faced",faced,collocation
+multiple_choice,mc_collocation,B2,The dangers * by rescue workers increase during severe weather.,"marked, touched, left, faced",faced,collocation
+multiple_choice,mc_collocation,B2,The challenges * by young entrepreneurs are often underestimated.,"marked, touched, left, faced",faced,collocation
+multiple_choice,mc_dependence,B2,The * of sleep affected her concentration throughout the day.,"need, gap, lack, demand",lack,noun_with_prep
+multiple_choice,mc_dependence,B2,A * of confidence can prevent people from reaching their full potential.,"need, gap, lack, demand",lack,noun_with_prep
+multiple_choice,mc_dependence,B2,His * of experience made the task more challenging.,"need, gap, lack, demand",lack,noun_with_prep
