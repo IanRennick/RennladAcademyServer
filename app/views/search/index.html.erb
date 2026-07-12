@@ -1,6 +1,58 @@
 <h1 class="text-center my-4"><%= pluralize(@questions.count, "Result") %></h1>
 
 <div class="container">
+
+
+  <%# NEW OMNI-SEARCH FEATURE: Student Matching Panel %>
+  <% if @users.any? %>
+    <div class="mb-5">
+      <h3 class="fw-bold mb-3 text-info">Matching Student Profiles (<%= @users.count %>)</h3>
+      <div class="card card-body bg-dark border-secondary p-0 overflow-hidden">
+        <table class="table table-dark table-striped align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email Address</th>
+              <th>Global Standing</th>
+              <th>Active Review Queue</th>
+              <th style="width: 120px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @users.each do |user| %>
+              <tr>
+                <td><strong class="text-white"><%= user.username %></strong></td>
+                <td><span class="text-muted"><%= user.email %></span></td>
+                <td>
+                  <span class="badge bg-primary fw-bold"><%= user.rating %> Elo</span>
+                </td>
+                <td>
+                  <% queue_count = user.user_histories.where(needs_review: true).count %>
+                  <% if queue_count > 0 %>
+                    <span class="badge bg-danger bg-opacity-25 text-danger fw-bold"><%= queue_count %> items to review</span>
+                  <% else %>
+                    <span class="badge bg-success bg-opacity-25 text-success">Clean Slate</span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to "View Profile", user_path(user), class: "btn btn-xs btn-outline-info py-1 px-2", style: "font-size: 0.8rem;" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <hr class="border-secondary my-5" />
+  <% end %>
+
+
+
+
+
+
+
+  <h3 class="fw-bold mb-3 text-warning"> Matching Curriculum Questions</h3>
   <div class="table-responsive">
     <table class="table table-dark table-striped align-middle">
       <thead>
