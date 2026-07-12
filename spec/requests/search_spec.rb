@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe "Admin Search Interface", type: :request do
+  include Devise::Test::IntegrationHelpers
+
   # 1. SETUP CLUSTER BASES: Establish levels, matching questions, and a tag
   let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1200 } }
   let!(:c1_level) { Level.find_or_create_by!(name: "C1") { |l| l.initial_rating = 1500 } }
@@ -74,6 +76,32 @@ RSpec.describe "Admin Search Interface", type: :request do
         expect(response).to have_http_status(:ok)
         # Verify the layout compiles successfully under column sorting headers
         expect(response.body).to include("unreal conditional").or(include("had"))
+      end
+    end
+
+    context "when performing an OMNI-SEARCH for student profiles" do
+      it "returns matching user records at the top of the payload template view" do
+        # ✅ FIX: Create a dedicated, self-contained student record for this isolated scenario
+        test_student = User.create!(
+          username: "omni_student_tester",
+          email: "omni_tester@example.com",
+          password: "password123",
+          password_confirmation: "password123"
+        )
+
+        # Authenticate our newly created mock user into the test session
+        sign_in test_student
+
+        # Execute search for the username we just generated
+        get "/search", params: { q: { main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any: "omni_student_tester" } }
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("omni_student_tester")
+        expect(response.body).to include("omni_tester@example.com")
+
+        # Verify filtering cleans up unmatched student rows
+        get "/search", params: { q: { main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any: "completely_empty_unmatched_search_term" } }
+        expect(response.body).to_not include("omni_tester@example.com")
       end
     end
   end
