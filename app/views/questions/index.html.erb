@@ -1,28 +1,181 @@
-<div class="container">
-    <%# Links %>
-    <%= render "questions/links" %>
-
-    <table class="table table-dark table-striped">
-        <thead>
-            <tr>
-                <%# Question Type Heading %>
-                <th scope="col">Type</th>
-
-                <%# Shared Headings %>
-                <%= render "questions/tables/shared_table_headings" %>
-            </tr>
-        </thead>
-
-        <tbody>
-            <% @questions.each do |question| %>
-                <tr>
-                    <%# Question Type %>
-                    <td><%= "#{question.kind_before_type_cast.to_i + 1}" %></td>
-
-                    <%# Shared Bodies %>
-                    <%= render partial: "questions/tables/shared_table_bodies", object: question %>
-                </tr>
+<div class="container-fluid my-4 text-white">
+  
+  <%# COMPONENT 1: The Collapsible Content-Balance Dashboard %>
+  <div class="mb-4">
+    <button class="btn btn-outline-info w-100 fw-bold py-2" type="button" data-bs-toggle="collapse" data-bs-target="#analyticsDashboard" aria-expanded="false" aria-controls="analyticsDashboard">
+      📊 Click to Toggle Content Balance & Database Analytics Dashboard
+    </button>
+    
+    <div class="collapse mt-3" id="analyticsDashboard">
+      <div class="card card-body bg-dark border-secondary p-4">
+        <div class="row">
+          
+          <%# KPI 1: CEFR Level Stock Numbers %>
+          <div class="col-md-3 border-end border-secondary">
+            <h5 class="text-info fw-bold mb-3">CEFR Levels (<%= @total_count %> Total)</h5>
+            <% %w[B1 B2 C1 C2].each do |lvl| %>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="badge bg-secondary"><%= lvl %></span>
+                <span class="fw-bold"><%= @level_counts[lvl] || 0 %> puzzles</span>
+              </div>
             <% end %>
-        </tbody>
-    </table>
+          </div>
+
+          <%# KPI 2: Question Kinds Distribution (Fixed Subtype Array Selection) %>
+          <div class="col-md-5 border-end border-secondary px-4">
+            <h5 class="text-info fw-bold mb-3">Question Kinds & Subtype Footprints</h5>
+            <div style="max-height: 750px; overflow-y: auto; padding-right: 10px;">
+              <% Question.kinds.keys.each do |kind| %>
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between fw-bold border-bottom border-secondary pb-1">
+                    <span><%= kind.humanize %></span>
+                    <span class="text-warning"><%= @kind_counts[kind] || 0 %></span>
+                  </div>
+                  
+                  <%# ✅ FIX: Match against key.first because the hash key is structured as an array: [kind, subtype] %>
+                  <% @subtype_counts.select { |key, _| key.first == kind }.each do |key, count| %>
+                    <div class="d-flex justify-content-between text-muted text-sm ps-2 mt-1" style="font-size: 0.85rem;">
+                      <%# Extract the second value (the true subtype string handle) %>
+                      <span>↳ <%= key.last.to_s.humanize %></span>
+                      <span>
+                        <%= count %> 
+                        <% if count < 20 %>
+                          <span class="badge bg-danger bg-opacity-20 text-danger ms-1" style="font-size: 0.65rem;">Low Stock</span>
+                        <% end %>
+                      </span>
+                    </div>
+                  <% end %>
+                  
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <%# KPI 3: Complete Dynamic Tag Index Cloud (Expanded to 750px height) %>
+          <div class="col-md-4 px-4">
+            <h5 class="text-info fw-bold mb-3">Complete Tag Index (<%= @all_tags.count %> Active)</h5>
+            
+            <%# ✅ Height is now exactly 3 times larger (750px) with custom padding %>
+            <div class="d-flex flex-wrap gap-2 animate-scroll" style="max-height: 750px; overflow-y: auto; padding-right: 10px;">
+              <% if @all_tags.any? %>
+                <% @all_tags.each do |tag_name, count| %>
+                  <span class="badge bg-black border border-secondary p-2 text-white-50" style="font-size: 0.85rem; height: fit-content;">
+                    #<%= tag_name %> <strong class="text-info ms-1">(<%= count %>)</strong>
+                  </span>
+                <% end %>
+              <% else %>
+                <p class="text-muted text-sm mb-0">No tags used in active questions yet.</p>
+              <% end %>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# COMPONENT 2: Main Layout Workspace Matrix %>
+  <div class="row">
+    
+    <%# LEFT COLUMN: Sticky Filter Sidebar Matrix %>
+    <div class="col-md-3 mb-4">
+      <div class="card card-body bg-dark border-secondary sticky-top" style="top: 20px; z-index: 1020;">
+        <h4 class="fw-bold mb-3 text-info border-bottom border-secondary pb-2">Filter Engine</h4>
+        
+        <%= search_form_for @query, url: questions_path, method: :get do |f| %>
+          
+          <%# 1. Master Search Input Field Box %>
+          <div class="mb-4">
+            <%= f.label :main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any, "Master Keyword Search", class: "form-label text-muted small uppercase fw-bold" %>
+            <%= f.search_field :main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any, placeholder: "Type vocabulary, tag, options...", class: "form-control bg-black text-white border-secondary" %>
+          </div>
+
+          <%# 2. Select Question Kind Filter %>
+          <div class="mb-4">
+            <%= f.label :kind_eq, "Filter by Question Kind", class: "form-label text-muted small uppercase fw-bold" %>
+            <%= f.select :kind_eq, Question.kinds.keys.map { |k| [k.humanize, Question.kinds[k]] }, { include_blank: "Show All Kinds" }, { class: "form-select bg-black text-white border-secondary" } %>
+          </div>
+
+          <%# 3. Checkboxes for CEFR Difficulty Levels %>
+          <div class="mb-4">
+            <label class="form-label text-muted small uppercase fw-bold d-block">Target CEFR Levels</label>
+            <% %w[B1 B2 C1 C2].each do |lvl| %>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="q[level_name_in][]" value="<%= lvl %>" id="check_<%= lvl %>" <%= 'checked' if params.dig(:q, :level_name_in)&.include?(lvl) %>>
+                <label class="form-check-input-label text-white" for="check_<%= lvl %>"><%= lvl %></label>
+              </div>
+            <% end %>
+          </div>
+
+          <%# 4. Action Filter Confirm Buttons %>
+          <div class="d-grid gap-2">
+            <%= f.submit "Apply Filters", class: "btn btn-info fw-bold" %>
+            <%= link_to "Clear All", questions_path, class: "btn btn-sm btn-outline-secondary text-white-50" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# RIGHT COLUMN: Dynamic Adaptive Data Grid Table %>
+    <div class="col-md-9">
+      <div class="card card-body bg-dark border-secondary p-0 overflow-hidden">
+        
+        <%# Determine which specialized table layout configuration to mount based on current parameters %>
+        <% current_kind_filter = params.dig(:q, :kind_eq) %>
+
+        <div class="table-responsive">
+          <table class="table table-dark table-striped align-middle mb-0">
+            <thead>
+              <tr>
+                <th style="width: 60px;"><%= sort_link(@query, :id, "ID") %></th>
+                <th style="width: 110px;"><%= sort_link(@query, :subtype, "Subtype") %></th>
+                <th>Question Content (Main)</th>
+                
+                <%# DYNAMIC COLUMN HEADERS BASED ON CHOSEN KIND FILTER %>
+                <% case current_kind_filter %>
+                <% when "0" # multiple_choice %>
+                  <th>Options Array Context</th>
+                <% when "2" # word_formation %>
+                  <th>Base Keyword Clue</th>
+                <% when "3" # sentence_cloze %>
+                  <th>Base Keyword Clue</th>
+                  <th>Prompt Sentence Target</th>
+                <% else # Mixed View Mode / open_cloze %>
+                  <th>Clues & Unique Configuration Parameters</th>
+                <% end %>
+
+                <th style="width: 110px;">First Answer</th>
+                <th style="width: 80px;">Level</th>
+                <th style="width: 100px;"><%= sort_link(@query, :rating, "Rating") %></th>
+                <th style="width: 90px;">Success</th>
+                <th style="width: 80px;">Actions</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+              <% if @questions.any? %>
+                <% @questions.each do |question| %>
+                  <%= render "question_row", question: question, current_filter: current_kind_filter %>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="9" class="text-center text-muted p-5">No questions matched your current filter parameter combinations.</td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <%# COMPONENT 3: Pagy Pagination Selector Footer Control Bar %>
+        <% if @pagy.pages > 1 %>
+          <div class="card-footer bg-black bg-opacity-40 border-top border-secondary p-3 d-flex justify-content-center">
+            <%# Pagy uses standard bootstrap styling markers automatically %>
+            <%== pagy_bootstrap_nav(@pagy) %>
+          </div>
+        <% end %>
+
+      </div>
+    </div>
+
+  </div>
 </div>
