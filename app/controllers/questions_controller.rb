@@ -1,40 +1,31 @@
+# app/controllers/questions_controller.rb
 class QuestionsController < ApplicationController
-  before_action :set_question, only: %i[ show ]
-
-  # GET /questions or /questions.json
   def index
-    @questions = Question.all.includes([ :level ])
+    # 1. Initialize Ransack Search Engine with eager loading to prevent N+1 bugs
+    @query = Question.ransack(params[:q])
+
+    # 2. Slice the filtered results using Pagy (Set to exactly 25 records per page)
+    @pagy, @questions = pagy(@query.result(distinct: true).includes(:level).order(created_at: :desc), items: 25)
+
+    # 3. Calculate Global & CEFR Level Balance Metrics (Aggregated in 1 SQL query)
+    @total_count = Question.count
+    @level_counts = Question.joins(:level).group("levels.name").count # e.g., {"B2"=>150, "C1"=>120}
+
+    # 4. Calculate Question Kinds Balance Metrics
+    @kind_counts = Question.group(:kind).count # e.g., {"multiple_choice"=>150, "open_cloze"=>100}
+
+    # 5. Extract Subtype Balance Metrics (Skipping nil profiles)
+    @subtype_counts = Question.where.not(subtype: nil).group(:kind, :subtype).count # e.g., {["multiple_choice", "mc_phrasal_verb"] => 90}
+
+    # 6. Extract ALL active database tags sorted alphabetically by name
+    @all_tags = Tag.joins(:question_tags)
+                   .group(:name)
+                   .order("name ASC") # Alphabetical order makes finding tags incredibly easy!
+                   .count
   end
 
-  def multiple_choices
-    # Get all multiple Choices
-    @questions = Question.where(kind: Question.kinds[:multiple_choice]).includes([ :level ])
-  end
-
-  def open_clozes
-    # Get all open CLozes
-    @questions = Question.where(kind: Question.kinds[:open_cloze]).includes([ :level ])
-  end
-
-  def word_formations
-    # Get all multiple Choices
-    @questions = Question.where(kind: Question.kinds[:word_formation]).includes([ :level ])
-  end
-
-  def sentence_clozes
-    # Get all sentence clozes
-    @questions = Question.where(kind: Question.kinds[:sentence_cloze]).includes([ :level ])
-  end
-
-  # GET /questions/1 or /questions/1.json
   def show
+    @question = Question.find(params[:id])
     @comments = @question.comments.root_threads.includes(:user)
   end
-
-
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_question
-      @question = Question.find(params.expect(:id))
-    end
 end

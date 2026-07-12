@@ -80,3 +80,6 @@ gem "bullet", "~> 8.1"
 
 # Rakes csv files
 gem "csv"
+
+# For pagination
+gem "pagy", "~> 9.3"

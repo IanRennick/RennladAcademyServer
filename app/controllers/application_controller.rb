@@ -3,6 +3,9 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   before_action :set_query
 
+  # Incorporate Pagy's backend calculator methods
+  include Pagy::Backend
+
 
   def set_query
     @query = Question.ransack(params[:q])

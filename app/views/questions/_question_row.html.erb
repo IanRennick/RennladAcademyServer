@@ -1,0 +1,92 @@
+<tr>
+  <%# 1. ID Column %>
+  <td><small class="text-muted">#<%= question.id %></small></td>
+
+  <%# 2. Subtype Column %>
+  <td>
+    <% if question.subtype.present? %>
+      <span class="text-nowrap" style="font-size: 0.85rem;"><%= question.subtype.to_s.humanize %></span>
+    <% else %>
+      <span class="text-muted small">None</span>
+    <% end %>
+  </td>
+
+  <%# 3. Main Text Content Column (Truncated with CSS for pristine scannability) %>
+  <td>
+    <div class="text-truncate" style="max-width: 320px;" title="<%= question.main %>">
+      <%= question.main %>
+    </div>
+  </td>
+
+  <%# 4. DYNAMIC CLUES & DATA MATRIX COLUMNS %>
+  <% case current_filter %>
+  <% when "0" # Filtered strictly to Multiple Choice %>
+    <td>
+      <small class="text-info font-monospace">
+        <%= question.options.join(", ") %>
+      </small>
+    </td>
+
+  <% when "2" # Filtered strictly to Word Formation %>
+    <td><strong class="text-warning font-monospace"><%= question.keyword %></strong></td>
+
+  <% when "3" # Filtered strictly to Sentence Cloze (Displays both columns) %>
+    <td><strong class="text-warning font-monospace"><%= question.keyword %></strong></td>
+    <td>
+      <%# Prompt sentences are long, so we apply a safe clipping threshold too %>
+      <div class="text-truncate font-monospace text-muted" style="max-width: 250px;" title="<%= question.prompt %>">
+        <%= question.prompt %>
+      </div>
+    </td>
+
+  <% else # Mixed General View Mode (Displays a smart unified text paragraph description cell) %>
+    <td>
+      <% case question.kind %>
+      <% when "multiple_choice" %>
+        <small class="text-muted">Choices: <%= question.options.join(", ") %></small>
+      <% when "word_formation" %>
+        <small class="text-muted">Base: <strong class="text-warning font-monospace"><%= question.keyword %></strong></small>
+      <% when "sentence_cloze" %>
+        <small class="text-muted">Clue: <strong class="text-warning font-monospace"><%= question.keyword %></strong> | Prompt: <span class="font-monospace text-muted small"><%= truncate(question.prompt, length: 20) %></span></small>
+      <% else %>
+        <span class="text-muted small">—</span>
+      <% end %>
+    </td>
+  <% end %>
+
+  <%# 5. First Answer Column %>
+  <td>
+    <code class="text-success fw-bold bg-black bg-opacity-25 px-2 py-1 rounded">
+      <%= question.answers.first || "N/A" %>
+    </code>
+  </td>
+
+  <%# 6. CEFR Level Badge %>
+  <td>
+    <span class="badge bg-secondary font-monospace"><%= question.level&.name || "N/A" %></span>
+  </td>
+
+  <%# 7. Elo Rating Badge %>
+  <td>
+    <span class="badge bg-info text-dark fw-bold"><%= question.rating %> Elo</span>
+  </td>
+
+  <%# 8. Success Rate Percentage Aggregator %>
+  <td>
+    <% if question.times_done > 0 %>
+      <% success_percentage = ((question.times_correct.to_f / question.times_done) * 100).round(1) %>
+      <span style="font-weight: bold; color: <%= success_percentage > 70 ? '#198754' : (success_percentage > 40 ? '#ffc107' : '#dc3545') %>;">
+        <%= success_percentage %>%
+      </span>
+    <% else %>
+      <span class="text-muted small">0%</span>
+    <% end %>
+  </td>
+
+  <%# 9. Simple Action Button Control %>
+  <td>
+    <%= link_to question_path(question), class: "btn btn-xs btn-outline-light px-2 py-1 text-xs", style: "font-size: 0.75rem;" do %>
+      🔍 View
+    <% end %>
+  </td>
+</tr>
