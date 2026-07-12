@@ -1,15 +1,19 @@
 class UsersController < ApplicationController
   before_action :set_user
   def profile
-    # Extract their current active review queue items
     @review_queue = @user.user_histories.where(needs_review: true).order(updated_at: :desc)
-
-    # Grab their 15 most recent question attempts total
     @recent_activity = @user.user_histories.order(created_at: :desc).limit(15)
-
-    # Load their Kind and Subtype Elo stats scoreboards
     @kind_stats = @user.user_stats.where(stat_type: "kind")
-    @subtype_stats = @user.user_stats.where(stat_type: "subtype")
+
+    # 1. NEW: Fetch the student's 5 most recent comments across all puzzles
+    @recent_comments = @user.comments.order(created_at: :desc).limit(5)
+
+    # 2. NEW: Calculate CEFR Level Accuracy metrics dynamically on the fly
+    # We group history logs by the associated question's level name string
+    history_by_level = @user.user_histories.joins(:question).joins("JOIN levels ON questions.level_id = levels.id").group("levels.name")
+
+    @total_by_level = history_by_level.count # e.g., {"B2" => 10, "C1" => 5}
+    @correct_by_level = history_by_level.where(first_attempt_correct: true).count # e.g., {"B2" => 8, "C1" => 2}
   end
 
   def chat

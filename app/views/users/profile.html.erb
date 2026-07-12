@@ -16,7 +16,31 @@
     <%# LEFT SIDEBAR: Dynamic Elo Multi-Dimensional Cards %>
     <div class="col-md-4 mb-4">
       <h3 class="fw-bold mb-3">Skill Tiers</h3>
+
+      <%# NEW PANEL: CEFR Level Tier Accuracy Matrix %>
+      <div class="card bg-dark text-white border-secondary mb-3">
+        <div class="card-header border-secondary fw-bold bg-info bg-opacity-10 text-info">CEFR Tier Accuracy</div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush bg-transparent">
+            <% %w[B1 B2 C1 C2].each do |lvl| %>
+              <% total = @total_by_level[lvl].to_i %>
+              <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-secondary">
+                <span><%= lvl %> Tier</span>
+                <% if total > 0 %>
+                  <% pct = ((@correct_by_level[lvl].to_f / total) * 100).round(1) %>
+                  <span class="fw-bold" style="color: <%= pct > 75 ? '#198754' : (pct > 45 ? '#ffc107' : '#dc3545') %>;">
+                    <%= pct %>% <small class="text-muted text-xs ms-1">(<%= @correct_by_level[lvl].to_i %>/<%= total %>)</small>
+                  </span>
+                <% else %>
+                  <span class="text-muted small">0 attempts</span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
       
+      <%# Category Focus Ratings %>
       <div class="card bg-dark text-white border-secondary mb-3">
         <div class="card-header border-secondary fw-bold bg-secondary bg-opacity-25">Category Focus Ratings</div>
         <div class="card-body p-0">
@@ -35,6 +59,7 @@
         </div>
       </div>
 
+      <%# Tag scoreboard %>
       <div class="card bg-dark text-white border-secondary">
         <div class="card-header border-secondary fw-bold bg-secondary bg-opacity-25">Tag Scoreboard (JSON Hash Preview)</div>
         <div class="card-body" style="max-height: 300px; overflow-y: auto;">
@@ -51,13 +76,54 @@
           <% end %>
         </div>
       </div>
+
+      <%# Targeted Diagnostic - Weakest Grammar Tags (<50% accuracy) %>
+      <div class="card bg-dark text-white border-secondary mt-3">
+        <div class="card-header border-secondary fw-bold bg-danger bg-opacity-10 text-danger">Target Review Areas (<50% Acc)</div>
+        <div class="card-body p-0" style="max-height: 250px; overflow-y: auto;">
+          <ul class="list-group list-group-flush bg-transparent">
+            <%# 1. Map and parse your student's tag metrics payload %>
+            <% if @user.user_tag_stat&.stats_json&.any? %>
+              <% weak_tags = [] %>
+              
+              <% @user.user_tag_stat.stats_json.each do |tag_name, metrics| %>
+                <% done = metrics['done'].to_i %>
+                <% if done > 0 %>
+                  <% accuracy = ((metrics['correct'].to_f / done) * 100).round(1) %>
+                  <%# Isolate only the tags where the student performs below 50% accuracy %>
+                  <% weak_tags << { name: tag_name, acc: accuracy, correct: metrics['correct'], total: done } if accuracy < 50.0 %>
+                <% end %>
+              <% end %>
+
+              <%# 2. Sort the failures so their absolute worst-performing grammar points bubble to the very top %>
+              <% if weak_tags.any? %>
+                <% weak_tags.sort_by! { |t| t[:acc] }.each do |tag| %>
+                  <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-secondary py-2" style="font-size: 0.9rem;">
+                    <span class="badge bg-black border border-danger text-danger-emphasis">#<%= tag[:name] %></span>
+                    <span class="fw-bold text-danger">
+                      <%= tag[:acc] %>% 
+                      <small class="text-muted text-xs ms-1">(<%= tag[:correct] %>/<%= tag[:total] %>)</small>
+                    </span>
+                  </li>
+                <% end %>
+              <% else %>
+                <li class="list-group-item bg-transparent text-success text-center border-secondary p-3 small">
+                  Outstanding! No grammar tags currently sitting below 50% accuracy.
+                </li>
+              <% end %>
+            <% else %>
+              <li class="list-group-item bg-transparent text-muted text-center border-secondary p-3 small">No grammar diagnostics logged yet.</li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <%# RIGHT MAIN CONTENT: Review Queue & Recent History Feeds %>
     <div class="col-md-8">
       <%# 1. Active Review Queue Component %>
       <div class="mb-5">
-        <h3 class="fw-bold mb-3 text-warning">⚠️ Active Review Queue (<%= @review_queue.count %> Items)</h3>
+        <h3 class="fw-bold mb-3 text-warning">Active Review Queue (<%= @review_queue.count %> Items)</h3>
         <% if @review_queue.any? %>
           <div class="list-group border border-warning border-opacity-50">
             <% @review_queue.each do |history| %>
@@ -77,14 +143,14 @@
           </div>
         <% else %>
           <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25">
-            🎉 Clean slate! This student currently has no unresolved mistakes waiting in their review queue.
+            Clean slate! This student currently has no unresolved mistakes waiting in their review queue.
           </div>
         <% end %>
       </div>
 
       <%# 2. Universal Recent Activity Feed %>
       <div>
-        <h3 class="fw-bold mb-3 text-info">⏱️ Recent Question Activity Feed</h3>
+        <h3 class="fw-bold mb-3 text-info">Recent Question Activity Feed</h3>
         <% if @recent_activity.any? %>
           <div class="table-responsive">
             <table class="table table-dark table-striped align-middle border border-secondary">
@@ -124,6 +190,34 @@
           </div>
         <% else %>
           <p class="text-muted p-3 border border-secondary rounded text-center">No question attempts have been made by this profile yet.</p>
+        <% end %>
+      </div>
+
+      <%# ✅ NEW PANEL: Live Student Forum Activity Timeline Feed %>
+      <div class="mt-5">
+        <h3 class="fw-bold mb-3 text-info">Recent Student Doubts & Comments</h3>
+        <% if @recent_comments.any? %>
+          <div class="list-group border border-secondary border-opacity-50">
+            <% @recent_comments.each do |comment| %>
+              <%# Extract the true parent question link to review their exact workspace context %>
+              <% target_puzzle = comment.commentable %>
+              <div class="list-group-item bg-dark text-white border-secondary p-3">
+                <div class="d-flex w-100 justify-content-between mb-2">
+                  <%= link_to "Question ##{target_puzzle.id} (#{target_puzzle.kind.to_s.humanize})", question_path(target_puzzle), class: "fw-bold text-warning text-decoration-none" %>
+                  <small class="text-muted"><%= time_ago_in_words(comment.created_at) %> ago</small>
+                </div>
+                <div class="font-monospace text-light bg-black p-2 bg-opacity-25 rounded border border-secondary border-opacity-25 mb-2" style="font-size: 0.9rem;">
+                  <%= truncate(target_puzzle.main, length: 90) %>
+                </div>
+                <%# ✅ FIX: Extracted inline text gsub to its own clean, un-commented block tag %>
+                <div class="text-white-50 small border-start border-info ps-3 my-2 style-italic">
+                  "<%= comment.body.to_s.gsub(/<\/?[^>]*>/, "").strip %>"
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-muted p-3 border border-secondary rounded text-center small">This student has not posted any question comments or forum queries yet.</p>
         <% end %>
       </div>
     </div>
