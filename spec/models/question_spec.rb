@@ -66,7 +66,7 @@ RSpec.describe Question, type: :model do
     it "allows a valid matching subtype to be saved successfully" do
       question = Question.new(
         kind: :multiple_choice,
-        subtype: :mc_phrasal_verb,
+        subtype: :mc_phrasal,
         level: b2_level,
         main: "He decided to ___ smoking.",
         options: [ "give up", "take up" ],

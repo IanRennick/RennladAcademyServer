@@ -10,7 +10,7 @@ RSpec.describe "Admin Search Interface", type: :request do
   let!(:phrasal_question) do
     Question.create!(
       kind: :multiple_choice,
-      subtype: :mc_phrasal_verb,
+      subtype: :mc_phrasal,
       level: b2_level,
       main: "Bob decided to * up a new sport.",
       options: [ "give", "take", "look" ],
