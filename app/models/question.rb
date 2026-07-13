@@ -22,7 +22,7 @@ class Question < ApplicationRecord
 
   # Define all possible subtypes as a flat enum list mapping to integers
   enum :subtype, {
-    mc_phrasal_verb: 0,
+    mc_phrasal: 0,
     mc_collocation: 1,
     oc_phrasal: 2,
     oc_auxiliary: 3,
@@ -57,15 +57,21 @@ class Question < ApplicationRecord
     oc_fixed_expressions: 32,
     oc_comparison: 33,
     oc_quantifier: 34,
-    oc_conditional: 35
+    oc_conditional: 35,
+    mc_definition: 36,
+    mc_linkers: 37,
+    mc_quantifier: 38,
+    mc_fixed_expressions: 39,
+    mc_dependence: 40,
+    wf_adjective: 41
   }
 
 
   # A map to organize which subtypes belong to which kind
   SUBTYPES_BY_KIND = {
-    "multiple_choice" => [ :mc_phrasal_verb, :mc_collocation ],
+    "multiple_choice" => [ :mc_phrasal, :mc_collocation, :mc_definition, :mc_linkers, :mc_quantifier, :mc_fixed_expressions, :mc_dependence ],
     "open_cloze"      => [ :oc_phrasal, :oc_auxiliary, :oc_determiner, :oc_preposition, :oc_linkers, :oc_relative_pronoun, :oc_article, :oc_as_like, :oc_negation, :oc_inversion, :oc_causative, :oc_fixed_expressions, :oc_comparison, :oc_quantifier, :oc_conditional ],
-    "word_formation"  => [ :wf_noun, :wf_verb, :wf_adverb ],
+    "word_formation"  => [ :wf_noun, :wf_verb, :wf_adverb, :wf_adjective ],
     "sentence_cloze"  => [ :sc_conditional, :sc_passive, :sc_reported_speech, :sc_unreal_past, :sc_structure_change, :sc_tense_change, :sc_intensifiers, :sc_modals, :sc_fixed_expression, :sc_verb_patterns, :sc_stative_verbs, :sc_relative_clauses, :sc_phrasal, :sc_linkers, :sc_comparisons, :sc_quantifier ]
   }.freeze
 

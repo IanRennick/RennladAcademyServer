@@ -209,6 +209,7 @@ GEM
     parser (3.3.11.1)
       ast (~> 2.4.1)
       racc
+    pg (1.6.3-x86_64-linux)
     pp (0.6.4)
       prettyprint
     prettyprint (0.2.0)
@@ -357,7 +358,6 @@ GEM
       fugit (~> 1.11)
       railties (>= 7.1)
       thor (>= 1.3.1)
-    sqlite3 (2.9.5-x86_64-linux-gnu)
     sshkit (1.25.0)
       base64
       logger
@@ -416,6 +416,7 @@ DEPENDENCIES
   kamal
   mini_magick
   pagy (~> 9.3)
+  pg (~> 1.1)
   propshaft
   puma (>= 5.0)
   rack-cors (~> 3.0)
@@ -428,7 +429,6 @@ DEPENDENCIES
   solid_cable
   solid_cache
   solid_queue
-  sqlite3 (>= 2.1)
   stimulus-rails
   thruster
   turbo-rails

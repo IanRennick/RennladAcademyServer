@@ -11,7 +11,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
   let!(:question) do
     Question.create!(
       kind: :multiple_choice,
-      subtype: :mc_phrasal_verb,
+      subtype: :mc_phrasal,
       level: b2_level,
       main: "He decided to ___ smoking.",
       options: [ "give up", "take up", "look up" ],
@@ -127,7 +127,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
     # Test filterng by subtype
     context "when filtering by a specific subtype integer string" do
       it "returns only questions that match that exact subtype" do
-        # 0 is the integer value for :mc_phrasal_verb
+        # 0 is the integer value for :mc_phrasal
         get "/api/v1/questions/random", params: { subtype: "0" }
 
         expect(response).to have_http_status(:ok)
@@ -225,7 +225,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
         expect(kind_stat.times_correct).to eq(1)
         expect(kind_stat.rating).to eq(1232)
 
-        subtype_stat = user.user_stats.find_by(stat_type: "subtype", stat_key: 0) # 0 = mc_phrasal_verb
+        subtype_stat = user.user_stats.find_by(stat_type: "subtype", stat_key: 0) # 0 = mc_phrasal
         expect(subtype_stat.times_done).to eq(1)
         expect(subtype_stat.times_correct).to eq(1)
 

@@ -1,0 +1,133 @@
+kind,subtype,level,main,answers,keyword,tag_list
+word_formation,wf_noun,B2,he children stared in * when the magician made the rabbit disappear.,amazement,AMAZE,verb_to_noun
+word_formation,wf_noun,B2,She listened in * as he described his journey across Antarctica.,amazement,AMAZE,verb_to_noun
+word_formation,wf_noun,B2,Everyone looked on in * as the rescue helicopter landed on the roof.,amazement,AMAZE,verb_to_noun
+word_formation,wf_adjective,B2,The police warned drivers about the * road conditions.,dangerous,DANGER,adj_to_noun
+word_formation,wf_adjective,B2,any people underestimate how * mountain weather can become.,dangerous,DANGER,adj_to_noun
+word_formation,wf_adjective,B2,Climbers should avoid the * paths after heavy rain.,dangerous,DANGER,adj_to_noun
+word_formation,wf_noun,B2,Many * spend years training before appearing on stage professionally.,performers,PERFORM,verb_to_noun
+word_formation,wf_noun,B2,The festival attracts hundreds of talented * from around the world.,performers,PERFORM,verb_to_noun
+word_formation,wf_noun,B2,The competition is open to * of all ages and experience levels.,performers,PERFORM,verb_to_noun
+word_formation,wf_noun,B2,Many musicians find it difficult to make a * from their music.,living,LIVE,verb_to_noun
+word_formation,wf_noun,B2,She earns her * as a freelance photographer.,living,LIVE,verb_to_noun
+word_formation,wf_noun,B2,"For years, the family earned their * through fishing.",living,LIVE,verb_to_noun
+word_formation,wf_adverb,B2,The view from the top of the mountain was * impressive.,incredibly,INCREDIBLE,adj_to_adv
+word_formation,wf_adverb,B2,The museum was * popular with school groups.,incredibly,INCREDIBLE,adj_to_adv
+word_formation,wf_adverb,B2,The performance was * moving and received a standing ovation.,incredibly,INCREDIBLE,adj_to_adv
+word_formation,wf_verb,B2,All applicants must * that they have the necessary qualifications.,prove,PROOF,verb_to_noun
+word_formation,wf_verb,B2,The company was unable to * that the product was completely safe.,prove,PROOF,verb_to_noun
+word_formation,wf_verb,B2,ou will need to * your identity before collecting the parcel.,prove,PROOF,verb_to_noun
+word_formation,wf_noun,B2,Workers receive regular training to improve * in the workplace.,safety,SAFE,adj_to_noun
+word_formation,wf_noun,B2,Food * is carefully monitored throughout the production process.,safety,SAFE,adj_to_noun
+word_formation,wf_noun,B2,The new regulations were introduced to increase public *.,safety,SAFE,adj_to_noun
+word_formation,wf_adjective,B2,The artist paid attention to the * feature of the painting.,tiniest,TINY,comparison
+word_formation,wf_adjective,B2,The scientists recorded even the * change in temperature.,tiniest,TINY,comparison
+word_formation,wf_adjective,B2,The report had been checked down to the * detail.,tiniest,TINY,comparison
+word_formation,wf_adjective,B2,The report contained several * errors that should have been corrected.,careless,CARE,"adj_to_verb, negation"
+word_formation,wf_adjective,B2,The mechanic admitted that a * inspection had led to the problem.,careless,CARE,"adj_to_verb, negation"
+word_formation,wf_adjective,B2,The police believe the fire was the result of * behaviour.,careless,CARE,"adj_to_verb, negation"
+word_formation,wf_adjective,B2,"* traditional classrooms, online courses allow students to study whenever they want.",unlike,LIKE,negation
+word_formation,wf_adjective,B2,"* previous generations, many young people today communicate mainly online.",unlike,LIKE,negation
+word_formation,wf_adjective,B2,"* the original version, the new model uses much less energy.",unlike,LIKE,negation
+word_formation,wf_adverb,B2,The experiment was carried out * to ensure the results were accurate.,repeatedly,REPEAT,adj_to_adv
+word_formation,wf_adverb,B2,The athlete practised the routine * before the competition.,repeatedly,REPEAT,adj_to_adv
+word_formation,wf_adverb,B2,Visitors are * reminded not to feed the animals.,repeatedly,REPEAT,adj_to_adv
+word_formation,wf_adjective,B2,Police are investigating the * disappearance of a local businessman.,mysterious,MYSTERY,adj_to_noun
+word_formation,wf_adjective,B2,Scientists are still trying to explain the * signals received from deep underwater.,mysterious,MYSTERY,adj_to_noun
+word_formation,wf_adjective,B2,The island is home to a * species that has rarely been seen.,mysterious,MYSTERY,adj_to_noun
+word_formation,wf_noun,B2,Scientists are still debating the * of life on other planets.,existence,EXIST,verb_to_noun
+word_formation,wf_noun,B2,Nobody questioned the * of the problem until it became impossible to ignore.,existence,EXIST,verb_to_noun
+word_formation,wf_noun,B2,The discovery confirmed the * of an ancient civilisation.,existence,EXIST,verb_to_noun
+word_formation,wf_adverb,B2,The painting was * damaged during transport.,accidentally,ACCIDENT,noun_to_adv
+word_formation,wf_adverb,B2,The photograph was * taken at exactly the right moment.,accidentally,ACCIDENT,noun_to_adv
+word_formation,wf_adverb,B2,She * deleted the file while trying to save it.,accidentally,ACCIDENT,noun_to_adv
+word_formation,wf_noun,B2,Scientists are still looking for * that life exists on other planets.,proof,PROVE,verb_to_noun
+word_formation,wf_noun,B2,"Despite years of research, there is still little * to support the theory.",proof,PROVE,verb_to_noun
+word_formation,wf_noun,B2,"Without * of ownership, the museum could not return the artwork.",proof,PROVE,verb_to_noun
+word_formation,wf_noun,B2,"After reviewing all the evidence, the committee reached the * that no rules had been broken.",conclusion,CONCLUDE,verb_to_noun
+word_formation,wf_noun,B2,It is difficult to draw a * without more information.,conclusion,CONCLUDE,verb_to_noun
+word_formation,wf_noun,B2,His careful analysis resulted in the * that the original theory was correct.,conclusion,CONCLUDE,verb_to_noun
+word_formation,wf_noun,B2,The report is based on a detailed * of the survey results.,analysis,ANALYSE,verb_to_noun
+word_formation,wf_noun,B2,The researchers published an * of the data they had collected.,analysis,ANALYSE,verb_to_noun
+word_formation,wf_noun,B2,The team's * revealed several unexpected patterns.,analysis,ANALYSE,verb_to_noun
+word_formation,wf_adjective,B2,The museum is * to open before the end of the year because the work is behind schedule.,unlikely,LIKELY,negation
+word_formation,wf_adjective,B2,"Without additional funding, the project is * to continue.",unlikely,LIKELY,negation
+word_formation,wf_adjective,B2,Experts believe it is * that the missing painting will ever be recovered.,unlikely,LIKELY,negation
+word_formation,wf_noun,B2,Many * believe that further research is needed before any conclusions can be drawn.,scientists,SCIENCE,noun_to_noun
+word_formation,wf_noun,B2,The team of * published its findings in an international journal.,scientists,SCIENCE,noun_to_noun
+word_formation,wf_noun,B2,The * hope that the new technology will improve medical treatment.,scientists,SCIENCE,noun_to_noun
+word_formation,wf_adjective,B2,It seems * that the company can survive without further investment.,doubtful,DOUBT,adj_to_verb
+word_formation,wf_adjective,B2,Experts think it is * that the missing ship will ever be found.,doubtful,DOUBT,adj_to_verb
+word_formation,wf_adjective,B2,The police believe it is incedibly * that the stolen painting will be recovered.,doubtful,DOUBT,adj_to_verb
+word_formation,wf_adverb,B2,Only a * dedicated team could have completed the project on time.,truly,TRUE,adj_to_adv
+word_formation,wf_adverb,B2,His actions showed that he was * committed to helping others.,truly,TRUE,adj_to_adv
+word_formation,wf_adverb,B2,The museum is * one of the city's greatest attractions.,truly,TRUE,adj_to_adv
+word_formation,wf_noun,B2,"In *, all participants will receive a certificate at the end of the course.",addition,ADD,verb_to_noun
+word_formation,wf_noun,B2,"In * to English, she speaks fluent French and Spanish.",addition,ADD,verb_to_noun
+word_formation,wf_noun,B2,"The new sports centre has a swimming pool. In *, it includes several tennis courts.",addition,ADD,verb_to_noun
+word_formation,wf_adjective,B2,"By the time the train arrived, most of the passengers were fast *.",asleep,SLEEP,adj_to_verb
+word_formation,wf_adjective,B2,The baby was sound * by eight o'clock.,asleep,SLEEP,adj_to_verb
+word_formation,wf_adjective,B2,She soon fell * despite the noise outside.,asleep,SLEEP,adj_to_verb
+word_formation,wf_adverb,B2,The children * waved goodbye as the bus pulled away.,cheerfully,CHEER,verb_to_adv
+word_formation,wf_adverb,B2,The receptionist * welcomed visitors to the hotel.,cheerfully,CHEER,verb_to_adv
+word_formation,wf_adverb,B2,"Despite the rain, the volunteers * continued their work.",cheerfully,CHEER,verb_to_adv
+word_formation,wf_adjective,B2,She's an * teacher who always keeps her students motivated.,energetic,ENERGY,adj_to_noun
+word_formation,wf_adjective,B2,The band gave an * performance that had the audience dancing.,energetic,ENERGY,adj_to_noun
+word_formation,wf_adjective,B2,The new manager has brought an * approach to the company.,energetic,ENERGY,adj_to_noun
+word_formation,wf_noun,B2,Trying to climb the mountain in that weather would be pure *.,madness,MAD,adj_to_noun
+word_formation,wf_noun,B2,It would be sheer * to ignore the doctor's advice.,madness,MAD,adj_to_noun
+word_formation,wf_noun,B2,The decision to continue the match during the storm seemed like total *.,madness,MAD,adj_to_noun
+word_formation,wf_adjective,B2,Children need a * balance between study and relaxation.,healthy,HEALTH,adj_to_noun
+word_formation,wf_adjective,B2,Getting enough sleep is essential for a * body and mind.,healthy,HEALTH,adj_to_noun
+word_formation,wf_adjective,B2,Experts encourage people to develop * eating habits.,healthy,HEALTH,adj_to_noun
+word_formation,wf_noun,B2,* of the sports centre is open to anyone over the age of sixteen.,membership,MEMBER,noun_to_noun
+word_formation,wf_noun,B2,The club hopes to increase its * by offering reduced fees for students.,membership,MEMBER,noun_to_noun
+word_formation,wf_noun,B2,* of the organisation has increased significantly in recent years.,membership,MEMBER,noun_to_noun
+word_formation,wf_noun,B2,The audience's * to the performance was extremely positive.,response,RESPOND,verb_to_noun
+word_formation,wf_noun,B2,The company received an encouraging * from its customers.,response,RESPOND,verb_to_noun
+word_formation,wf_noun,B2,There was no * to the email for several days.,response,RESPOND,verb_to_noun
+word_formation,wf_adverb,B2,The equipment is * checked to ensure it is safe to use.,regularly,REGULAR,adj_to_adv
+word_formation,wf_adverb,B2,You should * back up your files to avoid losing important information.,regularly,REGULAR,adj_to_adv
+word_formation,wf_adverb,B2,The museum * organises special exhibitions for schools.,regularly,REGULAR,adj_to_adv
+word_formation,wf_noun,B2,There has been a marked * in air quality over the past decade.,improvement,IMPROVE,verb_to_noun
+word_formation,wf_noun,B2,The new road has led to a considerable * in traffic flow.,improvement,IMPROVE,verb_to_noun
+word_formation,wf_noun,B2,The latest figures show a steady * in employment levels.,improvement,IMPROVE,verb_to_noun
+word_formation,wf_noun,B2,The two paintings have many similarities despite their obvious *.,differences,DIFFERENT,adj_to_noun
+word_formation,wf_noun,B2,"Although they are twins, there are obvious * in their personalities.",differences,DIFFERENT,adj_to_noun
+word_formation,wf_noun,B2,Scientists noticed small * in the results of the two experiments.,differences,DIFFERENT,adj_to_noun
+word_formation,wf_adjective,B2,Scientists are investigating whether the chemical is * to wildlife.,harmful,HARM,adj_to_verb
+word_formation,wf_adjective,B2,Eating too much salt can have * effects on the body.,harmful,HARM,adj_to_verb
+word_formation,wf_adjective,B2,The report concluded that the waste posed no * effects on the environment.,harmful,HARM,adj_to_verb
+word_formation,wf_noun,B2,The doctor asked whether stress or * might be causing the symptoms.,anxiety,ANXIOUS,adj_to_noun
+word_formation,wf_noun,B2,The announcement created considerable * among local residents.,anxiety,ANXIOUS,adj_to_noun
+word_formation,wf_noun,B2,His * disappeared once he heard the good news.,anxiety,ANXIOUS,adj_to_noun
+word_formation,wf_verb,B2,This medicine should * the pain within a few minutes.,relieve,RELIEF,verb_to_noun
+word_formation,wf_verb,B2,The cream is designed to * itching caused by insect bites.,relieve,RELIEF,verb_to_noun
+word_formation,wf_verb,B2,A short break can * stress after a busy day.,relieve,RELIEF,verb_to_noun
+word_formation,wf_adjective,B2,"For several minutes, the audience remained * in complete silence.",motionless,MOTION,adj_to_noun
+word_formation,wf_adjective,B2,She sat * while listening to the announcement.,motionless,MOTION,adj_to_noun
+word_formation,wf_adjective,B2,he child remained * throughout the medical examination.,motionless,MOTION,adj_to_noun
+word_formation,wf_adjective,B2,We spent a * afternoon walking beside the lake.,peaceful,PEACE,adj_to_noun
+word_formation,wf_adjective,B2,The lake looked completely * in the early morning light.,peaceful,PEACE,adj_to_noun
+word_formation,wf_adjective,B2,It was such a * atmosphere that everyone felt relaxed.,peaceful,PEACE,adj_to_noun
+word_formation,wf_adverb,B2,The mountain village is * isolated during the winter.,extremely,EXTREME,adj_to_adv
+word_formation,wf_adverb,B2,The journey was * tiring because of the hot weather.,extremely,EXTREME,adj_to_adv
+word_formation,wf_adverb,B2,She was * pleased with the results of the competition.,extremely,EXTREME,adj_to_adv
+word_formation,wf_adjective,B2,The course provides * advice for people starting their own business.,practical,PRACTICE,adj_to_noun
+word_formation,wf_adjective,B2,The workshop gives students * experience of working in a laboratory.,practical,PRACTICE,adj_to_noun
+word_formation,wf_adjective,B2,The training combines theoretical knowledge with * skills.,practical,PRACTICE,adj_to_noun
+word_formation,wf_noun,B2,The doctor checked the patient's blood * before prescribing the medication.,pressure,PRESS,verb_to_noun
+word_formation,wf_noun,B2,Parents should avoid putting too much * on their children to succeed.,pressure,PRESS,verb_to_noun
+word_formation,wf_noun,B2,The bridge was designed to withstand enormous *.,pressure,PRESS,verb_to_noun
+word_formation,wf_noun,B2,A basic level of * is required to complete the course.,fitness,FIT,adj_to_noun
+word_formation,wf_noun,B2,The doctor recommended more physical activity to improve his overall *.,fitness,FIT,adj_to_noun
+word_formation,wf_noun,B2,The school encourages pupils to develop their * through regular sport.,fitness,FIT,adj_to_noun
+word_formation,wf_noun,B2,The guide was of great * to visitors who had never been to the city before.,assistance,ASSIST,verb_to_noun
+word_formation,wf_noun,B2,The charity provides financial * to families in need.,assistance,ASSIST,verb_to_noun
+word_formation,wf_noun,B2,The project could not have been completed without the * of hundreds of volunteers.,assistance,ASSIST,verb_to_noun
+word_formation,wf_noun,B2,The engineers are looking for practical * to the city's traffic problems.,solutions,SOLVE,verb_to_noun
+word_formation,wf_noun,B2,The course encourages students to develop creative * to real-life problems.,solutions,SOLVE,verb_to_noun
+word_formation,wf_noun,B2,Finding long-term * requires careful planning.,solutions,SOLVE,verb_to_noun
+word_formation,wf_adjective,B2,The hotel staff apologised for the * experience.,unpleasant,PLEASANT,negation
+word_formation,wf_adjective,B2,Nobody enjoys having an * conversation with their boss.,unpleasant,PLEASANT,negation
+word_formation,wf_adjective,B2,The police had to deal with several * incidents during the evening.,unpleasant,PLEASANT,negation
