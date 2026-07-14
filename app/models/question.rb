@@ -111,6 +111,53 @@ class Question < ApplicationRecord
   end
 
 
+  # ✅ V2 MULTI-PART EVALUATION ENGINE
+  # Evaluates a flat C2 string submission and returns a fractional float score (0.0 to 1.0)
+  def score_flat_submission(submitted_text)
+    cleaned_input = submitted_text.to_s.strip.gsub(/\s+/, " ").downcase
+    return 0.0 if cleaned_input.blank?
+
+    best_fractional_score = 0.0
+
+    # question.answers holds your array, e.g., ["no problem || solving", "little difficulty || in solving"]
+    # Inside your score_flat_submission(submitted_text) method:
+    answers.each do |combo|
+      # ✅ FIX: Explicitly run strip on both elements to eliminate hidden whitespace mismatches completely
+      blocks = combo.split("||").map { |b| b.to_s.strip.downcase }
+
+      if blocks.size == 2
+        block1, block2 = blocks[0], blocks[1]
+
+        # Create a dynamic regex that expects block1, followed by spaces, followed by block2
+        regex = /\A(?<b1>#{Regexp.escape(block1)})\s+(?<b2>#{Regexp.escape(block2)})\z/
+
+        if (match = cleaned_input.match(regex))
+          return 1.0
+        end
+
+        # ✅ With strip active, start_with? and end_with? will match your text perfectly!
+        if cleaned_input.start_with?(block1)
+          current_score = 0.5
+        elsif cleaned_input.end_with?(block2)
+          current_score = 0.5
+        else
+          current_score = 0.0
+        end
+
+        best_fractional_score = current_score if current_score > best_fractional_score
+      else
+        # Backward compatibility fallback for single-blank questions
+        single_answer = combo.to_s.strip.downcase
+        if cleaned_input == single_answer
+          return 1.0
+        end
+      end
+    end
+
+    best_fractional_score
+  end
+
+
   private
 
   def clean_data
