@@ -1,31 +1,32 @@
-# Load the Rails application.
-require_relative "application"
-
-# Initialize the Rails application.
 Rails.application.initialize!
 
-# 🚀 TEMPORARY V1 PRODUCTION INITIALIZER TRICK
-# This executes automatically inside Render's free container exactly once during boot!
 if Rails.env.production?
   Thread.new do
-    # Give the primary web server 5 seconds to bind its ports cleanly first
+    # Give the primary web server 5 seconds to bind its network ports first
     sleep 5
-    puts "📡 [Boot Trigger] Starting database seeding process..."
+    puts "📡 [Initial Boot] Starting full production database initialization..."
 
     begin
-      # 1. Run seeds first to guarantee levels and Doorkeeper client exist
-      Rails.application.load_seed
-      puts "📡 [Boot Trigger] Seeds completed successfully!"
-
-      # 2. Programmatically invoke your spreadsheet puzzle uploader rake task
-      puts "📡 [Boot Trigger] Invoking spreadsheet uploader..."
-      Rake::Task.clear # Reset rake memory tracking maps
+      Rake::Task.clear
       Rails.application.load_tasks
+
+      # 1. Compile layout assets to fix 404 styling warnings
+      puts "📡 [Initial Boot] Compiling layout assets..."
+      Rake::Task["assets:precompile"].invoke
+      puts "📡 [Initial Boot] Asset compilation complete!"
+
+      # 2. Run seeds first to build your CEFR Levels and Doorkeeper keys safely
+      puts "📡 [Initial Boot] Committing database seed records..."
+      Rails.application.load_seed
+      puts "📡 [Initial Boot] Seeds completed successfully!"
+
+      # 3. Run puzzle importer second now that Levels are fully guaranteed
+      puts "📡 [Initial Boot] Invoking curriculum puzzle uploader task..."
       Rake::Task["db:import_puzzles"].invoke
-      puts "📡 [Boot Trigger] 250+ questions imported successfully into Postgres!"
+      puts "📡 [Initial Boot] 250+ questions imported successfully into Postgres!"
 
     rescue => e
-      puts "❌ [Boot Trigger Error]: #{e.message}"
+      puts "❌ [Initial Boot Error]: #{e.message}"
     end
   end
 end

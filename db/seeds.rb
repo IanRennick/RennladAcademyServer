@@ -16,9 +16,6 @@ end
 # Add admin user
 User.create(username: "Rennick", email: "renn@example.com", password: "password", password_confirmation: "password", role: User.roles[:admin])
 
-# Add test user
-User.create(username: "Bob", email: "test@example.com", password: "password", password_confirmation: "password")
-
 # Add levels
 levels_data = [
   { name: "B1", initial_rating: 900,  description: "Intermediate language level. Can understand familiar matters." },
@@ -38,19 +35,7 @@ levels_data.each do |data|
 end
 
 
-
-# Add test writings
-10.times do |x|
-  writing = Writing.create(user_id: User.second.id, body: "This is a test writing. I hope it's working.")
-
-  5.times do |y|
-    Comment.create(user_id: User.first.id, body: "This is a test comment", commentable: writing)
-  end
-end
-
-
-
 # Test chat rooms
-Room.create(name: "Test")
-Room.create(name: "General")
-Room.create(name: "Intro")
+# Room.create(name: "Test")
+# Room.create(name: "General")
+# Room.create(name: "Intro")
