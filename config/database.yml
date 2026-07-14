@@ -86,6 +86,14 @@ test:
 #
 production:
   <<: *default
-  # Render automatically handles username and password credentials behind the scenes
-  # via the secure DATABASE_URL environment parameter configuration rule
   url: <%= ENV["DATABASE_URL"] %>
+  # ✅ FIX: Tell Rails 8's built-in engines to use this main connection pool!
+  cache:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+  queue:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+  cable:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
