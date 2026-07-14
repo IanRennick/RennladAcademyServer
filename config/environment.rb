@@ -1,37 +1,32 @@
-# 1. ✅ RESTORED: Load the Rails application framework and core boot configurations first!
 require_relative "application"
 
-# 2. Initialize the Rails application components
 Rails.application.initialize!
 
-# 🚀 INITIAL PRODUCTION DATA LOADER
 if Rails.env.production?
   Thread.new do
-    # Give the primary web server 5 seconds to bind its network ports first
+    # Give Puma 5 seconds to open its web ports to the internet cleanly first
     sleep 5
-    puts "📡 [Initial Boot] Starting full production database initialization..."
 
-    begin
-      Rake::Task.clear
-      Rails.application.load_tasks
+    # ✅ FIX: Wrap background threads in the Rails executor to grant database connection pool access!
+    Rails.application.executor.wrap do
+      puts "📡 [Initial Boot] Background database initialization thread activated..."
 
-      # Compile layout assets to fix 404 styling warnings
-      puts "📡 [Initial Boot] Compiling layout assets..."
-      Rake::Task["assets:precompile"].invoke
-      puts "📡 [Initial Boot] Asset compilation complete!"
+      begin
+        # 1. Run seeds to build your CEFR Levels and Doorkeeper keys safely
+        puts "📡 [Initial Boot] Committing database seed records..."
+        Rails.application.load_seed
+        puts "📡 [Initial Boot] Seeds completed successfully! CEFR Levels initialized."
 
-      # Run seeds first to build your CEFR Levels and Doorkeeper keys safely
-      puts "📡 [Initial Boot] Committing database seed records..."
-      Rails.application.load_seed
-      puts "📡 [Initial Boot] Seeds completed successfully!"
+        # 2. Run puzzle importer now that Levels are 100% guaranteed
+        puts "📡 [Initial Boot] Invoking curriculum puzzle uploader task..."
+        Rake::Task.clear
+        Rails.application.load_tasks
+        Rake::Task["db:import_puzzles"].invoke
+        puts "📡 [Initial Boot] 250+ questions successfully imported into production PostgreSQL!"
 
-      # Run puzzle importer second now that Levels are fully guaranteed
-      puts "📡 [Initial Boot] Invoking curriculum puzzle uploader task..."
-      Rake::Task["db:import_puzzles"].invoke
-      puts "📡 [Initial Boot] 250+ questions imported successfully into Postgres!"
-
-    rescue => e
-      puts "❌ [Initial Boot Error]: #{e.message}"
+      rescue => e
+        puts "❌ [Initial Boot Error]: #{e.message}"
+      end
     end
   end
 end

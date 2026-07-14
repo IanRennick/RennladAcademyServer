@@ -8,15 +8,29 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-# Create Doorkeeper application
-if Doorkeeper::Application.count.zero?
-  Doorkeeper::Application.create(name: "Web Client", redirect_uri: "", scopes: "")
+# 1. ✅ PROTECT DOORKEEPER: Uses find_or_create_by! to completely protect your active React token keys
+puts "🔑 Checking Production Doorkeeper Token Client..."
+Doorkeeper::Application.find_or_create_by!(name: "React Frontend App Client") do |app|
+  app.redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+  app.confidential = false
 end
 
-# Add admin user
-User.create(username: "Rennick", email: "renn@example.com", password: "password", password_confirmation: "password", role: User.roles[:admin])
+# 2. ✅ PROTECT ADMIN: Uses find_or_initialize_by to prevent email/username unique crashes
+puts "👤 Checking Admin User Accounts..."
+admin = User.find_or_initialize_by(email: "renn@example.com")
+if admin.new_record?
+  admin.username = "Rennick"
+  admin.password = "password" # Make sure to change this to a secure string on your live app screen!
+  admin.password_confirmation = "password"
+  admin.role = User.roles[:admin]
+  admin.save!
+  puts "👤 Created master admin account: Rennick"
+else
+  puts "👤 Admin account already exists. Skipping."
+end
 
-# Add levels
+# 3. ✅ PROTECT CEFR LEVELS: Uses find_or_initialize_by so ratings and descriptions are never wiped out
+puts "🎯 Checking CEFR Level baseline tiers..."
 levels_data = [
   { name: "B1", initial_rating: 900,  description: "Intermediate language level. Can understand familiar matters." },
   { name: "B2", initial_rating: 1200, description: "Upper-Intermediate language level. Can understand complex texts." },
@@ -24,18 +38,16 @@ levels_data = [
   { name: "C2", initial_rating: 1800, description: "Proficiency language level. Can understand everything with total ease." }
 ]
 
-levels = {}
 levels_data.each do |data|
-  level = Level.create!(
-    name: data[:name],
-    initial_rating: data[:initial_rating],
-    description: data[:description]
-  )
-  levels[level.name] = level
+  level = Level.find_or_initialize_by(name: data[:name])
+  if level.new_record?
+    level.initial_rating = data[:initial_rating]
+    level.description = data[:description]
+    level.save!
+    puts "🎯 Created CEFR Tier: #{data[:name]}"
+  else
+    puts "🎯 CEFR Tier #{data[:name]} already exists. Skipping."
+  end
 end
 
-
-# Test chat rooms
-# Room.create(name: "Test")
-# Room.create(name: "General")
-# Room.create(name: "Intro")
+puts "🎉 Safe Seeds Check Execution Complete!"
