@@ -41,11 +41,8 @@ plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
 
 
-# ✅ DEPLOYMENT FIX: Configure Puma for web concurrency process control in production
 if ENV.fetch("RAILS_ENV", "development") == "production"
-  # Free cloud tiers run best with exactly 2 clustered background worker processes
-  workers ENV.fetch("WEB_CONCURRENCY") { 2 }
-
-  # Preloading the app cuts copy-on-write memory usage significantly
+  # ✅ DEPLOYMENT TWEAK: Set workers to 1 to stay perfectly within Render's free memory box
+  workers 1
   preload_app!
 end
