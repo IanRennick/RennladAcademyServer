@@ -94,115 +94,100 @@ class Api::V1::QuestionsController < ApiController
 
   # POST /api/v1/questions/:id/submit_answer
   def submit_answer
-    @question = Question.find(params[:id])
-    # Doorkeeper token lookup method
-    user = current_user
+    question = Question.find(params[:id])
+    submitted_text = params[:answer] || params[:submitted_text]
+    mode_param = params[:mode] || params[:practice_mode]
 
-    # Strip whitespace and make lowercase for case-insensitive verification
-    submitted_raw = params[:answer].to_s.strip
-    submitted = submitted_raw.downcase
+    # 1. Run our V2 dynamic evaluation engine to calculate fractional scores
+    score = question.score_flat_submission(submitted_text)
+    is_fully_correct = (score == 1.0)
 
-    # Normalize your DB answers array to lowercase for an accurate comparison
-    is_correct = @question.answers.map { |ans| ans.to_s.strip.downcase }.include?(submitted)
+    # 2. Increment global question counters
+    question.times_done += 1
+    question.times_correct += 1 if is_fully_correct
+    question.save!
 
-    # Check if the user requested practice mode
-    is_practice_mode = params[:mode].to_s.strip.downcase == "practice"
-
-    # 1. Run Core Overall Elo Math BEFORE saving any data increments
-    old_q_rating = @question.rating
-    if user.present?
-      # Calculate global user total count using your puzzle-kind tracking row sum
-      user_total = user.user_stats.where(stat_type: "kind").sum(:times_done).to_i
-
-      # PASS BOTH total counts into the upgraded service now
-      new_global_user_elo, new_global_q_elo = EloCalculator.calculate(
-        user.rating,
-        old_q_rating,
-        is_correct,
-        user_total,
-        @question.times_done.to_i # Passes how many times this question was done historically
-      )
+    # 3. Log unique mistakes to wrong_answers table
+    if !is_fully_correct && submitted_text.present?
+      cleaned_wrong = submitted_text.to_s.strip.gsub(/\s+/, " ")
+      wa = question.wrong_answers.find_or_initialize_by(answer_text: cleaned_wrong)
+      wa.count += 1
+      wa.save!
     end
 
-    # 2. Standard Global Question Updates
-    @question.increment!(:times_done)
-    @question.increment!(:times_correct) if is_correct
-    if user.present?
-      @question.update!(rating: new_global_q_elo)
+    # 4. Handle the permanent UserHistory log row
+    history = current_user.user_histories.find_or_initialize_by(question_id: question.id)
+    if history.new_record?
+      history.first_attempt_correct = is_fully_correct
+      history.original_wrong_answer = submitted_text unless is_fully_correct
+    end
+    history.needs_review = !is_fully_correct
+    history.save!
+
+    # 5. Process Elo trajectories using positional arguments
+    user_total_attempts = current_user.user_histories.count
+
+    new_user_rating, new_question_rating = EloCalculator.calculate(
+      current_user.rating,
+      question.rating,
+      score,
+      user_total_attempts,
+      question.times_done
+    )
+
+    # ✅ FIX: Explicitly restore the local variable assignment definition rule!
+    is_practice = (mode_param == "practice" || (current_user.respond_to?(:practice_mode) && current_user.practice_mode))
+
+    # Calculate what the targeted user-rating should be up-front
+    target_user_rating = is_practice ? current_user.rating : new_user_rating
+
+    # Commit rating updates to our primary models safely
+    if is_practice
+      question.update!(rating: new_question_rating)
+    else
+      current_user.update!(rating: target_user_rating)
+      question.update!(rating: new_question_rating)
     end
 
-    unless is_correct
-      # Find the row or build a new one
-      wrong_log = @question.wrong_answers.find_or_initialize_by(answer_text: submitted_raw)
+    # 6. UPDATE KIND/SUBTYPE MATRIX (Runs exactly 1 time)
+    kind_stat = current_user.user_stats.find_or_initialize_by(stat_type: "kind", stat_key: Question.kinds[question.kind])
+    kind_stat.times_done += 1
+    kind_stat.times_correct += 1 if is_fully_correct
+    kind_stat.rating = target_user_rating
+    kind_stat.save!
 
-      if wrong_log.new_record?
-        wrong_log.count = 1
-        wrong_log.save # ✅ Saves a fresh new wrong answer to the database
-      else
-        wrong_log.increment!(:count) # ✅ Safely increments an existing record
-      end
+    if question.subtype.present?
+      subtype_stat = current_user.user_stats.find_or_initialize_by(stat_type: "subtype", stat_key: Question.subtypes[question.subtype])
+      subtype_stat.times_done += 1
+      subtype_stat.times_correct += 1 if is_fully_correct
+      subtype_stat.rating = target_user_rating
+      subtype_stat.save!
     end
 
-    # 3. Update User Personal Metrics (Kind, Subtype & Tags, ELOS)
-    if user.present?
-      # A. Update Global User Elo
-      unless is_practice_mode
-        user.update!(rating: new_global_user_elo)
-      end
+    # 7. UPDATE JSON TAG METRICS (Runs exactly 1 time)
+    if current_user.respond_to?(:update_tag_metrics)
+      tag_names = question.tags.map(&:name)
+      current_user.update_tag_metrics(tag_names, question.rating, is_fully_correct)
 
-      # B. Update Puzzle Kind Stat & Kind Elo
-      kind_int = Question.kinds[@question.kind]
-      kind_stat = user.user_stats.find_or_create_by!(stat_type: "kind", stat_key: kind_int)
-
-      new_kind_user_elo, _ = EloCalculator.calculate(kind_stat.rating, old_q_rating, is_correct, kind_stat.times_done)
-      kind_stat.increment!(:times_done)
-      kind_stat.increment!(:times_correct) if is_correct
-      kind_stat.update!(rating: new_kind_user_elo) unless is_practice_mode
-
-      # C. Update Subtype Stat & Subtype Elo
-      if @question.subtype.present?
-        subtype_int = Question.subtypes[@question.subtype]
-        subtype_stat = user.user_stats.find_or_create_by!(stat_type: "subtype", stat_key: subtype_int)
-
-        new_sub_user_elo, _ = EloCalculator.calculate(subtype_stat.rating, old_q_rating, is_correct, subtype_stat.times_done)
-        subtype_stat.increment!(:times_done)
-        subtype_stat.increment!(:times_correct) if is_correct
-        subtype_stat.update!(rating: new_sub_user_elo) unless is_practice_mode
-      end
-
-      # D. Update Tag Stats & Tag Elos
-      if @question.tags.any?
-        if is_practice_mode
-          # Custom Practice Rule: Just increment the tag counts without altering tag Elo!
-          stat_record = user.user_tag_stat || user.create_user_tag_stat(stats_json: {})
-          current_json = stat_record.stats_json.dup
-          @question.tags.map(&:name).each do |tag|
-            current_json[tag] ||= { "done" => 0, "correct" => 0, "rating" => 1200 }
-            current_json[tag]["done"] += 1
-            current_json[tag]["correct"] += 1 if is_correct
+      # Sync the nested JSON string tag elements explicitly with target ratings
+      user_tag_record = current_user.user_tag_stat
+      if user_tag_record && user_tag_record.stats_json.any?
+        tag_names.each do |tag|
+          if user_tag_record.stats_json[tag]
+            user_tag_record.stats_json[tag]["rating"] = target_user_rating
           end
-          stat_record.update!(stats_json: current_json)
-        else
-          # Standard Mode: Run the full Elo adjustments for tags
-          user.update_tag_metrics(@question.tags.map(&:name), old_q_rating, is_correct)
         end
-      end
-
-      # E. User History Queue Trackers
-      history = user.user_histories.find_by(question_id: @question.id)
-      if history.nil?
-        user.user_histories.create!(question_id: @question.id, first_attempt_correct: is_correct, needs_review: !is_correct, original_wrong_answer: is_correct ? nil : submitted_raw)
-      elsif history.needs_review && is_correct
-        history.update!(needs_review: false)
+        user_tag_record.save!
       end
     end
 
-
-    # Correct way to return a blank response to the frontend
-    head :no_content
-
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Question not found" }, status: :not_found
+    # Return clean JSON summary data back to your React client view
+    render json: {
+      score: score,
+      fully_correct: is_fully_correct,
+      user_new_rating: current_user.rating,
+      question_new_rating: question.rating
+    }, status: :ok
   end
 
 

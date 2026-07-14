@@ -212,7 +212,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
         post "/api/v1/questions/#{question.id}/submit_answer", params: { answer: " GiVe uP  " } # Testing trim/case safety
 
         # Verify the HTTP response code is 204 No Content
-        expect(response).to have_http_status(:no_content)
+        expect(response).to have_http_status(:ok)
 
         # Verify global tracking values incremented
         question.reload
@@ -247,7 +247,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
         # Submit an incorrect response string
         post "/api/v1/questions/#{question.id}/submit_answer", params: { answer: "look down" }
 
-        expect(response).to have_http_status(:no_content)
+       expect(response).to have_http_status(:ok)
 
         # Verify global metrics reflect a failure
         question.reload
@@ -286,7 +286,7 @@ RSpec.describe "Api::V1::Questions", type: :request do
         # 2. ACTION: Submit a correct answer but include the mode: "practice" query param
         post "/api/v1/questions/#{question.id}/submit_answer", params: { answer: "give up", mode: "practice" }
 
-        expect(response).to have_http_status(:no_content)
+        expect(response).to have_http_status(:ok)
 
         # 3. ASSERTIONS: Verify global attempts incremented
         question.reload
@@ -300,6 +300,36 @@ RSpec.describe "Api::V1::Questions", type: :request do
 
         user.reload
         expect(user.rating).to eq(original_user_elo) #  Global user rating remains frozen
+      end
+    end
+
+    context "when the submitted answer is PARTIALLY CORRECT (V2 Engine Check)" do
+      it "returns a 200 OK status, updates user history as incorrect, and applies partial credit to Elo math" do
+        partial_question = Question.create!(
+          kind: :open_cloze,
+          level: b2_level,
+          main: "He had * * solving the advanced puzzle.",
+          answers: [ "little difficulty || solving" ],
+          rating: 2400
+        )
+
+        partial_question.tags << Tag.find_or_create_by!(name: "grammar")
+
+        post "/api/v1/questions/#{partial_question.id}/submit_answer",
+             params: { answer: "little difficulty by solving", mode: "competitive" },
+             headers: headers
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        # ✅ VERIFICATION 1: Confirm the evaluation engine scored the string as exactly 0.5 partial credit
+        expect(json["score"]).to eq(0.5)
+        expect(json["fully_correct"]).to eq(false)
+
+        # ✅ VERIFICATION 2: Confirm the history queue flagged the record for review since it wasn't 100% perfect
+        history = user.user_histories.find_by(question_id: partial_question.id)
+        expect(history.needs_review).to eq(true)
+        expect(history.first_attempt_correct).to eq(false)
       end
     end
   end
