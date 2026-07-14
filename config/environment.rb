@@ -1,5 +1,10 @@
+# 1. ✅ RESTORED: Load the Rails application framework and core boot configurations first!
+require_relative "application"
+
+# 2. Initialize the Rails application components
 Rails.application.initialize!
 
+# 🚀 INITIAL PRODUCTION DATA LOADER
 if Rails.env.production?
   Thread.new do
     # Give the primary web server 5 seconds to bind its network ports first
@@ -10,17 +15,17 @@ if Rails.env.production?
       Rake::Task.clear
       Rails.application.load_tasks
 
-      # 1. Compile layout assets to fix 404 styling warnings
+      # Compile layout assets to fix 404 styling warnings
       puts "📡 [Initial Boot] Compiling layout assets..."
       Rake::Task["assets:precompile"].invoke
       puts "📡 [Initial Boot] Asset compilation complete!"
 
-      # 2. Run seeds first to build your CEFR Levels and Doorkeeper keys safely
+      # Run seeds first to build your CEFR Levels and Doorkeeper keys safely
       puts "📡 [Initial Boot] Committing database seed records..."
       Rails.application.load_seed
       puts "📡 [Initial Boot] Seeds completed successfully!"
 
-      # 3. Run puzzle importer second now that Levels are fully guaranteed
+      # Run puzzle importer second now that Levels are fully guaranteed
       puts "📡 [Initial Boot] Invoking curriculum puzzle uploader task..."
       Rake::Task["db:import_puzzles"].invoke
       puts "📡 [Initial Boot] 250+ questions imported successfully into Postgres!"
