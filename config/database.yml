@@ -85,9 +85,9 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  url: <%= ENV["DATABASE_URL"] %>
-  # ✅ FIX: Tell Rails 8's built-in engines to use this main connection pool!
+  primary:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
   cache:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
