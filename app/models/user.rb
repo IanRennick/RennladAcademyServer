@@ -38,11 +38,25 @@ class User < ApplicationRecord
   # ✅ V2 LIGHTWEIGHT AVATAR UTILITIES
   # Generates an instant, zero-storage premium SVG avatar based on the student's unique username
   def avatar_thumbnail
-    "https://dicebear.com{username}"
+    # Extracts the first letter of the username, capitalises it, or defaults to "?"
+    initial = (username.presence || "?").first.upcase
+
+    # Generates a unique background color hue index based on the student's name string length
+    bg_colors = ["#2ecc71", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#1abc9c"]
+    color = bg_colors[username.to_s.length % bg_colors.size]
+
+    # Returns an inline, production-safe base64 data image URI string
+    svg = "<svg xmlns='http://w3.org' viewBox='0 0 100 100' width='100' height='100'>" \
+          "<circle cx='50' cy='50' r='48' fill='#{color}' />" \
+          "<text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='50' font-weight='bold' fill='#ffffff'>#{initial}</text>" \
+          "</svg>"
+
+    "data:image/svg+xml;utf8,#{ERB::Util.url_encode(svg)}"
   end
 
   def chat_avatar
-    "https://dicebear.com{username}"
+    # Both methods share the exact same reliable native vector tracking data string
+    avatar_thumbnail
   end
 
   def broadcast_update
