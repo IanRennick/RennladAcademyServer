@@ -1,4 +1,5 @@
 class SearchController < ApplicationController
+  before_action :authenticate_user!
   def index
     # 1. Question Search Engine
     @query = Question.ransack(params[:q])

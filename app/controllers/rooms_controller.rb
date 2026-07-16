@@ -1,4 +1,7 @@
 class RoomsController < ApplicationController
+  before_action :set_status
+  before_action :authenticate_user!
+
   def index
     @room = Room.new
 
@@ -40,5 +43,9 @@ class RoomsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def room_params
       params.expect(room: [ :name ])
+    end
+
+    def set_status
+    current_user.update!(status: User.statuses[:online]) if current_user
     end
 end

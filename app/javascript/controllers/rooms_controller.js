@@ -1,45 +1,47 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  connect() {
-    // 1. Select the node to watch (e.g., body or a specific container)
-    const messages = document.getElementById("messages");
+  // ✅ Declare a target so Stimulus finds your messages panel automatically
+  static targets = [ "scrollable" ]
 
-    // 2. Options for the observer (what to watch)
+  connect() {
+    // A fallback guard in case the target hasn't fully rendered on screen yet
+    if (!this.hasScrollableTarget) return;
+
+    // Initialize our configuration options for the DOM watcher engine
     const config = { childList: true, subtree: true };
 
-    // 3. Callback function to execute when mutations are observed
-    const callback = (mutationList, observer) => {
+    // ✅ FIX: Arrow function syntax ensures "this" binds permanently to your Stimulus controller context!
+    const callback = (mutationList) => {
       for (const mutation of mutationList) {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            // Ensure it's an element node (nodeType 1)
-            if (node.nodeType === 1) {
-              this.resetScroll(messages);
-            }
-          });
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          this.resetScroll();
         }
       }
     };
 
-    // 4. Create an observer instance linked to the callback function
-    const observer = new MutationObserver(callback);
+    this.observer = new MutationObserver(callback);
+    this.observer.observe(this.scrollableTarget, config);
 
-    // 5. Start observing the target node
-    observer.observe(messages, config);
-
-    // Reset Scroll when opened
-    this.resetScroll(messages);
+    // Glide down to the latest message immediately upon loading the room view
+    this.resetScroll();
   }
 
-  // Reset form after message is sent
+  disconnect() {
+    // Clean up memory maps by turning off the observer when leaving the page cavity
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
   resetForm() {
-    this.element.reset()
+    // If attached to your message creation form element, clears input boxes smoothly
+    this.element.reset();
   }
 
-  // Reset scroll so newest message is shown
   resetScroll() {
-    console.log("HELLO")
-    messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+    // ✅ FIX: Uses your explicit Stimulus target reference variables cleanly!
+    const target = this.scrollableTarget;
+    target.scrollTop = target.scrollHeight - target.clientHeight;
   }
 }

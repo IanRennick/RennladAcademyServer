@@ -9,42 +9,60 @@
  * Consider organizing styles into separate files for maintainability.
  */
 
-body {
- /*  overflow: hidden; */
-}
+
 .msg-form {
-  width: 100%;
-  height: 56px;
-  padding: 10px;
+  flex-shrink: 0;             /* Blocks long message feeds from crushing the input box */
 }
 
 #single_room {
-  height: calc(100vh - 150px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;     /* Stacks children vertically */
+  justify-content: space-between;
 }
 
 #messages {
-  height: calc(100vh - 150px);
+  flex-grow: 1;               /* Forces messages to dynamically fill all middle space */
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
+  /* ✅ HIDE SCROLLBARS FOR ALL BROWSERS */
+  -ms-overflow-style: none;  /* IE and old Edge */
+  scrollbar-width: none;     /* Firefox */
 }
 
-#room_container {
-  height: 100vh;
-  margin-right: 0px !important;
+/* Chrome, Safari, and newer Opera/Edge engines */
+#messages::-webkit-scrollbar {
+  display: none;
+}
+
+#room-container {
+  height: calc(100vh - 56px); /* 56px navbar space subtraction */
+  overflow: hidden;           /* Halts global container distortion */
+  padding: 15px;
 }
 
 #side_panel {
-  height: calc(100vh - 55px);
-  margin-right: 0px !important;
+  /* ✅ Fix the side panel height calculation */
+  height: calc(100vh - 56px);
   overflow-x: hidden;
-  overflow-y: scroll;
-  margin-bottom: 55px;
+  overflow-y: auto;
+  border-right: 1px solid #555555;
+  /* ✅ HIDE SCROLLBARS FOR THE SIDE PANEL TOO */
+  -ms-overflow-style: none;  /* IE and old Edge */
+  scrollbar-width: none;     /* Firefox */
 }
+
+#side_panel::-webkit-scrollbar {
+  display: none;
+}
+
+
 #chatroom_container {
-  height: 100vh;
+   /* ✅ FIX: Subtract the 56px navbar height so the chat fits perfectly on screen! */
+  height: calc(100vh - 56px); 
+  margin-left: 0px !important;
   margin-right: 0px !important;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden; /* Locks out any global scrolling */
 }
 
 .msg-content {
