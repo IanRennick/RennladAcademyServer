@@ -10,8 +10,8 @@ class User < ApplicationRecord
   # Add new user to list of users without needing to refresh page
   after_create_commit :add_default_avatar, on: %i[create update]
   after_create_commit { broadcast_append_to "users" }
-  after_update_commit { broadcast_update }
-
+  after_commit :broadcast_update, on: :update
+  
   # Helper to remove ourselves from list of Users
   scope :all_except, ->(user) { where.not(id: user) }
 
