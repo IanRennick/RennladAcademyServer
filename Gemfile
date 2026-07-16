@@ -82,6 +82,6 @@ gem "bullet", "~> 8.1"
 gem "csv"
 
 # For pagination
-gem "pagy", "~> 9.3"
+gem "pagy", "~> 43.6"
 
 gem "ruby-vips", "~> 2.0"
