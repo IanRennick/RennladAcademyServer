@@ -85,15 +85,16 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  primary:
+  # ✅ FIX: Point everything to map out of your primary, unified PostgreSQL database pool
+  primary: &production_db
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
   cache:
-    <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+    <<: *production_db
   queue:
-    <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+    <<: *production_db
+  
+  # ✅ THE FIX: Map cable directly back to primary configuration settings, 
+  # so it stops looking for separate multi-database schema indexes!
   cable:
-    <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+    <<: *production_db
