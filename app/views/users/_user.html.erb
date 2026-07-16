@@ -7,7 +7,10 @@
 
 <li class="list-group-item d-flex align-items-center justify-content-between user_list_item <%= isActive %> ">
   <div class="icon-container">
-    <%= link_to image_tag(current_user.chat_avatar, class: "chat_pfp", alt: "avatar"), user_chat_path(user) %>
+    <div class="chat_pfp d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+      style="background-color: #9b59b6; font-size: 18px; line-height: 1; user-select: none;">
+      <%= user.avatar_initial %>
+    </div>
     <%= turbo_stream_from "user_status" %>
 
     <div>

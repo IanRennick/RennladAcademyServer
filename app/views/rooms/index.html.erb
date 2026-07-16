@@ -11,7 +11,10 @@
     <ul class="list-group list-group-flush mb-3">
       <li class="list-group-item d-flex align-items-center justify-content-between user_list_item border-0">
         <div class="icon-container">
-          <%= image_tag(current_user.chat_avatar, class: "chat_pfp", alt: "avatar") %>
+          <div class="chat_pfp d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+            style="background-color: #3498db; font-size: 18px; line-height: 1; user-select: none;">
+            <%= current_user.avatar_initial %>
+          </div>
           <div>
             <%= render "users/status", user: current_user %>
           </div>
