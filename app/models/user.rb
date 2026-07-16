@@ -35,12 +35,14 @@ class User < ApplicationRecord
     user&.valid_password?(password) ? user : nil
   end
 
+  # ✅ V2 LIGHTWEIGHT AVATAR UTILITIES
+  # Generates an instant, zero-storage premium SVG avatar based on the student's unique username
   def avatar_thumbnail
-    avatar.variant(resize_to_limit: [ 150, 150 ]).processed
+    "https://dicebear.com{username}"
   end
 
   def chat_avatar
-    avatar.variant(resize_to_limit: [ 50, 50 ]).processed
+    "https://dicebear.com{username}"
   end
 
   def broadcast_update
@@ -120,16 +122,6 @@ class User < ApplicationRecord
 
 
   private
-  def add_default_avatar
-    return if avatar.attached?
-
-    avatar.attach(
-      io: File.open(Rails.root.join("app", "assets", "images", "default_avatar.jpg")),
-      filename: "default_avatar.jpg",
-      content_type: "image/jpg"
-    )
-  end
-
   def build_initial_tag_stat
     create_user_tag_stat(stats_json: {})
   end
