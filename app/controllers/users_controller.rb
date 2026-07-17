@@ -1,5 +1,4 @@
 class UsersController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_user
   def profile
     @review_queue = @user.user_histories.where(needs_review: true).order(updated_at: :desc)

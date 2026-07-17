@@ -1,6 +1,6 @@
 class ApiController < ApplicationController
   # Ensure User is Logged in
-  before_action :doorkeeper_authorize!
+  skip_before_action :ensure_admin_access
 
   # Skip checking CSFR token authenticity for API requests
   skip_before_action :verify_authenticity_token

@@ -1,6 +1,5 @@
 # app/controllers/questions_controller.rb
 class QuestionsController < ApplicationController
-  before_action :authenticate_user!
   def index
     # 1. Initialize Ransack Search Engine with eager loading to prevent N+1 bugs
     @query = Question.ransack(params[:q])
