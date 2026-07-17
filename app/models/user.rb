@@ -11,7 +11,9 @@ class User < ApplicationRecord
   after_create_commit :add_default_avatar, on: %i[create update]
   after_create_commit { broadcast_append_to "users" }
   after_commit :broadcast_update, on: :update
-  
+  # ✅ AUTOMATED EMAIL HOOK: Fires completely in the background on account initialization
+  after_create_commit :send_welcome_email
+
   # Helper to remove ourselves from list of Users
   scope :all_except, ->(user) { where.not(id: user) }
 
@@ -122,5 +124,11 @@ class User < ApplicationRecord
   private
   def build_initial_tag_stat
     create_user_tag_stat(stats_json: {})
+  end
+
+  def send_welcome_email
+    # .deliver_later tells Rails 8 to offload the mailer task to Solid Queue asynchronously,
+    # ensuring your student's user registration experience stays lightning fast!
+    UserMailer.welcome_email(self).deliver_later
   end
 end
