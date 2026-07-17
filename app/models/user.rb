@@ -27,7 +27,7 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :messages
   has_many :user_histories, dependent: :destroy
-
+  has_many :elo_snapshots, dependent: :destroy
   has_one_attached :avatar
 
   # Doorkeeper method to check password and return user
@@ -116,6 +116,15 @@ class User < ApplicationRecord
     else
       where(conditions.to_h).first
     end
+  end
+
+  # ✅ V2 HISTORY TIMELINE SNAPSHOT ENGINE
+  # Captures the user's current global rating and saves or updates it for today's unique date
+  def capture_daily_snapshot
+    elo_snapshots.upsert(
+      { rating: self.rating, recorded_on: Date.current },
+      unique_by: [:user_id, :recorded_on]
+    )
   end
 
 
