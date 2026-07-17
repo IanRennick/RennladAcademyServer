@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_17_182649) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_17_191820) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_17_182649) do
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "elo_snapshots", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "rating", default: 1200, null: false
+    t.date "recorded_on", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "recorded_on"], name: "index_elo_snapshots_on_user_id_and_recorded_on", unique: true
+    t.index ["user_id"], name: "index_elo_snapshots_on_user_id"
   end
 
   create_table "levels", force: :cascade do |t|
@@ -243,6 +253,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_17_182649) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
+  add_foreign_key "elo_snapshots", "users"
   add_foreign_key "messages", "rooms"
   add_foreign_key "messages", "users"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
