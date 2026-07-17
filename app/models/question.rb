@@ -110,6 +110,24 @@ class Question < ApplicationRecord
     [ "tags", "level" ]
   end
 
+  # ✅ V2 MULTI-PART EVALUATION ENGINE
+  # Standardizes user raw input strings and evaluates case-insensitive correctness
+  def score_flat_submission(submitted_text)
+    raw_input = submitted_text.to_s.strip.downcase
+    return 0.0 if raw_input.blank?
+
+    # Normalizes your stored database answers array to lowercase for an accurate comparison
+    cleaned_answers = Array(answers).map { |ans| ans.to_s.strip.downcase }.reject(&:blank?)
+    return 0.0 if cleaned_answers.empty?
+
+    # If the user input matches any valid correct option sequence, return a perfect 1.0!
+    if cleaned_answers.include?(raw_input)
+      1.0
+    else
+      0.0
+    end
+  end
+
 
   private
 

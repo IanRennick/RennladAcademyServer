@@ -25,15 +25,17 @@ class CommentsController < ApplicationController
   end
 
   def update
-    @comment = @commentable.comments.find(params[:id])
+    comment = Comment.find(params[:id])
 
-    if @comment.update(comment_params)
-      flash[:notice] = "Comment has been updated"
-    else
-      flash[:alert] = "Comment could not be updated"
+    if current_user.nil? || comment.user_id != current_user.id
+      return render json: { error: "Unauthorized profile action blocked." }, status: :unauthorized
     end
 
-    redirect_to polymorphic_path(@commentable), status: :see_other
+    if comment.update(comment_params)
+      render json: { message: "Comment updated successfully", id: comment.id }, status: :ok
+    else
+      render json: { errors: comment.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def destroy

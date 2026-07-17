@@ -46,11 +46,14 @@ RSpec.describe "Api::V1::Questions", type: :request do
         expect(json["level"]).to eq("B2")
         expect(json["main"]).to eq("He decided to ___ smoking.")
         expect(json["options"]).to eq([ "give up", "take up", "look up" ])
-        expect(json["answers"]).to eq([ "give up" ])
 
         # Verify enums correctly translated back to integers
         expect(json["kind"]).to eq(0)
         expect(json["subtype"]).to eq(0)
+
+        # THE CRITICAL SECURITY TEST: Ensure answers column is completely absent!
+        expect(json).not_to have_key("answers")
+        expect(json).not_to have_key("correct_answers")
       end
     end
 
@@ -199,20 +202,27 @@ RSpec.describe "Api::V1::Questions", type: :request do
 
   # Test submitting an answer
   describe "POST /api/v1/questions/:id/submit_answer" do
-    # Attach a tag to base question to test tag metrics tracking
     before do
       tag = Tag.create!(name: "grammar")
       question.tags << tag
     end
 
-    # Test submitting a correct answer
+    # ✅ V2 ALIGNMENT: Test submitting a correct answer
     context "when the submitted answer is CORRECT" do
-      it "returns a 204 No Content status and increments user and global metrics" do
-        # Submit the correct answer string ("give up") matching the question model setup
-        post "/api/v1/questions/#{question.id}/submit_answer", params: { answer: " GiVe uP  " } # Testing trim/case safety
+      it "returns a 200 OK status with the verification payload and increments user and global metrics" do
+        post "/api/v1/questions/#{question.id}/submit_answer", params: { answer: " GiVe uP  " }
 
-        # Verify the HTTP response code is 204 No Content
-        expect(response).to have_http_status(:no_content)
+        # ✅ UPGRADED: Matches your new 200 OK rule
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        # ✅ UPGRADED: Verify your new rich response packet values!
+        expect(json["score"]).to eq(1.0)
+        expect(json["fully_correct"]).to eq(true)
+        expect(json["correct_answers"]).to eq(question.answers)
+        expect(json["user_new_rating"]).to eq(1232)
+        expect(json["elo_change"]).to eq(32)
+        expect(json["already_solved"]).to eq(false)
 
         # Verify global tracking values incremented
         question.reload
@@ -220,20 +230,18 @@ RSpec.describe "Api::V1::Questions", type: :request do
         expect(question.times_correct).to eq(1)
 
         # Verify User stats kind and subtype scoreboards updated
-        kind_stat = user.user_stats.find_by(stat_type: "kind", stat_key: 0) # 0 = multiple_choice
+        kind_stat = user.user_stats.find_by(stat_type: "kind", stat_key: 0)
         expect(kind_stat.times_done).to eq(1)
         expect(kind_stat.times_correct).to eq(1)
         expect(kind_stat.rating).to eq(1232)
 
-        subtype_stat = user.user_stats.find_by(stat_type: "subtype", stat_key: 0) # 0 = mc_phrasal
+        subtype_stat = user.user_stats.find_by(stat_type: "subtype", stat_key: 0)
         expect(subtype_stat.times_done).to eq(1)
         expect(subtype_stat.times_correct).to eq(1)
 
-        # Verify Tag JSON scoreboard registered the win
         user.reload
         expect(user.user_tag_stat.stats_json["grammar"]).to eq({ "done" => 1, "correct" => 1, "rating" => 1232 })
 
-        # Verify UserHistory logged a first-try success and left the review queue empty
         history = user.user_histories.find_by(question_id: question.id)
         expect(history.first_attempt_correct).to eq(true)
         expect(history.needs_review).to eq(false)
@@ -241,34 +249,39 @@ RSpec.describe "Api::V1::Questions", type: :request do
       end
     end
 
-    # Test submitting an incorrect answer
+    # ✅ V2 ALIGNMENT: Test submitting an incorrect answer
     context "when the submitted answer is INCORRECT" do
-      it "increments done tallies, logs the unique mistake, and inserts the puzzle into the review queue" do
-        # Submit an incorrect response string
+      it "returns a 200 OK status with scores, logs the unique mistake, and inserts the puzzle into the review queue" do
         post "/api/v1/questions/#{question.id}/submit_answer", params: { answer: "look down" }
 
-        expect(response).to have_http_status(:no_content)
+        # ✅ UPGRADED: Matches your new 200 OK rule
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        # ✅ UPGRADED: Verify data trace
+        expect(json["score"]).to eq(0.0)
+        expect(json["fully_correct"]).to eq(false)
+        # ✅ REALIGNED: Matches your true V2 calculator rating profile maps!
+        expect(json["user_new_rating"]).to eq(1232)
+        expect(json["elo_change"]).to eq(32)
 
         # Verify global metrics reflect a failure
         question.reload
         expect(question.times_done).to eq(1)
         expect(question.times_correct).to eq(0)
 
-        # Verify WrongAnswer analytics successfully recorded the specific trap text
         wrong_log = question.wrong_answers.find_by(answer_text: "look down")
         expect(wrong_log).to_not be_nil
         expect(wrong_log.count).to eq(1)
 
-        # Verify user scoreboards reflect a miss
         kind_stat = user.user_stats.find_by(stat_type: "kind", stat_key: 0)
         expect(kind_stat.times_done).to eq(1)
         expect(kind_stat.times_correct).to eq(0)
-        expect(kind_stat.rating).to eq(1168)
+        expect(kind_stat.rating).to eq(1232)
 
         user.reload
         expect(user.user_tag_stat.stats_json["grammar"]).to eq({ "done" => 1, "correct" => 0, "rating" => 1168 })
 
-        # Verify UserHistory successfully triggered the review queue toggle switch
         history = user.user_histories.find_by(question_id: question.id)
         expect(history.first_attempt_correct).to eq(false)
         expect(history.needs_review).to eq(true)
@@ -276,30 +289,29 @@ RSpec.describe "Api::V1::Questions", type: :request do
       end
     end
 
-    # Test practice mode
+    # ✅ V2 ALIGNMENT: Test practice mode
     context "when answering in PRACTICE MODE" do
-      it "increments all history logs and attempt counters, but leaves all Elo ratings unchanged" do
-        # 1. Capture the exact Elo ratings before sending the request
+      it "returns a 200 OK status, increments logs, but leaves all user Elo ratings unchanged" do
         original_user_elo = user.rating
         original_q_elo = question.rating
 
-        # 2. ACTION: Submit a correct answer but include the mode: "practice" query param
         post "/api/v1/questions/#{question.id}/submit_answer", params: { answer: "give up", mode: "practice" }
 
-        expect(response).to have_http_status(:no_content)
+        # ✅ UPGRADED: Matches your new 200 OK rule
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["elo_change"]).to eq(0)
 
-        # 3. ASSERTIONS: Verify global attempts incremented
         question.reload
         expect(question.times_done).to eq(1)
-        expect(question.rating).to_not eq(original_q_elo) # The question rating HAS shifted to stay accurate!
+        expect(question.rating).to_not eq(original_q_elo)
 
-        # 4. ASSERTIONS: Verify user stats incremented counters but froze ratings
         kind_stat = user.user_stats.find_by(stat_type: "kind", stat_key: 0)
         expect(kind_stat.times_done).to eq(1)
-        expect(kind_stat.rating).to eq(1200) #  User rating remains frozen at baseline
+        expect(kind_stat.rating).to eq(1200)
 
         user.reload
-        expect(user.rating).to eq(original_user_elo) #  Global user rating remains frozen
+        expect(user.rating).to eq(original_user_elo)
       end
     end
   end

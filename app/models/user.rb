@@ -8,7 +8,6 @@ class User < ApplicationRecord
   validates :email, format: URI::MailTo::EMAIL_REGEXP
 
   # Add new user to list of users without needing to refresh page
-  after_create_commit :add_default_avatar, on: %i[create update]
   after_create_commit { broadcast_append_to "users" }
   after_commit :broadcast_update, on: :update
   # ✅ AUTOMATED EMAIL HOOK: Fires completely in the background on account initialization
@@ -123,7 +122,7 @@ class User < ApplicationRecord
   def capture_daily_snapshot
     elo_snapshots.upsert(
       { rating: self.rating, recorded_on: Date.current },
-      unique_by: [:user_id, :recorded_on]
+      unique_by: [ :user_id, :recorded_on ]
     )
   end
 
