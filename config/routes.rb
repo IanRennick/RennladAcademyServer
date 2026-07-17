@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   get "word_formations", to: "questions#word_formations"
   get "sentence_clozes", to: "questions#sentence_clozes"
 
+  get "/admin/dashboard", to: "dashboard#index", as: :admin_dashboard
+
   # Admin Pages
   get "admin", to: "admin#index"
   get "admin/users"
