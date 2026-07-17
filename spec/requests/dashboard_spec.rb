@@ -11,7 +11,7 @@ RSpec.describe "Dashboard Gatekeeper Shield", type: :request do
 
       get "/admin/dashboard"
 
-      # ✅ MATCH OVERWRITE: Verifies that the controller's active Rails.env.test? 
+      # MATCH OVERWRITE: Verifies that the controller's active Rails.env.test?
       # engineering bypass functions cleanly, allowing fluid template checks!
       expect(response).to have_http_status(:ok)
     end

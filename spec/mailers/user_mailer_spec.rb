@@ -1,5 +1,4 @@
 require "rails_helper"
-
 RSpec.describe UserMailer, type: :mailer do
   describe "welcome_email" do
     # Create a safe mock user to feed into the mailer method
