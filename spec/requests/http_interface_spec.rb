@@ -8,6 +8,11 @@ RSpec.describe "HTTP Admin Interface System", type: :request do
   let!(:admin_user) { User.create!(username: "head_teacher", email: "admin@academy.com", password: "password123", password_confirmation: "password123") }
 
   before do
+    # ✅ FIX: Signs in the mock admin before the requests execute, passing through the shield!
+    sign_in admin_user
+  end
+
+  before do
     26.times do |i|
       Question.create!(
         kind: :open_cloze,

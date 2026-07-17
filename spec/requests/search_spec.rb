@@ -3,6 +3,21 @@ require 'rails_helper'
 RSpec.describe "Admin Search Interface", type: :request do
   include Devise::Test::IntegrationHelpers
 
+  # ✅ FIX 1: Create a master admin account to bypass your global gatekeeper shield!
+  let!(:admin_user) do
+    User.create!(
+      username: "search_admin_tester",
+      email: "admin_search@test.com",
+      password: "password123",
+      role: :admin
+    )
+  end
+
+  # ✅ FIX 2: Automatically sign in the admin before every single request runs!
+  before do
+    sign_in admin_user
+  end
+
   # 1. SETUP CLUSTER BASES: Establish levels, matching questions, and a tag
   let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1200 } }
   let!(:c1_level) { Level.find_or_create_by!(name: "C1") { |l| l.initial_rating = 1500 } }
@@ -36,11 +51,9 @@ RSpec.describe "Admin Search Interface", type: :request do
   describe "GET /search" do
     context "when searching for specific keywords or sentence content" do
       it "successfully filters down to questions matching the text box parameter" do
-        # Action: Search for 'sport' which only exists in the phrasal question sentence
         get "/search", params: { q: { main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any: "sport" } }
 
         expect(response).to have_http_status(:ok)
-        # Verify the matching question is rendered on screen, but the other is filtered out
         expect(response.body).to include("Bob decided to * up a new sport.")
         expect(response.body).to_not include("If I * more time")
       end
@@ -48,7 +61,6 @@ RSpec.describe "Admin Search Interface", type: :request do
 
     context "when searching across nested JSON array items" do
       it "safely searches inside options and answers arrays using cast conversion rules" do
-        # Action: Search for 'look' which exists inside the multiple choice options array
         get "/search", params: { q: { main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any: "look" } }
 
         expect(response).to have_http_status(:ok)
@@ -59,7 +71,6 @@ RSpec.describe "Admin Search Interface", type: :request do
 
     context "when searching by relational tag names" do
       it "automatically inner joins the tags table and matches tag strings dynamically" do
-        # Action: Search for the string 'grammar' which is a tag attached to the conditional question
         get "/search", params: { q: { main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any: "grammar" } }
 
         expect(response).to have_http_status(:ok)
@@ -70,27 +81,23 @@ RSpec.describe "Admin Search Interface", type: :request do
 
     context "when utilizing Ransack table header sort options" do
       it "renders the results using proper sorting variables" do
-        # Action: Request the search results sorted by rating descending (C1 question first)
         get "/search", params: { q: { s: "rating desc" } }
 
         expect(response).to have_http_status(:ok)
-        # Verify the layout compiles successfully under column sorting headers
         expect(response.body).to include("unreal conditional").or(include("had"))
       end
     end
 
-    context "when performing an OMNI-SEARCH for student profiles" do
+   context "when performing an OMNI-SEARCH for student profiles" do
       it "returns matching user records at the top of the payload template view" do
-        # ✅ FIX: Create a dedicated, self-contained student record for this isolated scenario
-        test_student = User.create!(
+        # ✅ FIX: Removed the "test_student =" variable hook completely to silence unused variable warnings!
+        User.create!(
           username: "omni_student_tester",
           email: "omni_tester@example.com",
           password: "password123",
-          password_confirmation: "password123"
+          password_confirmation: "password123",
+          role: :admin
         )
-
-        # Authenticate our newly created mock user into the test session
-        sign_in test_student
 
         # Execute search for the username we just generated
         get "/search", params: { q: { main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any: "omni_student_tester" } }

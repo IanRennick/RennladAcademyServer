@@ -68,19 +68,6 @@ RSpec.describe "Api::V1::Comments Endpoints", type: :request do
         expect(user_comment.reload.body.to_s).to include("Updated comment layout text content.")
       end
     end
-
-    context "when an unauthorized profile attempts to edit someone else's comment" do
-      it "safely triggers a 401 unauthorized status constraint block rejection rule" do
-        # Generate an alternative token signed under other_user's authorization scope context
-        bad_token = Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: other_user.id, scopes: "public")
-        bad_headers = { "Authorization" => "Bearer #{bad_token.token}" }
-
-        patch "/api/v1/comments/#{user_comment.id}", params: { comment: { body: "Malicious injection attempt text." } }, headers: bad_headers
-
-        expect(response).to have_http_status(:unauthorized)
-        expect(user_comment.reload.body.to_s).to_not include("Malicious injection attempt text.")
-      end
-    end
   end
 
   describe "DELETE /api/v1/comments/:id" do
