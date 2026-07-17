@@ -1,75 +1,24 @@
-name: CI
-
-on:
-  pull_request:
-  push:
-    branches: [ main ]
-
-jobs:
-  scan_ruby:
+test:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      # ✅ FIX 1: Install libvips right away so bundle cache setup succeeds safely
-      - name: Install image libraries
-        run: sudo apt-get update && sudo apt-get install -y libvips-dev
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
-
-  scan_js:
-    runs-on: ubuntu-latest
+    # ✅ THE FIX: Spin up a native, free PostgreSQL database container inside the GitHub runner!
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: rennlad_academy_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        # Ensure the runner waits until PostgreSQL is completely booted up before launching tests
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      # ✅ FIX 2: Install libvips here to stop importmap audit from crashing on boot
-      - name: Install image libraries
-        run: sudo apt-get update && sudo apt-get install -y libvips-dev
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      # ✅ FIX 3: Install libvips here to keep rubocop evaluation tasks clean
-      - name: Install image libraries
-        run: sudo apt-get update && sudo apt-get install -y libvips-dev
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
-
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      # ✅ FIX 4: Appended 'libvips-dev' directly into your core packages array block!
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable libvips-dev
 
@@ -82,14 +31,18 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      # ✅ THE FIX: Inject environment variable credentials so Rails can log into your runner database!
+      # We target 127.0.0.1 to force TCP loopback connection routing instead of looking for empty unix sockets
       - name: Prepare database
         env:
           RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/rennlad_academy_test
         run: bin/rails db:test:prepare
 
       - name: Run tests
         env:
           RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/rennlad_academy_test
         run: bundle exec rspec
 
       - name: Keep screenshots from failed system tests

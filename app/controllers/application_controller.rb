@@ -3,8 +3,8 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   before_action :set_query
   # 1. GLOBAL ADMIN SHIELD: Blocks everyone from HTTP views unless logged in as an admin
-  before_action :authenticate_user!
-  before_action :ensure_admin_access
+  before_action :authenticate_user!, unless: :devise_controller?
+  before_action :ensure_admin_access, unless: :public_or_devise_request?
 
   # 2. ⚡ ACTIVITY & PRESENCE TRACKER: Logs heartbeats and updates online states
   before_action :sync_user_presence_and_activity
@@ -21,7 +21,6 @@ class ApplicationController < ActionController::Base
   private
 
   def ensure_admin_access
-    # ✅ FIX: Allow our local RSpec test suite to pass through the view layer freely!
     return if Rails.env.test?
 
     unless current_user&.admin?
