@@ -95,58 +95,59 @@ class Api::V1::QuestionsController < ApiController
   # POST /api/v1/questions/:id/submit_answer
   def submit_answer
     @question = Question.find(params[:id])
-    # Doorkeeper token lookup method
     user = current_user
 
-    # Strip whitespace and make lowercase for case-insensitive verification
     submitted_raw = params[:answer].to_s.strip
-    submitted = submitted_raw.downcase
-
-    # Normalize your DB answers array to lowercase for an accurate comparison
-    is_correct = @question.answers.map { |ans| ans.to_s.strip.downcase }.include?(submitted)
-
-    # Check if the user requested practice mode
     is_practice_mode = params[:mode].to_s.strip.downcase == "practice"
 
-    # 1. Run Core Overall Elo Math BEFORE saving any data increments
+    # ✅ V2 UPGRADE 1: Use your multi-part evaluation engine to calculate fractional credit!
+    score = @question.score_flat_submission(submitted_raw)
+    is_fully_correct = (score == 1.0)
+    is_any_credit_earned = (score > 0.0)
+
+    # ✅ V2 UPGRADE 2: ANTI-ELO FARMING GUARD
+    # If the user has already successfully solved this puzzle on a past try, force practice mode
+    # to freeze global ratings from inflation, while still logging their metadata tallies safely!
+    has_past_win = user.present? && user.user_histories.exists?(question_id: @question.id, first_attempt_correct: true)
+    effective_practice = is_practice_mode || has_past_win
+
+    # ✅ V2 UPGRADE 3: TRACK GLOBAL RATING BEFORE CALCULATOR SWEAK RUNS
+    old_user_rating = user.present? ? user.rating : 1200
     old_q_rating = @question.rating
+
     if user.present?
-      # Calculate global user total count using your puzzle-kind tracking row sum
       user_total = user.user_stats.where(stat_type: "kind").sum(:times_done).to_i
 
-      # PASS BOTH total counts into the upgraded service now
       new_global_user_elo, new_global_q_elo = EloCalculator.calculate(
         user.rating,
         old_q_rating,
-        is_correct,
+        score, # Pass fractional score (1.0, 0.5, 0.0) directly into your service
         user_total,
-        @question.times_done.to_i # Passes how many times this question was done historically
+        @question.times_done.to_i
       )
     end
 
     # 2. Standard Global Question Updates
     @question.increment!(:times_done)
-    @question.increment!(:times_correct) if is_correct
+    @question.increment!(:times_correct) if is_fully_correct
     if user.present?
       @question.update!(rating: new_global_q_elo)
     end
 
-    unless is_correct
-      # Find the row or build a new one
+    unless is_fully_correct
       wrong_log = @question.wrong_answers.find_or_initialize_by(answer_text: submitted_raw)
-
       if wrong_log.new_record?
         wrong_log.count = 1
-        wrong_log.save # ✅ Saves a fresh new wrong answer to the database
+        wrong_log.save
       else
-        wrong_log.increment!(:count) # ✅ Safely increments an existing record
+        wrong_log.increment!(:count)
       end
     end
 
-    # 3. Update User Personal Metrics (Kind, Subtype & Tags, ELOS)
+    # 3. Update User Personal Metrics
     if user.present?
       # A. Update Global User Elo
-      unless is_practice_mode
+      unless effective_practice
         user.update!(rating: new_global_user_elo)
       end
 
@@ -154,52 +155,63 @@ class Api::V1::QuestionsController < ApiController
       kind_int = Question.kinds[@question.kind]
       kind_stat = user.user_stats.find_or_create_by!(stat_type: "kind", stat_key: kind_int)
 
-      new_kind_user_elo, _ = EloCalculator.calculate(kind_stat.rating, old_q_rating, is_correct, kind_stat.times_done)
+      new_kind_user_elo, _ = EloCalculator.calculate(kind_stat.rating, old_q_rating, score, kind_stat.times_done)
       kind_stat.increment!(:times_done)
-      kind_stat.increment!(:times_correct) if is_correct
-      kind_stat.update!(rating: new_kind_user_elo) unless is_practice_mode
+      kind_stat.increment!(:times_correct) if is_fully_correct
+      kind_stat.update!(rating: new_kind_user_elo) unless effective_practice
 
       # C. Update Subtype Stat & Subtype Elo
       if @question.subtype.present?
         subtype_int = Question.subtypes[@question.subtype]
         subtype_stat = user.user_stats.find_or_create_by!(stat_type: "subtype", stat_key: subtype_int)
 
-        new_sub_user_elo, _ = EloCalculator.calculate(subtype_stat.rating, old_q_rating, is_correct, subtype_stat.times_done)
+        new_sub_user_elo, _ = EloCalculator.calculate(subtype_stat.rating, old_q_rating, score, subtype_stat.times_done)
         subtype_stat.increment!(:times_done)
-        subtype_stat.increment!(:times_correct) if is_correct
-        subtype_stat.update!(rating: new_sub_user_elo) unless is_practice_mode
+        subtype_stat.increment!(:times_correct) if is_fully_correct
+        subtype_stat.update!(rating: new_sub_user_elo) unless effective_practice
       end
 
       # D. Update Tag Stats & Tag Elos
       if @question.tags.any?
-        if is_practice_mode
-          # Custom Practice Rule: Just increment the tag counts without altering tag Elo!
+        if effective_practice
           stat_record = user.user_tag_stat || user.create_user_tag_stat(stats_json: {})
           current_json = stat_record.stats_json.dup
           @question.tags.map(&:name).each do |tag|
             current_json[tag] ||= { "done" => 0, "correct" => 0, "rating" => 1200 }
             current_json[tag]["done"] += 1
-            current_json[tag]["correct"] += 1 if is_correct
+            current_json[tag]["correct"] += 1 if is_fully_correct
           end
           stat_record.update!(stats_json: current_json)
         else
-          # Standard Mode: Run the full Elo adjustments for tags
-          user.update_tag_metrics(@question.tags.map(&:name), old_q_rating, is_correct)
+          user.update_tag_metrics(@question.tags.map(&:name), old_q_rating, is_fully_correct)
         end
       end
 
       # E. User History Queue Trackers
       history = user.user_histories.find_by(question_id: @question.id)
       if history.nil?
-        user.user_histories.create!(question_id: @question.id, first_attempt_correct: is_correct, needs_review: !is_correct, original_wrong_answer: is_correct ? nil : submitted_raw)
-      elsif history.needs_review && is_correct
+        user.user_histories.create!(
+          question_id: @question.id,
+          first_attempt_correct: is_fully_correct,
+          needs_review: !is_fully_correct,
+          original_wrong_answer: is_fully_correct ? nil : submitted_raw
+        )
+      elsif history.needs_review && is_any_credit_earned
+        # If they earned full or partial credit during a review session, clears review flag
         history.update!(needs_review: false)
       end
     end
 
-
-    # Correct way to return a blank response to the frontend
-    head :no_content
+    # ✅ V2 UPGRADE 4: HIGH UTILITY SECURE RESPONSE PACKET FOR REACT
+    # Replaces "head :no_content" completely
+    render json: {
+      score: score,                           # 1.0, 0.5, or 0.0
+      fully_correct: is_fully_correct,         # true/false
+      correct_answers: @question.answers,     # Revealed safely ONLY after committing submission
+      user_new_rating: user.present? ? user.rating : 1200,
+      elo_change: user.present? ? (user.rating - old_user_rating) : 0, # Displays exact score adjustment (+15, -8)
+      already_solved: has_past_win            # Alerts frontend if point farming was caught
+    }, status: :ok
 
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Question not found" }, status: :not_found
@@ -222,7 +234,7 @@ class Api::V1::QuestionsController < ApiController
 
 
     # Base payload structure
-    base = { id: question.id, level: question.level&.name, kind: kind_integer, subtype: subtype_integer, main: question.main, answers: question.answers, tags: question.tags.map(&:name), comments: serialize_comments_tree(root_comments) }
+    base = { id: question.id, level: question.level&.name, kind: kind_integer, subtype: subtype_integer, main: question.main, tags: question.tags.map(&:name), comments: serialize_comments_tree(root_comments) }
 
     case question.kind
 
