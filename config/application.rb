@@ -13,8 +13,9 @@ module Server
     config.load_defaults 8.0
 
     # Reset online statuses when server is reset
-    config.after_initialize do |_config|
-      User.update_all(status: User.statuses[:offline])
+    if ActiveRecord::Base.connection.table_exists?("users")
+      # Place your existing line 17 code right inside here!
+      User.update_all(status: :offline)
     end
 
     # Execute this early in the stack to track the context safely
