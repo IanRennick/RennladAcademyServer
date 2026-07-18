@@ -28,6 +28,8 @@ class User < ApplicationRecord
   has_many :elo_snapshots, dependent: :destroy
   has_one_attached :avatar
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
+  has_many :user_badges, dependent: :destroy
+  has_many :badges, through: :user_badges
 
   # Doorkeeper method to check password and return user
   def self.authenticate(login_credentials, password)
@@ -91,6 +93,9 @@ class User < ApplicationRecord
     end
 
     stat_record.update!(stats_json: current_json)
+
+    # ✅ AUTOMATED ENTRY HOOK: Re-evaluates milestones after updating metrics!
+    check_and_award_achievements!
   end
 
   # Create a virtual memory attribute for handling incoming login credentials
@@ -130,6 +135,34 @@ class User < ApplicationRecord
       },
       unique_by: [ :user_id, :recorded_on ]
     )
+  end
+
+  def check_and_award_achievements!
+    # 1. Calculate the grand total of questions this user has attempted across all categories
+    total_answered = user_stats.where(stat_type: "kind").sum(:times_done)
+
+    # 2. Query the registry for any "total_questions" milestones they have not yet earned
+    Badge.where(milestone_type: "total_questions").where.not(id: badges.pluck(:id)).each do |badge|
+      # If their total count crosses the milestone requirement threshold...
+      if total_answered >= badge.milestone_threshold
+        # Earn the achievement badge securely in the database!
+        user_badges.create!(badge: badge)
+
+        # 3. ✅ TRIGGER THE REAL-TIME ALERT NOTIFICATION
+        # Hooks right into your native polymorphic notification navbar system!
+        Notification.create!(
+          recipient: self,
+          # Falling back to yourself as the system actor safely
+          actor: User.where(role: :admin).first || self,
+          event_type: "achievement_unlocked",
+          params: {
+            "message" => "unlocked the '#{badge.name}' achievement medal! 🏆",
+            "text_snippet" => badge.description,
+            "url" => "/stats" # Deep-links them straight to their upgraded performance scoreboard
+          }
+        )
+      end
+    end
   end
 
   private
