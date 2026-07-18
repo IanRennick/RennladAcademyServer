@@ -60,8 +60,8 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  gem "bullet"
 end
-
 
 # Handles User functionality
 gem "devise"
@@ -74,9 +74,6 @@ gem "rack-cors", "~> 3.0"
 
 # Handles Searchbar functionality
 gem "ransack", "~> 4.4"
-
-# Throws errors for optimizing database calls
-gem "bullet", "~> 8.1"
 
 # Rakes csv files
 gem "csv"

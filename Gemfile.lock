@@ -407,7 +407,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   brakeman
-  bullet (~> 8.1)
+  bullet
   capybara
   csv
   debug
