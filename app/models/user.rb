@@ -17,8 +17,7 @@ class User < ApplicationRecord
   scope :all_except, ->(user) { where.not(id: user) }
 
   # User roles to allow different permissions
-  enum :role, { user: 0, admin: 1, teacher: 2 }
-
+  enum :role, { student: 0, admin: 1, teacher: 2 }
   enum :status, { offline: 0, away: 1, online: 2 }
 
   # Associations with writings, comments, messages
@@ -28,6 +27,7 @@ class User < ApplicationRecord
   has_many :user_histories, dependent: :destroy
   has_many :elo_snapshots, dependent: :destroy
   has_one_attached :avatar
+  has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
 
   # Doorkeeper method to check password and return user
   def self.authenticate(login_credentials, password)
@@ -61,9 +61,6 @@ class User < ApplicationRecord
     end
   end
 
-
-
-
   # Stats
   has_many :user_stats, dependent: :destroy
   has_one :user_tag_stat, dependent: :destroy
@@ -96,9 +93,6 @@ class User < ApplicationRecord
     stat_record.update!(stats_json: current_json)
   end
 
-
-
-
   # Create a virtual memory attribute for handling incoming login credentials
   attr_accessor :login
 
@@ -126,10 +120,8 @@ class User < ApplicationRecord
     )
   end
 
-
-
-
   private
+
   def build_initial_tag_stat
     create_user_tag_stat(stats_json: {})
   end
@@ -138,5 +130,30 @@ class User < ApplicationRecord
     # .deliver_later tells Rails 8 to offload the mailer task to Solid Queue asynchronously,
     # ensuring your student's user registration experience stays lightning fast!
     UserMailer.welcome_email(self).deliver_later
+    # ✅ NEW SPRINT TRIGGER: Notify Admins immediately of the new signup!
+    notify_admins_of_signup
+  end
+
+  def notify_admins_of_signup
+    # 1. Locate all administrative accounts currently registered on the server
+    admins = User.where(role: :admin)
+    return if admins.empty?
+
+    # 2. Loop through the admin pool and stamp a custom polymorphic row entry for each
+    admins.each do |admin_user|
+      # Safety guard clause: skip notifying yourself if you are an admin creating a user
+      next if admin_user.id == self.id
+
+      Notification.create!(
+        recipient: admin_user,
+        actor: self, # The brand-new student is the active actor who triggered the event
+        event_type: "new_user_signup",
+        params: {
+          "message" => "joined Rennlad Academy as a new student!",
+          "email" => self.email,
+          "url" => "/u/#{self.id}" # Direct deep link path hook to their upgraded analytics profile
+        }
+      )
+    end
   end
 end

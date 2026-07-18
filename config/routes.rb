@@ -32,6 +32,15 @@ Rails.application.routes.draw do
     resources :messages
   end
 
+  resources :notifications, only: [] do
+    collection do
+      post :mark_all_as_read
+    end
+    member do
+      post :toggle_read
+    end
+  end
+
   # Devise user pages
   devise_for :users, controllers: {
     sessions: "users/sessions",

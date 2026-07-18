@@ -92,15 +92,16 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      # ✅ Loads the schema seamlessly from the pre-compiled file directly into the Postgres container
+      # ✅ FIXED: Force the cloud runner to initialize the tables using your dedicated 'ci' database profiles block
       - name: Prepare database schema
         env:
-          RAILS_ENV: test
+          RAILS_ENV: ci
         run: bin/rails db:migrate
 
+      # ✅ FIXED: Run your master test sweep using the 'ci' environment targets smoothly
       - name: Run tests
         env:
-          RAILS_ENV: test
+          RAILS_ENV: ci
         run: bundle exec rspec
 
       - name: Keep screenshots from failed system tests

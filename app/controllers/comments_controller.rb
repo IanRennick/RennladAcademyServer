@@ -14,13 +14,46 @@ class CommentsController < ApplicationController
     end
 
     if @comment.save
+      # ✅ NEW SPRINT TRIGGER: Handle real-time forum notifications after saving successfully!
+      if @comment.parent_id.present?
+        parent_comment = Comment.find_by(id: @comment.parent_id)
+
+        # 🛡️ SAFETY SHIELD: Never send an alert if a user is replying to their own text thread!
+        if parent_comment && parent_comment.user_id != current_user.id
+          Notification.create!(
+            recipient_id: parent_comment.user_id,
+            actor: current_user,
+            event_type: "comment_reply",
+            params: {
+              "message" => "replied to your discussion thread",
+              "text_snippet" => @comment.body.to_s.truncate(35),
+              "url" => polymorphic_path(@commentable)
+            }
+          )
+        end
+      else
+        # If it's a brand new root comment on a grammar puzzle, alert your active Admin pool!
+        User.where(role: :admin).where.not(id: current_user.id).each do |admin_user|
+          Notification.create!(
+            recipient: admin_user,
+            actor: current_user,
+            event_type: "new_question_comment",
+            params: {
+              "message" => "posted a query on puzzle ##{@commentable.id}",
+              "text_snippet" => @comment.body.to_s.truncate(35),
+              "url" => polymorphic_path(@commentable)
+            }
+          )
+        end
+      end
+
       flash[:notice] = "Comment has been created"
     else
       Rails.logger.info "Comment Validation Errors: #{@comment.errors.full_messages.join(', ')}"
       flash[:alert] = "Comment could not be created"
     end
 
-    # POLYMORPHIC REDIRECT: Automatically routes to question_path or writing_path!
+    # POLYMORPHIC REDIRECT: Automatically routes back to your beautiful question_path or writing_path!
     redirect_to polymorphic_path(@commentable), status: :see_other
   end
 

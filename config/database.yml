@@ -58,6 +58,17 @@ test:
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  database: server_test  # ✅ Synced layout naming to match your server_development table format
+  # ✅ FIXED: Commented out TCP network hosts so local rspec uses your working passwordless Unix sockets!
+  # host: 127.0.0.1
+  # port: 5432
+
+# 🚀 GITHUB ACTIONS CI RUNNER CONFIGURATION:
+# Keeps your automated workflow credentials locked in place for the cloud environment containers
+ci:
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
   database: rennlad_academy_test
   username: postgres
   password: password
