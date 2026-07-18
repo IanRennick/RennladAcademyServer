@@ -111,11 +111,23 @@ class User < ApplicationRecord
     end
   end
 
-  # ✅ V2 HISTORY TIMELINE SNAPSHOT ENGINE
-  # Captures the user's current global rating and saves or updates it for today's unique date
+  # ✅ V2 HISTORY TIMELINE SNAPSHOT ENGINE (UPGRADED)
+  # Captures the user's global rating AND category breakdowns for today's unique date
   def capture_daily_snapshot
+    # 1. Gather a clean summary map of their active category Elo metrics
+    stats_matrix = {}
+    user_stats.where(stat_type: "kind").each do |stat|
+      category_name = Question.kinds.key(stat.stat_key)
+      stats_matrix[category_name] = stat.rating if category_name
+    end
+
+    # 2. UPSERT MATRIX RECORDS
     elo_snapshots.upsert(
-      { rating: self.rating, recorded_on: Date.current },
+      {
+        rating: self.rating,
+        recorded_on: Date.current,
+        category_ratings: stats_matrix # ✅ Saves category breakdowns dynamically for your charts!
+      },
       unique_by: [ :user_id, :recorded_on ]
     )
   end
