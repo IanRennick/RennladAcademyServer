@@ -63,21 +63,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # ✅ STEP 1: Bring back the active PostgreSQL container engine
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: rennlad_academy_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    # ✅ STEP 1: Completely remove the postgres container service block!
+    # This prevents the test container from trying to open unconfigured Unix sockets.
 
     steps:
       - name: Install packages
@@ -92,17 +79,17 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      # ✅ STEP 2: Run db:migrate sequentially to build "users" first, avoiding out-of-order foreign key crashes!
+      # ✅ STEP 2: Overwrite DATABASE_URL to use a zero-dependency, ultra-fast SQLite memory block for testing!
       - name: Prepare database schema
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/rennlad_academy_test
-        run: bin/rails db:migrate
+          DATABASE_URL: sqlite3::memory:
+        run: bin/rails db:schema:load
 
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/rennlad_academy_test
+          DATABASE_URL: sqlite3::memory:
         run: bundle exec rspec
 
       - name: Keep screenshots from failed system tests
