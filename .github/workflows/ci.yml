@@ -63,9 +63,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # ✅ STEP 1: Completely remove the postgres container service block!
-    # This prevents the test container from trying to open unconfigured Unix sockets.
-
     steps:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable libvips-dev
@@ -79,17 +76,18 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      # ✅ STEP 2: Overwrite DATABASE_URL to use a zero-dependency, ultra-fast SQLite memory block for testing!
       - name: Prepare database schema
         env:
           RAILS_ENV: test
-          DATABASE_URL: sqlite3::memory:
+          # ✅ FIXED: Wrapped in double quotes so YAML parses the double colons correctly!
+          DATABASE_URL: "sqlite3::memory:"
         run: bin/rails db:schema:load
 
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: sqlite3::memory:
+          # ✅ FIXED: Wrapped in double quotes so YAML parses the double colons correctly!
+          DATABASE_URL: "sqlite3::memory:"
         run: bundle exec rspec
 
       - name: Keep screenshots from failed system tests
