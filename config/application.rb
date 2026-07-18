@@ -13,9 +13,16 @@ module Server
     config.load_defaults 8.0
 
     # Reset online statuses when server is reset
-    if ActiveRecord::Base.connection.table_exists?("users")
-      # Place your existing line 17 code right inside here!
-      User.update_all(status: :offline)
+    # FIXED: Waits for full boot initialization before running database modifications!
+    config.after_initialize do
+      if ActiveRecord::Base.connection_pool.active_connection? || ActiveRecord::Base.connection
+        if ActiveRecord::Base.connection.table_exists?("users")
+          User.update_all(status: :offline)
+        end
+      end
+    rescue => e
+      # Silently prevent migrations, asset compiling, and security scans from failing
+      Rails.logger.warn "Skipped offline user sync during early boot initialization task: #{e.message}"
     end
 
     # Execute this early in the stack to track the context safely
