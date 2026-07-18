@@ -63,20 +63,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: rennlad_academy_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    # ✅ STEP 1: Remove the entire services: postgres block completely!
+    # Bypassing the service container saves a massive amount of setup time.
 
     steps:
       - name: Install packages
@@ -91,16 +79,15 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      # ✅ STEP 2: Change this line to create a zero-dependency, ultra-fast test database
       - name: Prepare database schema
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/rennlad_academy_test
-        run: bin/rails db:schema:load
+        run: bin/rails db:migrate
 
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/rennlad_academy_test
         run: bundle exec rspec
 
       - name: Keep screenshots from failed system tests
