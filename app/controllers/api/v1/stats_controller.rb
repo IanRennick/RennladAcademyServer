@@ -1,25 +1,32 @@
 class Api::V1::StatsController < ApiController
   # GET /api/v1/stats
   def show
-    user = current_user # Your Doorkeeper token helper
+    user = current_user
 
     if user.nil?
       render json: { error: "Unauthorized" }, status: :unauthorized
       return
     end
 
-    # ✅ V2 PROGRESS TIMELINE INJECTION
-    # Pulls historical snapshot milestones sequentially by date
+    # ✅ COMPUTE DAILY SESSION DELTA
+    # Find the newest snapshot recorded *prior* to the current calendar date
+    yesterday_snapshot = user.elo_snapshots.where("recorded_on < ?", Date.current).order(recorded_on: :desc).first
+
+    # If they have no previous snapshots (e.g. brand new user), their baseline is their initial 1200
+    baseline_rating = yesterday_snapshot ? yesterday_snapshot.rating : 1200
+    daily_elo_change = user.rating - baseline_rating
+
     history_timeline = user.elo_snapshots.order(recorded_on: :asc).map do |snapshot|
       {
-        date: snapshot.recorded_on.to_s, # Format: "2026-07-18"
+        date: snapshot.recorded_on.to_s,
         rating: snapshot.rating
       }
     end
 
     render json: {
       global_rating: user.rating,
-      # ✅ Expose history to feed directly into your React charting components
+      # ✅ NEW V2 ATTRIBUTE: Feeds your React analytics dashboard counters directly
+      daily_delta: daily_elo_change,
       elo_history: history_timeline,
       puzzle_types: format_stats(user, "kind", Question.kinds),
       subtypes: format_stats(user, "subtype", Question.subtypes),
@@ -33,12 +40,10 @@ class Api::V1::StatsController < ApiController
   def format_stats(user, type_string, enum_mapping)
     stats_hash = {}
 
-    # Pre-populate all available enums with zeros so the frontend doesn't get empty data
     enum_mapping.keys.each do |key|
       stats_hash[key] = { done: 0, correct: 0, rating: 1200 }
     end
 
-    # Fetch the actual user data from the database
     user.user_stats.where(stat_type: type_string).each do |stat|
       key_name = enum_mapping.key(stat.stat_key)
 

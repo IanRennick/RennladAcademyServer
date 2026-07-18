@@ -41,6 +41,13 @@ RSpec.describe "Api::V1::Stats Endpoints", type: :request do
         # Core global checks
         expect(json["global_rating"]).to eq(1350)
 
+        # NEW SEED ASSERTION: Math Check: 1350 (current user rating) - 1250 (yesterday's snapshot) = 100
+        expect(json["daily_delta"]).to eq(100)
+
+        # Verify dynamic historical chronological sequence sorting
+        expect(json["elo_history"].size).to eq(3)
+        expect(json["elo_history"].first["rating"]).to eq(1200)
+
         # ✅ VERIFY DYNAMIC HISTORICAL CHRONOLOGICAL SEQUENCE SORTING
         expect(json["elo_history"].size).to eq(3)
         expect(json["elo_history"].first["rating"]).to eq(1200)
