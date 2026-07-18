@@ -81,4 +81,4 @@ gem "csv"
 # For pagination
 gem "pagy", "~> 9.3"
 
-gem "ruby-vips", "~> 2.0"
+gem "ruby-vips", "~> 2.3"
