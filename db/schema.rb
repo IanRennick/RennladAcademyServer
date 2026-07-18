@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_17_191820) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_18_135641) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -91,6 +91,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_17_191820) do
     t.integer "user_id", null: false
     t.index ["room_id"], name: "index_messages_on_room_id"
     t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "actor_id", null: false
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.jsonb "params", default: {}, null: false
+    t.datetime "read_at"
+    t.bigint "recipient_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["read_at"], name: "index_notifications_on_read_at"
+    t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
   end
 
   create_table "oauth_access_tokens", force: :cascade do |t|
@@ -256,6 +269,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_17_191820) do
   add_foreign_key "elo_snapshots", "users"
   add_foreign_key "messages", "rooms"
   add_foreign_key "messages", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
+  add_foreign_key "notifications", "users", column: "recipient_id"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
   add_foreign_key "participants", "rooms"
   add_foreign_key "participants", "users"
