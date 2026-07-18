@@ -1,27 +1,120 @@
-<div class="container">
-  <%# Question %>
-  <%= render @question %>
-
-  <div>
-    <%# Link back to all questions %>
-    <%= link_to "Back to questions", questions_path %>
+<!-- app/views/questions/show.html.erb -->
+<div class="container min-vh-100 bg-dark text-light p-4">
+  
+  <!-- Navigation Header Bar -->
+  <div class="mb-4 d-flex justify-content-between align-items-center pb-3 border-bottom border-secondary">
+    <div>
+      <%= link_to "⬅️ Back to Command Center", admin_dashboard_path, class: "btn btn-outline-secondary btn-sm me-2" %>
+      <%= link_to "📋 All Puzzles", questions_path, class: "btn btn-outline-light btn-sm" %>
+    </div>
+    <span class="badge bg-info text-dark fw-bold font-monospace px-3 py-2" style="font-size: 14px;">
+      ⚡ <%= @question.rating %> Elo Puzzle
+    </span>
   </div>
 
-  <%# Common wrong answers %>
-  <h3>Common Wrong Submissions</h3>
-  <ul>
-    <% @question.wrong_answers.order(count: :desc).limit(5).each do |wa| %>
-      <li><strong>"<%= wa.answer_text %>"</strong> — Submitted <%= pluralize(wa.count, "time") %></li>
-    <% end %>
-  </ul>
-</div>
+  <div class="row g-4">
+    <!-- Left Column: Core Question Structural Blueprint -->
+    <div class="col-md-7">
+      <div class="card bg-black border-secondary mb-4 shadow-sm">
+        <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-white fw-bold">🧩 Puzzle Blueprint Details</h5>
+          <!-- Dynamic Type Badge -->
+          <span class="badge bg-primary text-uppercase px-2 py-1 small">
+            <%= @question.kind.to_s.humanize %>
+          </span>
+        </div>
+        <div class="card-body text-light">
+          <%= render @question %>
+        </div>
+      </div>
 
-<div class="container">
-  <%# Render the central thread creation form %>
-  <%= render "shared/comment_form", commentable: @question, comment: @question.comments.build, submit_label: "Post Comment" %>
+      <!-- Forum Discussions / Comments Control Feed -->
+      <div class="card bg-black border-secondary shadow-sm">
+        <div class="card-header bg-dark border-secondary py-3">
+          <h5 class="mb-0 text-white fw-bold">💬 Student Discussion Thread (<%= @comments.count %>)</h5>
+        </div>
+        <div class="card-body">
+          <!-- Central Thread Creation Form -->
+          <div class="mb-4 bg-dark bg-opacity-40 p-3 border border-secondary rounded">
+            <%= render "shared/comment_form", commentable: @question, comment: @question.comments.build, submit_label: "Post Admin Response" %>
+          </div>
 
-  <%# Loop and print out the root comment tree threads %>
-  <% @comments.each do |comment| %>
-    <%= render "shared/comment", commentable: @question, comment: comment %>
-  <% end %>
+          <!-- Loop and Print out Comment Threads -->
+          <div class="comments_feed_stack">
+            <% if @comments.any? %>
+              <% @comments.each do |comment| %>
+                <%= render "shared/comment", commentable: @question, comment: comment %>
+              <% end %>
+            <% else %>
+              <p class="text-muted small text-center my-4">📂 No active student conversation threads logged for this question.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Performance Analytics Matrix -->
+    <div class="col-md-5">
+      <!-- High Level Metrics Overview Row -->
+      <div class="row g-2 mb-4">
+        <div class="col-6">
+          <div class="card bg-black border-secondary p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold text-xs d-block mb-1">Global Attempts</small>
+            <span class="display-6 fw-bold text-info"><%= @question.times_done %></span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card bg-black border-secondary p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold text-xs d-block mb-1">Success Ratio</small>
+            <% if @question.times_done > 0 %>
+              <% accuracy = ((@question.times_correct.to_f / @question.times_done) * 100).round(1) %>
+              <span class="display-6 fw-bold" style="color: <%= accuracy > 70 ? '#2ecc71' : (accuracy > 40 ? '#f1c40f' : '#e74c3c') %>;">
+                <%= accuracy %>%
+              </span>
+            <% else %>
+              <span class="display-6 fw-bold text-muted">—</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Common Wrong Submissions Analytical Control Board -->
+      <div class="card bg-black border-secondary shadow-sm">
+        <div class="card-header bg-dark border-secondary py-3">
+          <h5 class="mb-0 text-white fw-bold">⚠️ Common Incorrect Distractors (Top 5)</h5>
+        </div>
+        <div class="card-body p-0">
+          <% wrong_attempts = @question.wrong_answers.order(count: :desc).limit(5) %>
+          <% if wrong_attempts.any? %>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                  <tr class="text-muted border-secondary" style="font-size: 0.8rem;">
+                    <th scope="col" class="ps-3 py-2">Submitted Distractor</th>
+                    <th scope="col" class="text-end pe-3 py-2">Frequency Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% wrong_attempts.each do |wa| %>
+                    <tr class="border-secondary">
+                      <td class="ps-3">
+                        <code class="text-danger bg-danger bg-opacity-10 px-2 py-1 font-monospace" style="font-size: 13px;">
+                          "<%= wa.answer_text %>"
+                        </code>
+                      </td>
+                      <td class="text-end pe-3 font-monospace text-white-50">
+                        <%= pluralize(wa.count, "time") %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <p class="text-muted small text-center my-4 p-3">🎉 Zero incorrect distractor strings logged yet! Perfect track record.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

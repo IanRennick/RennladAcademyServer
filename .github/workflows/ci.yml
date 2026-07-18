@@ -1,7 +1,68 @@
-test:
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  scan_ruby:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install image libraries
+        run: sudo apt-get update && sudo apt-get install -y libvips-dev
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Scan for common Rails security vulnerabilities using static analysis
+        run: bin/brakeman --no-pager
+
+  scan_js:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install image libraries
+        run: sudo apt-get update && sudo apt-get install -y libvips-dev
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Scan for security vulnerabilities in JavaScript dependencies
+        run: bin/importmap audit
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install image libraries
+        run: sudo apt-get update && sudo apt-get install -y libvips-dev
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Lint code for consistent style
+        run: bin/rubocop -f github
+
+  test:
     runs-on: ubuntu-latest
 
-    # ✅ THE FIX: Spin up a native, free PostgreSQL database container inside the GitHub runner!
     services:
       postgres:
         image: postgres:15
@@ -11,7 +72,6 @@ test:
           POSTGRES_PASSWORD: password
         ports:
           - 5432:5432
-        # Ensure the runner waits until PostgreSQL is completely booted up before launching tests
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -31,8 +91,6 @@ test:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      # ✅ THE FIX: Inject environment variable credentials so Rails can log into your runner database!
-      # We target 127.0.0.1 to force TCP loopback connection routing instead of looking for empty unix sockets
       - name: Prepare database
         env:
           RAILS_ENV: test

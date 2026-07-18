@@ -1,64 +1,85 @@
+<!-- app/views/questions/_question.html.erb -->
 <div id="<%= dom_id question %>">
-  <%# Question Type %>
-  <div>
-    <strong>Kind:</strong>
-    <%= "#{question.kind_before_type_cast.to_i + 1}" %>
+  
+  <!-- Subtype Sub-Badge Routing Label if it exists -->
+  <% if question.subtype.present? %>
+    <div class="mb-3">
+      <span class="badge bg-outline-light border border-secondary text-white-50 text-xs">
+        Subtype Target: #<%= question.subtype.to_s.humanize %>
+      </span>
+    </div>
+  <% end %>
+
+  <!-- Main Sentence Component Block Box -->
+  <div class="mb-4">
+    <label class="small text-muted text-uppercase fw-bold d-block mb-1">Main Prompt Content Context:</label>
+    <div class="p-3 bg-dark bg-opacity-70 font-monospace border border-secondary rounded text-white fs-5" style="white-space: pre-wrap; line-height: 1.5; letter-spacing: 0.5px;">
+      <%= question.main %>
+    </div>
   </div>
 
-  <%# Main %>
-  <div>
-    <strong>Main:</strong>
-    <%= question.main %>
-  </div>
+  <!-- Unique Structural Conditionals Mapping Base Layer Layout Cards -->
+  <div class="row g-3">
+    
+    <!-- Multiple Choice Selection Array Options Grid -->
+    <% if question.multiple_choice? && question.options.is_a?(Array) && question.options.any? %>
+      <div class="col-12 mb-2">
+        <label class="small text-muted text-uppercase fw-bold d-block mb-1">Configured Multiple Choice Options Options:</label>
+        <div class="row g-2">
+          <% question.options.each_with_distinct.with_index do |option, idx| %>
+            <div class="col-md-6">
+              <div class="p-2 border border-secondary bg-dark bg-opacity-30 rounded small d-flex align-items-center">
+                <span class="badge bg-secondary me-2 font-monospace"><%= (65 + idx).chr %></span>
+                <span class="text-white-50"><%= option %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
 
-  <%# Answers (Displays multiple choices separated by commas, or just the one) %>
-  <div>
-    <strong>Accepted Answers:</strong>
-    <%= question.answers.join(", ") %>
-  </div>
+    <!-- Word Formation Structural Keyword -->
+    <% if question.word_formation? && question.keyword.present? %>
+      <div class="col-md-6">
+        <div class="p-3 border border-secondary bg-dark bg-opacity-30 rounded h-100">
+          <label class="small text-muted text-uppercase fw-bold d-block mb-1">Base Target Keyword:</label>
+          <span class="fw-bold font-monospace text-warning fs-5"><%= question.keyword %></span>
+        </div>
+      </div>
+    <% end %>
 
-  <%# Nuber of times attempted %>
-  <div>
-    <strong>Attempted:</strong>
-    <%= question.times_done %>
-  </div>
+    <!-- Sentence Cloze Prompt Blueprint Attributes Mapping -->
+    <% if question.sentence_cloze? %>
+      <% if question.prompt.present? %>
+        <div class="col-md-6">
+          <div class="p-3 border border-secondary bg-dark bg-opacity-30 rounded h-100">
+            <label class="small text-muted text-uppercase fw-bold d-block mb-1">Structural Pivot Prompt:</label>
+            <span class="fw-bold font-monospace text-info fs-5"><%= question.prompt %></span>
+          </div>
+        </div>
+      <% end %>
+      
+      <% if question.keyword.present? %>
+        <div class="col-md-6">
+          <div class="p-3 border border-secondary bg-dark bg-opacity-30 rounded h-100">
+            <label class="small text-muted text-uppercase fw-bold d-block mb-1">Assigned Target Paradigm:</label>
+            <span class="fw-bold font-monospace text-warning fs-5"><%= question.keyword %></span>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
 
-  <%# Number of correct answers %>
-  <div>
-    <strong>Correct:</strong>
-    <%= question.times_correct %>
-  </div>
-
-  <%# Multiple Choice options %>
-  <% if question.multiple_choice? %>
-    <div>
-      <strong>Options:</strong>
-      <ul>
-        <% question.options.each do |option| %>
-          <li><%= option %></li>
+    <!-- Absolute Secure Accepted Backend Answers Key Box -->
+    <div class="col-12 mt-3 pt-3 border-top border-secondary border-opacity-30">
+      <label class="small text-muted text-uppercase fw-bold d-block mb-1">🔒 Authoritative Accepted Backend Answer String Keys:</label>
+      <div class="d-flex gap-2 flex-wrap">
+        <% question.answers.each do |ans| %>
+          <span class="badge bg-success bg-opacity-20 border border-success text-success px-3 py-2 font-monospace fs-6">
+            "<%= ans %>"
+          </span>
         <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <%# Word Formation Keyword %>
-  <% if question.word_formation? %>
-    <div>
-      <strong>Keyword:</strong>
-      <%= question.keyword %>
-    </div>
-  <% end %>
-
-  <%# Sentence cloze prompt and keyword %>
-  <% if question.sentence_cloze? %>
-    <div>
-      <strong>Prompt:</strong>
-      <%= question.prompt %>
+      </div>
     </div>
 
-    <div>
-      <strong>Keyword:</strong>
-      <%= question.keyword %>
-    </div>
-  <% end %>
+  </div>
 </div>
