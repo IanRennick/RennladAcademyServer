@@ -92,16 +92,24 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      # ✅ FIXED: Force the cloud runner to initialize the tables using your dedicated 'ci' database profiles block
+      # ✅ RESTORED TO STANDARD TEST ENV: Bypasses custom secret key credential requirements completely!
       - name: Prepare database schema
         env:
-          RAILS_ENV: ci
+          RAILS_ENV: test
+          DB_USERNAME: postgres
+          DB_PASSWORD: password
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
         run: bin/rails db:migrate
 
-      # ✅ FIXED: Run your master test sweep using the 'ci' environment targets smoothly
+      # ✅ RESTORED TO STANDARD TEST ENV: Runs your 73 specs natively in the cloud
       - name: Run tests
         env:
-          RAILS_ENV: ci
+          RAILS_ENV: test
+          DB_USERNAME: postgres
+          DB_PASSWORD: password
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
         run: bundle exec rspec
 
       - name: Keep screenshots from failed system tests

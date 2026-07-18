@@ -50,4 +50,51 @@ levels_data.each do |data|
   end
 end
 
+puts "🚀 Seeding master platform Achievement Badges..."
+
+badges_data = [
+  {
+    name: "Grammar Cadet",
+    description: "Submit your very first grammar or vocabulary puzzle attempt.",
+    icon: "🌱",
+    milestone_type: "total_questions",
+    milestone_threshold: 1
+  },
+  {
+    name: "Consistent Scholar",
+    description: "Complete a total of 25 question puzzles on the training hub.",
+    icon: "📚",
+    milestone_type: "total_questions",
+    milestone_threshold: 25
+  },
+  {
+    name: "Puzzle Veteran",
+    description: "Cross a milestone of 100 overall question puzzle submissions.",
+    icon: "🧠",
+    milestone_type: "total_questions",
+    milestone_threshold: 100
+  },
+  {
+    name: "Century Master",
+    description: "Achieve the massive milestone of 500 completed puzzle attempts.",
+    icon: "👑",
+    milestone_type: "total_questions",
+    milestone_threshold: 500
+  },
+  {
+    name: "Grandmaster League",
+    description: "An elite tier badge unlocked for answering 1,000 question puzzles.",
+    icon: "🔥",
+    milestone_type: "total_questions",
+    milestone_threshold: 1000
+  }
+]
+
+badges_data.each do |badge_attrs|
+  badge = Badge.find_or_initialize_by(name: badge_attrs[:name])
+  badge.update!(badge_attrs)
+end
+
+puts "✨ Successfully loaded #{Badge.count} authoritative achievement medals into the database registry!"
+
 puts "🎉 Safe Seeds Check Execution Complete!"
