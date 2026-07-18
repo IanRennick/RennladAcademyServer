@@ -41,7 +41,10 @@ class ApplicationController < ActionController::Base
   def sync_user_presence_and_activity
     return unless current_user
 
-    # ✅ PRESENCE GUARD: Only touch the DB if they aren't already marked online!
+    # ✅ NEW SPRINT LOGIC: Automatically maps their current location path
+    activity = "#{controller_name.humanize} ##{action_name}"
+
+    # PRESENCE GUARD: Only touch the DB if they aren't already marked online!
     if current_user.status != "online"
       current_user.update!(status: User.statuses[:online])
 
@@ -52,9 +55,10 @@ class ApplicationController < ActionController::Base
       })
     end
 
-    # ✅ HEARTBEAT GUARD: Only update the timestamp if it's been idle for 2+ minutes
-    if current_user.last_seen_at.nil? || current_user.last_seen_at < 2.minutes.ago
-      current_user.update_column(:last_seen_at, Time.current)
+    # ✅ HEARTBEAT & ACTIVITY GUARD:
+    # Only updates the database if 2 minutes have passed OR if they change pages!
+    if current_user.last_seen_at.nil? || current_user.last_seen_at < 2.minutes.ago || current_user.last_activity_desc != activity
+      current_user.update_columns(last_seen_at: Time.current, last_activity_desc: activity)
     end
   end
 end
