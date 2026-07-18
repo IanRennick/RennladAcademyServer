@@ -1,4 +1,4 @@
-class DashboardController < ActionController::Base
+class DashboardController < ApplicationController
   def index
     # Pulls all users, ordered by highest Elo rating down to lowest
     @users = User.all.order(rating: :desc)

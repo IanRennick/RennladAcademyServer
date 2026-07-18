@@ -8,8 +8,19 @@ class Api::V1::StatsController < ApiController
       return
     end
 
+    # ✅ V2 PROGRESS TIMELINE INJECTION
+    # Pulls historical snapshot milestones sequentially by date
+    history_timeline = user.elo_snapshots.order(recorded_on: :asc).map do |snapshot|
+      {
+        date: snapshot.recorded_on.to_s, # Format: "2026-07-18"
+        rating: snapshot.rating
+      }
+    end
+
     render json: {
       global_rating: user.rating,
+      # ✅ Expose history to feed directly into your React charting components
+      elo_history: history_timeline,
       puzzle_types: format_stats(user, "kind", Question.kinds),
       subtypes: format_stats(user, "subtype", Question.subtypes),
       tags: user.user_tag_stat&.stats_json || {}
@@ -29,7 +40,6 @@ class Api::V1::StatsController < ApiController
 
     # Fetch the actual user data from the database
     user.user_stats.where(stat_type: type_string).each do |stat|
-      # Translate the raw database integer back to the word (e.g. 0 -> "multiple_choice")
       key_name = enum_mapping.key(stat.stat_key)
 
       if key_name.present?

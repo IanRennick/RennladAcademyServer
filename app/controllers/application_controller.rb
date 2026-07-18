@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
 
   private
 
-  # ✅ Guard clause router mapping logic
+  # Guard clause router mapping logic
   def public_or_devise_request?
     # Bypasses the admin check for Devise login routes and your PagesController landing paths
     devise_controller? || is_a?(PagesController)
