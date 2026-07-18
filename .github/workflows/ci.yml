@@ -63,6 +63,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    # ✅ Spins up an active, sandboxed PostgreSQL 15 engine container on port 5432
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: rennlad_academy_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable libvips-dev
@@ -76,7 +92,7 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      # ✅ CLEANED: Bypasses custom environment URLs entirely and lets database.yml load natively!
+      # ✅ Loads the schema seamlessly from the pre-compiled file directly into the Postgres container
       - name: Prepare database schema
         env:
           RAILS_ENV: test
