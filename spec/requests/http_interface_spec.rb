@@ -81,7 +81,7 @@ RSpec.describe "HTTP Admin Interface System", type: :request do
     before do
       # Seed an incorrect distractor row to verify your analytics table rendering loop
       dossier_question.wrong_answers.create!(answer_text: "win", count: 3)
-      
+
       # Seed a root conversation thread comment starter to verify the forum block
       Comment.create!(commentable: dossier_question, user: admin_user, body: "Should we accept 'had won' here?")
     end
@@ -91,20 +91,20 @@ RSpec.describe "HTTP Admin Interface System", type: :request do
       get "/questions/#{dossier_question.id}"
 
       expect(response).to have_http_status(:ok)
-      
+
       # 1. Verify Core Puzzle Layout Elements compile beautifully
       expect(response.body).to include("Puzzle Blueprint Details")
       expect(response.body).to include("If I * a million euros")
       expect(response.body).to include("unreal past")
-      
+
       # 2. Verify Secure Answer Keys are visible on the Admin HTTP dashboard layer
       expect(response.body).to include('"won"')
-      
+
       # 3. Verify Analytics Performance components calculate percentages on screen
       expect(response.body).to include("Success Ratio")
       expect(response.body).to include("70.0%") # Math check: (7 / 10) * 100
       expect(response.body).to include('"win"')  # Verifies the incorrect distractor row shows up
-      
+
       # 4. Verify Active Forum Stream components render successfully
       expect(response.body).to include("Student Discussion Thread")
       expect(response.body).to include("Should we accept 'had won' here?")

@@ -91,11 +91,11 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Prepare database
+      - name: Prepare database schema
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/rennlad_academy_test
-        run: bin/rails db:test:prepare
+        run: bin/rails db:schema:load
 
       - name: Run tests
         env:
