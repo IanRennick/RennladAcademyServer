@@ -96,7 +96,7 @@ jobs:
       - name: Prepare database schema
         env:
           RAILS_ENV: test
-        run: bin/rails db:schema:load
+        run: bin/rails db:migrate
 
       - name: Run tests
         env:
