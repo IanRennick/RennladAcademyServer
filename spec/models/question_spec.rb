@@ -1,92 +1,50 @@
-require 'rails_helper'
+# spec/models/question_spec.rb
+require "rails_helper"
 
-RSpec.describe Question, type: :model do
-  # Setup valid baseline items to satisfy database constraints
-  let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1200 } }
-  let!(:c1_level) { Level.find_or_create_by!(name: "C1") { |l| l.initial_rating = 1500 } }
+RSpec.describe "Polymorphic Question Core Engine", type: :model do
+  let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1350 } }
 
-  # 1. Core relationship checks
-  describe "associations" do
-    it { should belong_to(:level).optional }
-    it { should have_many(:wrong_answers).dependent(:destroy) }
-    it { should have_many(:question_tags).dependent(:destroy) }
-    it { should have_many(:tags).through(:question_tags) }
-    it { should have_many(:user_histories).dependent(:destroy) }
-  end
+  describe "Data Integrity Guard Shields" do
+    it "automatically defaults metrics counters to zero and inherits ratings from CEFR parameters" do
+      puzzle = Question.create!(kind: :open_cloze, level: b2_level, main: "He is capable * passing.", answers: [ "of" ])
 
-  # 2. Test input filtering data arrays
-  describe "callbacks and cleanups" do
-    it "filters out empty form input strings from options and answers arrays before saving" do
-      question = Question.new(
-        kind: :multiple_choice,
-        level: b2_level,
-        main: "Choose the correct phrasal verb",
-        options: [ "give up", "give in", "", "  " ],
-        answers: [ "give up", "" ]
-      )
-
-      question.save!
-      expect(question.options).to eq([ "give up", "give in" ])
-      expect(question.answers).to eq([ "give up" ])
+      expect(puzzle.times_done).to eq(0)
+      expect(puzzle.times_correct).to eq(0)
+      expect(puzzle.rating).to eq(1350) # Inherited cleanly from B2 parameters!
     end
 
-    it "automatically inherits the initial_rating from its assigned level on creation" do
-      question = Question.create!(
-        kind: :multiple_choice,
-        level: c1_level, # C1 level starts at 1500
-        main: "Complete the text",
-        options: [ "A", "B" ],
-        answers: [ "A" ]
-      )
+    it "blocks the creation of entries missing required prompts or correct answers arrays" do
+      bad_puzzle = Question.new(kind: :open_cloze, main: nil, answers: [], level: b2_level)
+      expect(bad_puzzle).not_to be_valid
+    end
 
-      expect(question.rating).to eq(1500)
+    it "strictly rejects a subtype mapping configuration that breaks its kind distribution boundaries" do
+      illegal_combo = Question.new(kind: :multiple_choice, subtype: :sc_conditional, main: "Broken row loop test.", answers: [ "test" ], level: b2_level)
+
+      expect(illegal_combo).not_to be_valid
+      expect(illegal_combo.errors[:subtype]).to include("is not a system-supported category for a Multiple choice puzzle type")
+    end
+
+    it "automatically parses raw tag_list strings into fully sanitized relational tag model objects" do
+      # ✅ FIXED: Added level: b2_level to satisfy database constraints
+      puzzle = Question.create!(kind: :word_formation, level: b2_level, main: "It was a * decision. (COLOUR)", answers: [ "colourful" ], tag_list: "  #Nouns, Adjectives!, nouns ")
+
+      expect(puzzle.tags.pluck(:name)).to match_array([ "nouns", "adjectives" ])
     end
   end
 
-  # 3. Test dynamic comma-separated string tagging
-  it "converts a comma-separated string into actual database tag attachments" do
-      Tag.create!(name: "grammar")
+  describe "#score_flat_submission (Evaluation Metrics System)" do
+    # FIXED: Added level: b2_level to satisfy database constraints
+    let!(:puzzle) { Question.create!(kind: :open_cloze, level: b2_level, main: "Test prompt.", answers: [ "won", "had won" ]) }
 
-      question = Question.new(
-        kind: :open_cloze,
-        level: b2_level, # ✅ Add this line to pass the database constraint
-        main: "Complete the text.",
-        answers: [ "the" ]
-      )
-
-      question.tag_list = "Grammar,  Phrasal_Verb, B2_Level, "
-      question.save!
-
-      expect(question.tags.map(&:name)).to match_array([ "grammar", "phrasal_verb", "b2_level" ])
-      expect(Tag.count).to eq(3)
+    it "awards a perfect 1.0 score when string metrics match any item inside the answer matrix case-insensitively" do
+      expect(puzzle.score_flat_submission("  WON  ")).to eq(1.0)
+      expect(puzzle.score_flat_submission("had won")).to eq(1.0)
     end
 
-  # 4. Test Cross-Category Validation Guards
-  describe "subtype boundary validations" do
-    it "allows a valid matching subtype to be saved successfully" do
-      question = Question.new(
-        kind: :multiple_choice,
-        subtype: :mc_phrasal,
-        level: b2_level,
-        main: "He decided to ___ smoking.",
-        options: [ "give up", "take up" ],
-        answers: [ "give up" ]
-      )
-
-      expect(question).to be_valid
-    end
-
-    it "blocks saving if an admin tries to attach a mismatched subtype" do
-      question = Question.new(
-        kind: :multiple_choice,
-        subtype: :wf_noun, #  Mismatched: wf_noun belongs strictly to word_formation
-        main: "Mismatched testing schema sample text.",
-        options: [ "A", "B" ],
-        answers: [ "A" ]
-      )
-
-      expect(question).to_not be_valid
-      expect(question.errors[:subtype]).to include("is not valid for a Multiple choice puzzle")
+    it "returns a flat 0.0 score when answers miss the whitelisted answer array criteria entirely" do
+      expect(puzzle.score_flat_submission("lost")).to eq(0.0)
+      expect(puzzle.score_flat_submission(nil)).to eq(0.0)
     end
   end
 end

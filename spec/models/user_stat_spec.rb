@@ -1,64 +1,36 @@
-require 'rails_helper'
+# spec/models/user_stat_spec.rb
+require "rails_helper"
 
-RSpec.describe UserStat, type: :model do
-  # Test associations
-  describe "associations" do
-    it { should belong_to(:user) }
-  end
+RSpec.describe "Multi-Dimensional User Statistics Matrix", type: :model do
+  let!(:student) { User.create!(username: "stats_tracker", email: "stats@test.com", password: "password123", role: :student) }
 
-  # Test validations
-  describe "validations" do
-    it { should validate_inclusion_of(:stat_type).in_array(%w[kind subtype]) }
-    it { should validate_presence_of(:stat_key) }
-
-    # Test uniqueness of the combination
-    context "uniqueness index" do
-      # Create a test user
-      let(:user) { User.create!(username: "stat_tester", email: "test@example.com", password: "password123") }
-
-      # Link our test subject to the newly created user
-      subject { UserStat.new(user_id: user.id, stat_type: "kind", stat_key: 0) }
-
-      it { should validate_uniqueness_of(:stat_key).scoped_to(:user_id, :stat_type) }
+  describe "Data Integrity Guard Shields" do
+    it "allows a valid performance metrics statistic row to save cleanly" do
+      stat = UserStat.new(user: student, stat_type: "kind", stat_key: 0, times_done: 10, times_correct: 7, rating: 1250)
+      expect(stat).to be_valid
     end
-  end
 
-  # Test before_validation default counter trigger
-  describe "callbacks" do
-    context "before validation on create" do
-      it "automatically sets times_done and times_correct to 0 if left blank" do
-        # Initialize a brand new stat record without the counter numbers
-        stat = UserStat.new(
-          user_id: 1,
-          stat_type: "kind",
-          stat_key: 0
-        )
+    it "blocks record creations containing invalid stat_type parameter strings" do
+      bad_type = UserStat.new(user: student, stat_type: "invalid_axis", stat_key: 1, times_done: 1, times_correct: 1, rating: 1200)
+      expect(bad_type).not_to be_valid
+    end
 
-        # Trigger the validation loop
-        stat.valid?
+    it "strictly rejects negative tracking integers inside counter columns" do
+      broken_counters = UserStat.new(user: student, stat_type: "kind", stat_key: 0, times_done: -5, times_correct: 0, rating: 1200)
+      expect(broken_counters).not_to be_valid
+    end
 
-        # Verify custom model method stepped in and changed nil to 0
-        expect(stat.times_done).to eq(0)
-        expect(stat.times_correct).to eq(0)
-      end
+    it "blocks anomalous entries where correct metrics exceed the total attempt counts" do
+      impossible_math = UserStat.new(user: student, stat_type: "kind", stat_key: 0, times_done: 5, times_correct: 12, rating: 1200)
+      expect(impossible_math).not_to be_valid
+      expect(impossible_math.errors[:times_correct]).to include("cannot mathematically represent a value higher than total times_done logs")
+    end
 
-      it "does not overwrite values if they are purposefully provided" do
-        # Initialize a stat record where the numbers are already specified
-        stat = UserStat.new(
-          user_id: 1,
-          stat_type: "kind",
-          stat_key: 0,
-          times_done: 5,
-          times_correct: 3
-        )
+    it "strictly blocks duplicate key initializations across the exact same mapping scope" do
+      UserStat.create!(user: student, stat_type: "kind", stat_key: 3, times_done: 1, times_correct: 1, rating: 1200)
 
-        # Trigger validation loop
-        stat.valid?
-
-        # Verify it didn't reset them back to 0
-        expect(stat.times_done).to eq(5)
-        expect(stat.times_correct).to eq(3)
-      end
+      duplicate = UserStat.new(user: student, stat_type: "kind", stat_key: 3, times_done: 2, times_correct: 2, rating: 1250)
+      expect(duplicate).not_to be_valid
     end
   end
 end

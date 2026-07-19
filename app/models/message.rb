@@ -1,56 +1,63 @@
+# app/models/message.rb
+# =========================================================================
+# REAL-TIME COMMUNICATIONS SUITE MESSAGE BALLOON MODEL
+# - Coordinates ActionCable real-time WebSocket screen appends
+# - Coordinates polymorphic notification dispatch maps for direct and public feeds
+# - Enforces strict chatroom participant security isolation gates
+# =========================================================================
 class Message < ApplicationRecord
-  # Create associations with User and chatroom
+  # --- Associations ---
   belongs_to :user
   belongs_to :room
 
+  # --- Validations & Security Filters ---
+  validates :body, presence: true
+  validate :confirm_participant_security_gate
 
-  # Add new message to room without needing to refresh page
+  # --- Hotwire Turbo Broadcast Hooks ---
+  # Broadcasts the new message row layout downstream to everyone connected to the room thread in real time
   after_create_commit { broadcast_append_to self.room }
-
-  # ✅ NEW SPRINT TRIGGER: Fire real-time notification alerts across the platform
   after_create_commit :notify_recipients
 
-  before_create :confirm_participant
+  private
 
+  # OPTIMIZATION GUARD: Blocks malicious attempts to inject text lines into private rooms where the user is not a participant
+  def confirm_participant_security_gate
+    return unless room&.is_private?
 
-
-  def confirm_participant
-    return unless room.is_private
-    is_participant = Participant.where(user_id: self.user.id, room_id: self.room.id).first
-    throw :abort unless is_participant
+    is_valid_participant = Participant.where(user_id: user_id, room_id: room_id).exists?
+    unless is_valid_participant
+      errors.add(:base, "Unauthorized: Student profile is not an assigned participant within this private direct chat room channel.")
+    end
   end
 
-
-
-   private
-
+  # Scans current active user states across the cluster to dispatch target notification records
   def notify_recipients
     if room.is_private?
-      # A. PRIVATE ROOM DIRECT CHATS: Notify the other explicit participant row instantly
-      # Pull all participants in this private room, skipping yourself
-      room.participants.where.not(user_id: self.user_id).each do |participant|
+      # A. PRIVATE DIRECT CHATS: Notify the conversation partner row instantly
+      room.participants.where.not(user_id: user_id).each do |participant|
         Notification.create!(
           recipient_id: participant.user_id,
-          actor: self.user,
+          actor: user,
           event_type: "new_chat_message",
           params: {
             "message" => "sent you a direct message",
-            "text_snippet" => self.body.to_s.truncate(35),
-            "url" => "/rooms/#{room.id}" # Deep-links straight to the active conversation panel
+            "text_snippet" => body.to_s.truncate(35),
+            "url" => "/rooms/#{room.id}"
           }
         )
       end
     else
-      # B. PUBLIC CHAT ROOMS: Notify any active user on the server (skipping yourself)
-      # Optimization guard rails: only notify users marked as 'online' or 'away' to prevent database bloating
-      User.where(status: [ :online, :away ]).where.not(id: self.user_id).each do |active_user|
+      # B. PUBLIC DISCUSSION CHANNELS: Notify active users on the server (skipping yourself)
+      # Limits queries strictly to online/away users to protect the database from ballooning bloat
+      User.where(status: [ :online, :away ]).where.not(id: user_id).each do |active_user|
         Notification.create!(
           recipient: active_user,
-          actor: self.user,
+          actor: user,
           event_type: "public_chat_message",
           params: {
             "message" => "posted in public chat channel ##{room.name}",
-            "text_snippet" => self.body.to_s.truncate(35),
+            "text_snippet" => body.to_s.truncate(35),
             "url" => "/rooms/#{room.id}"
           }
         )

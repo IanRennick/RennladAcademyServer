@@ -4,7 +4,7 @@
     - Dynamically evaluates if a direct chat session is currently active
     - Integrates the absolute presence monitoring badge dot
    ========================================================================= %>
-<% is_active = (@single_room && @single_room.participant?(@single_room, user)) ? "bg-secondary bg-opacity-20 border-secondary" : "border-transparent" %>
+<% is_active = (@single_room && @single_room.participant?(user)) ? "bg-secondary bg-opacity-20 border-secondary" : "border-transparent" %>
 
 <li class="list-group-item bg-transparent d-flex align-items-center justify-content-between p-2 rounded border <%= is_active %> transition-all hover-user-row" style="margin-bottom: 4px;">
   

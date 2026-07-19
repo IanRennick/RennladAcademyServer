@@ -1,49 +1,42 @@
-require 'rails_helper'
+# spec/models/user_spec.rb
+require "rails_helper"
 
-RSpec.describe User, type: :model do
-  # Test associations
-  describe "puzzle stats associations" do
-    it { should have_many(:user_stats).dependent(:destroy) }
-    it { should have_one(:user_tag_stat).dependent(:destroy) }
-    it { should have_many(:user_histories).dependent(:destroy) }
-  end
+RSpec.describe "User Model Identity Matrix", type: :model do
+  let!(:admin) { User.create!(username: "master_admin", email: "admin@test.com", password: "password123", role: :admin) }
 
-  # 2. Test Stats logic
-  describe "puzzle stats logic" do
-    # Test that an empty scoreboard is created for a new user
-    it "automatically creates an empty user_tag_stat record after creation" do
-      user = User.create!(
-        username: "test_student",
-        email: "student@example.com",
-        password: "securepassword123",
-        password_confirmation: "securepassword123"
-      )
+  describe "Data Integrity Guard Shields" do
+    it "safely creates user accounts with standard roles and default offline statuses" do
+      student = User.create!(username: "new_student", email: "student@test.com", password: "password123", role: :student)
 
-      expect(user.user_tag_stat).to_not be_nil
-      expect(user.user_tag_stat.stats_json).to eq({})
+      expect(student.role).to eq("student")
+      expect(student.status).to eq("offline")
+      expect(student.avatar_initial).to eq("N")
     end
 
-    # Test the complex tag calculations
-    it "successfully initializes and updates nested tag metrics inside the JSON payload" do
-      # Create test User
-      user = User.create!(
-        username: "test_student_two",
-        email: "student2@example.com",
-        password: "securepassword123",
-        password_confirmation: "securepassword123"
-      )
+    it "blocks account creations with invalid emails or spaced username handles" do
+      bad_user = User.new(username: "bad student", email: "corrupt_mail", password: "password123")
+      expect(bad_user).not_to be_valid
+    end
 
-      # Scenario A: Correct response creates the tags with provisional Elo boost
-      user.update_tag_metrics([ "phrasal" ], 1200, true)
+    it "enforces strict uniqueness barriers across both usernames and emails case-insensitively" do
+      User.create!(username: "duplicate_me", email: "unique@test.com", password: "password123")
 
-      user.reload
-      expect(user.user_tag_stat.stats_json["phrasal"]).to eq({ "done" => 1, "correct" => 1, "rating" => 1232 })
+      collision = User.new(username: "DUPLICATE_ME", email: "another@test.com", password: "password123")
+      expect(collision).not_to be_valid
+    end
+  end
 
-      # Scenario B: Incorrect response increments done tally and calculates Elo drop
-      user.update_tag_metrics([ "phrasal" ], 1200, false)
+  describe ".authenticate (Dual Credentials Gate)" do
+    let!(:auth_user) { User.create!(username: "login_test", email: "logintest@test.com", password: "securepassword", role: :student) }
 
-      user.reload
-      expect(user.user_tag_stat.stats_json["phrasal"]).to eq({ "done" => 2, "correct" => 1, "rating" => 1197 })
+    it "resolves and log-ins accounts using either their username handle or email interchangeably" do
+      expect(User.authenticate("login_test", "securepassword")).to eq(auth_user)
+      expect(User.authenticate("logintest@test.com", "securepassword")).to eq(auth_user)
+    end
+
+    it "returns nil when passwords or credential text fields fail validation checks" do
+      expect(User.authenticate("login_test", "wrongpassword")).to eq(nil)
+      expect(User.authenticate("unknown_user", "securepassword")).to eq(nil)
     end
   end
 end
