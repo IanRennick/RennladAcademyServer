@@ -24,8 +24,8 @@ scope :api do
   scope :v1 do
     use_doorkeeper do
       skip_controllers :authorizations, :applications, :authorized_applications
-      # Map BOTH creation and revocation to custom controller
-      controllers tokens: "custom_tokens", token_revocations: "custom_tokens"
+      # Map creation and revocation to dedicated custom controllers
+      controllers tokens: "custom_tokens", token_revocations: "custom_token_revocations"
     end
   end
 end
