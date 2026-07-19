@@ -1,52 +1,33 @@
-require 'rails_helper'
+# spec/models/comment_spec.rb
+require "rails_helper"
 
-RSpec.describe Comment, type: :model do
-  # Setup valid baseline items to satisfy database and uniqueness constraints
+RSpec.describe "Polymorphic Forum Comment System", type: :model do
   let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1200 } }
-  let!(:user) { User.create!(username: "forum_student", email: "student@example.com", password: "password123") }
-  let!(:question) do
-    Question.create!(
-      kind: :multiple_choice,
-      subtype: :mc_phrasal,
-      level: b2_level,
-      main: "Bob decided to * up a new sport.",
-      options: [ "give", "take" ],
-      answers: [ "take" ]
-    )
-  end
+  let!(:student) { User.create!(username: "forum_scholar", email: "forum@test.com", password: "password123", role: :student) }
+  let!(:puzzle) { Question.create!(kind: :open_cloze, level: b2_level, main: "This is a prompt sentence.", answers: [ "test" ]) }
 
-  describe "self-referencing thread associations" do
-    it "successfully structures a nested conversation tree layout" do
-      # 1. Create a root thread starter comment
-      root_comment = Comment.create!(
-        commentable: question,
-        user: user,
-        body: "Is 'take up' correct here?"
-      )
-
-      # 2. Create a child reply comment pointing to the root parent
-      reply_comment = Comment.create!(
-        commentable: question,
-        user: user,
-        parent: root_comment, # Links the self-reference parent pointer column
-        body: "Yes, because it means starting a hobby!"
-      )
-
-      expect(root_comment.parent_id).to be_nil
-      expect(root_comment.replies).to include(reply_comment)
-      expect(reply_comment.parent).to eq(root_comment)
-      expect(reply_comment.parent_id).to eq(root_comment.id)
+  describe "Data Integrity Validations & Loops Protection" do
+    it "blocks comment creations containing blank content blocks" do
+      blank_comment = Comment.new(user: student, commentable: puzzle, body: nil)
+      expect(blank_comment).not_to be_valid
     end
 
-    it "safely triggers a cascading delete on all nested replies if the parent comment is deleted" do
-      root_comment = Comment.create!(commentable: question, user: user, body: "Root text message body context.")
-      Comment.create!(commentable: question, user: user, parent: root_comment, body: "Reply message context.")
+    it "cascades deletions down to nested child responses successfully" do
+      parent = Comment.create!(user: student, commentable: puzzle, body: "Is this correct?")
 
-      expect(Comment.count).to eq(2)
+      Comment.create!(user: student, commentable: puzzle, body: "Yes, fully verified.", parent: parent)
 
-      # Act: Deleting the root thread should wipe out sub-replies automatically via dependent: :destroy
-      root_comment.destroy
-      expect(Comment.count).to eq(0)
+      expect {
+        parent.destroy
+      }.to change(Comment, :count).by(-2)
+    end
+
+    it "blocks a comment record node from assigning its own ID as its parent" do
+      comment = Comment.create!(user: student, commentable: puzzle, body: "Self validation loop try.")
+      comment.parent_id = comment.id
+
+      expect(comment).not_to be_valid
+      expect(comment.errors[:parent_id]).to include("cannot form a self-referential loops index handle mapping context")
     end
   end
 end

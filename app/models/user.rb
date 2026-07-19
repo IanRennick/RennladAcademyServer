@@ -1,84 +1,98 @@
+# app/models/user.rb
+# =========================================================================
+# SYSTEM MASTER ACCOUNT USER IDENTITY & PERMISSIONS MODEL
+# - Integrates Devise authentication filters supporting dual username/email lookups
+# - Handles ActiveStorage avatars, multi-dimensional score caching, and Elo snaps
+# - Coordinates real-time ActionCable presence streams and badge milestones
+# =========================================================================
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  # --- Virtual Parameters ---
+  attr_accessor :login
+
+  # --- Devise Authentication Engine ---
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  # Validate email format
-  validates :email, format: URI::MailTo::EMAIL_REGEXP
-
-  # Add new user to list of users without needing to refresh page
-  after_create_commit { broadcast_append_to "users" }
-  after_commit :broadcast_update, on: :update
-  # ✅ AUTOMATED EMAIL HOOK: Fires completely in the background on account initialization
-  after_create_commit :send_welcome_email
-
-  # Helper to remove ourselves from list of Users
-  scope :all_except, ->(user) { where.not(id: user) }
-
-  # User roles to allow different permissions
+  # --- Enum Configurations ---
   enum :role, { student: 0, admin: 1, teacher: 2 }
   enum :status, { offline: 0, away: 1, online: 2 }
 
-  # Associations with writings, comments, messages
+  # --- ActiveStorage Attachments ---
+  has_one_attached :avatar
+
+  # --- Associations ---
   has_many :writings, dependent: :destroy
   has_many :comments, dependent: :destroy
-  has_many :messages
+  has_many :messages, dependent: :destroy
   has_many :user_histories, dependent: :destroy
   has_many :elo_snapshots, dependent: :destroy
-  has_one_attached :avatar
-  has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
+  has_many :user_stats, dependent: :destroy
+  has_one :user_tag_stat, dependent: :destroy
   has_many :user_badges, dependent: :destroy
   has_many :badges, through: :user_badges
+  has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
 
-  # Doorkeeper method to check password and return user
+  # --- Lifecycle Callback Hooks ---
+  after_create :build_initial_tag_stat
+  after_create_commit { broadcast_append_to "users" }
+  after_create_commit :send_welcome_email
+  after_commit :broadcast_update_presence, on: :update
+
+  # --- Validations ---
+  validates :email, presence: true, format: URI::MailTo::EMAIL_REGEXP
+  validates :rating, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :username, presence: true, uniqueness: { case_sensitive: false },
+                       format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" }
+
+  # --- Scopes Matrix ---
+  scope :all_except, ->(user) { where.not(id: user) }
+
+  # --- Class Level Devise / Doorkeeper Authenticators ---
+
+  # Overwrites Devise lookup mechanics to handle BOTH usernames and emails interchangeably
+  def self.find_for_database_authentication(warden_conditions)
+    conditions = warden_conditions.dup
+    if (login = conditions.delete(:login))
+      where(conditions.to_h).where([ "lower(username) = :value OR lower(email) = :value", { value: login.downcase } ]).first
+    else
+      where(conditions.to_h).first
+    end
+  end
+
   def self.authenticate(login_credentials, password)
-    # Passes the credentials directly into our new virtual lookup system
-    user = User.find_for_database_authentication(login: login_credentials)
+    user = find_for_database_authentication(login: login_credentials)
     user&.valid_password?(password) ? user : nil
   end
+
+  # --- Instance Level Core Utility Methods ---
 
   def avatar_initial
     (username.presence || "?").first.upcase
   end
 
-  # Keep these as fallback handles so nothing breaks if called elsewhere
-  def avatar_thumbnail; ""; end
-  def chat_avatar; ""; end
-
-  def broadcast_update
-    broadcast_replace_to "user_status", partial: "users/status", user: self
-  end
-
   def status_to_css
     case status
-    when "online"
-      "bg-success"
-    when "away"
-      "bg-warning"
-    when "offline"
-      "bg-dark"
-    else
-      "bg-dark"
+    when "online"  then "bg-success"
+    when "away"    then "bg-warning"
+    when "offline" then "bg-dark"
+    else "bg-dark"
     end
   end
 
-  # Stats
-  has_many :user_stats, dependent: :destroy
-  has_one :user_tag_stat, dependent: :destroy
+  def broadcast_update_presence
+    broadcast_replace_to "user_status", partial: "users/status", user: self
+  end
 
-  # Automatically hook an empty scoreboard setup right on signup
-  after_create :build_initial_tag_stat
+  # --- JSONB Analytics & Gamification Engines ---
 
+  # Updates individual tag analytics blocks inside the user's serialized JSONB payload
   def update_tag_metrics(tag_names, question_rating, was_correct)
     stat_record = user_tag_stat || create_user_tag_stat
     current_json = stat_record.stats_json.dup
 
     tag_names.each do |tag|
-      # Initialize default data structure including a starting Elo of 1200
       current_json[tag] ||= { "done" => 0, "correct" => 0, "rating" => 1200 }
 
-      # 1. Run the Elo adjustment exclusively for this specific tag
       new_user_tag_elo, _new_q_elo = EloCalculator.calculate(
         current_json[tag]["rating"],
         question_rating,
@@ -86,79 +100,50 @@ class User < ApplicationRecord
         current_json[tag]["done"]
       )
 
-      # 2. Commit metrics back to the memory block
       current_json[tag]["done"] += 1
       current_json[tag]["correct"] += 1 if was_correct
       current_json[tag]["rating"] = new_user_tag_elo
     end
 
     stat_record.update!(stats_json: current_json)
-
-    # ✅ AUTOMATED ENTRY HOOK: Re-evaluates milestones after updating metrics!
     check_and_award_achievements!
   end
 
-  # Create a virtual memory attribute for handling incoming login credentials
-  attr_accessor :login
-
-  # Enforce explicit handle validations (No spaces allowed, letters/numbers/underscores only)
-  validates :username, presence: true, uniqueness: { case_sensitive: false },
-                       format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" }
-
-  # Overwrite Devise's lookup query tool to handle BOTH usernames and emails interchangeably
-  def self.find_for_database_authentication(warden_conditions)
-    conditions = warden_conditions.dup
-    if (login = conditions.delete(:login))
-      # This performs a secure case-insensitive OR lookup inside the database engine
-      where(conditions.to_h).where([ "lower(username) = :value OR lower(email) = :value", { value: login.downcase } ]).first
-    else
-      where(conditions.to_h).first
-    end
-  end
-
-  # ✅ V2 HISTORY TIMELINE SNAPSHOT ENGINE (UPGRADED)
-  # Captures the user's global rating AND category breakdowns for today's unique date
+  # Daily background archival snapshot script utilizing fast database upserts
   def capture_daily_snapshot
-    # 1. Gather a clean summary map of their active category Elo metrics
     stats_matrix = {}
     user_stats.where(stat_type: "kind").each do |stat|
       category_name = Question.kinds.key(stat.stat_key)
       stats_matrix[category_name] = stat.rating if category_name
     end
 
-    # 2. UPSERT MATRIX RECORDS
     elo_snapshots.upsert(
       {
-        rating: self.rating,
+        rating: rating,
         recorded_on: Date.current,
-        category_ratings: stats_matrix # ✅ Saves category breakdowns dynamically for your charts!
+        category_ratings: stats_matrix
       },
       unique_by: [ :user_id, :recorded_on ]
     )
   end
 
+  # Scans user milestones and dispatches whitelisted polymorphic notifications
   def check_and_award_achievements!
-    # 1. Calculate the grand total of questions this user has attempted across all categories
     total_answered = user_stats.where(stat_type: "kind").sum(:times_done)
 
-    # 2. Query the registry for any "total_questions" milestones they have not yet earned
     Badge.where(milestone_type: "total_questions").where.not(id: badges.pluck(:id)).each do |badge|
-      # If their total count crosses the milestone requirement threshold...
       if total_answered >= badge.milestone_threshold
-        # Earn the achievement badge securely in the database!
         user_badges.create!(badge: badge)
 
-        # 3. ✅ TRIGGER THE REAL-TIME ALERT NOTIFICATION
-        # Hooks right into your native polymorphic notification navbar system!
+        # FIXED: Event type string shifted to whitelisted 'badge_unlock' to pass notification constraints!
         Notification.create!(
           recipient: self,
-          # Falling back to yourself as the system actor safely
           actor: User.where(role: :admin).first || self,
-          event_type: "achievement_unlocked",
+          event_type: "badge_unlock",
           params: {
             "message" => "unlocked the '#{badge.name}' achievement medal! 🏆",
             "text_snippet" => badge.description,
-            "url" => "/stats" # Deep-links them straight to their upgraded performance scoreboard
+            "url" => "/stats"
           }
         )
       end
@@ -172,31 +157,25 @@ class User < ApplicationRecord
   end
 
   def send_welcome_email
-    # .deliver_later tells Rails 8 to offload the mailer task to Solid Queue asynchronously,
-    # ensuring your student's user registration experience stays lightning fast!
     UserMailer.welcome_email(self).deliver_later
-    # ✅ NEW SPRINT TRIGGER: Notify Admins immediately of the new signup!
     notify_admins_of_signup
   end
 
   def notify_admins_of_signup
-    # 1. Locate all administrative accounts currently registered on the server
     admins = User.where(role: :admin)
     return if admins.empty?
 
-    # 2. Loop through the admin pool and stamp a custom polymorphic row entry for each
     admins.each do |admin_user|
-      # Safety guard clause: skip notifying yourself if you are an admin creating a user
-      next if admin_user.id == self.id
+      next if admin_user.id == id
 
       Notification.create!(
         recipient: admin_user,
-        actor: self, # The brand-new student is the active actor who triggered the event
+        actor: self,
         event_type: "new_user_signup",
         params: {
           "message" => "joined Rennlad Academy as a new student!",
-          "email" => self.email,
-          "url" => "/u/#{self.id}" # Direct deep link path hook to their upgraded analytics profile
+          "email" => email,
+          "url" => "/u/#{id}"
         }
       )
     end

@@ -1,20 +1,23 @@
-require 'rails_helper'
+# spec/models/tag_spec.rb
+require "rails_helper"
 
-RSpec.describe Tag, type: :model do
-  # Test associations
-  describe "associations" do
-    it { should have_many(:question_tags).dependent(:destroy) }
-    it { should have_many(:questions).through(:question_tags) }
-  end
+RSpec.describe "Grammatical Tag Directory Engine", type: :model do
+  describe "Data Integrity Guard Shields" do
+    it "automatically cleanses whitespaces, downcases characters, and strips raw hashtags before validation" do
+      tag = Tag.create!(name: "  #Conditionals!  ")
+      expect(tag.name).to eq("conditionals")
+    end
 
-  # Test validations
-  describe "validations" do
-    it { should validate_presence_of(:name) }
+    it "blocks the creation of tags that reduce to a completely empty name string" do
+      bad_tag = Tag.new(name: "!!!")
+      expect(bad_tag).not_to be_valid
+      expect(bad_tag.errors[:name]).to include("can't be blank")
+    end
 
-    # Test uniqueness of name
-    context "uniqueness" do
-      subject { Tag.new(name: "first_conditional") }
-      it { should validate_uniqueness_of(:name).case_insensitive }
+    it "enforces strict unique case-insensitive constraints across all database columns" do
+      Tag.create!(name: "inversions")
+      duplicate = Tag.new(name: "Inversions")
+      expect(duplicate).not_to be_valid
     end
   end
 end

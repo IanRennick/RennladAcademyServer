@@ -44,7 +44,7 @@ RSpec.describe "Api::V1::Registrations", type: :request do
                headers: { "CONTENT_TYPE" => "application/json", "ACCEPT" => "application/json" }
         }.not_to change(User, :count)
 
-        expect(response).to have_http_status(:unprocessable_entity).or(have_http_status(:ok))
+        expect(response).to have_http_status(:unprocessable_content).or(have_http_status(:ok))
       end
     end
   end

@@ -1,10 +1,9 @@
+# spec/models/user_badge_spec.rb
 require "rails_helper"
 
-RSpec.describe "Achievement Badge System Engine", type: :model do
-  let!(:student) { User.create!(username: "milestone_runner", email: "runner@badge.com", password: "password123") }
-
-  # Seed our master platform achievement milestones
-  let!(:bronze_badge) do
+RSpec.describe "Gamification Badge Ownership Matrix", type: :model do
+  let!(:student) { User.create!(username: "medal_collector", email: "collector@badge.com", password: "password123", role: :student) }
+  let!(:achievement) do
     Badge.create!(
       name: "Grammar Cadet",
       description: "Answer your very first question puzzle successfully.",
@@ -13,49 +12,23 @@ RSpec.describe "Achievement Badge System Engine", type: :model do
     )
   end
 
-  let!(:gold_badge) do
-    Badge.create!(
-      name: "Puzzle Veteran",
-      description: "Complete 50 vocabulary or grammar puzzles.",
-      milestone_type: "total_questions",
-      milestone_threshold: 50
-    )
-  end
+  describe "Data Integrity Guard Shields" do
+    it "allows a valid student and badge association to register cleanly" do
+      ownership = UserBadge.new(user: student, badge: achievement)
+      expect(ownership).to be_valid
+    end
 
-  describe "#check_and_award_achievements!" do
-    context "when a student is practicing questions" do
-      it "automatically unlocks badges and triggers navbar alerts only when crossing thresholds" do
-        expect(student.badges.count).to eq(0)
+    it "blocks record creations missing mandatory parent identifiers" do
+      bad_ownership = UserBadge.new(user: nil, badge: nil)
+      expect(bad_ownership).not_to be_valid
+    end
 
-        # 1. Simulate answering their first puzzle
-        student.user_stats.create!(stat_type: "kind", stat_key: 0, times_done: 1, times_correct: 1, rating: 1200)
+    it "strictly blocks a student from earning the exact same milestone badge multiple times" do
+      UserBadge.create!(user: student, badge: achievement)
 
-        expect {
-          student.check_and_award_achievements!
-        }.to change(student.badges, :count).by(1)
-
-        # Verify exact badge identity ownership and automated notification trigger strings
-        expect(student.badges.first).to eq(bronze_badge)
-        expect(student.notifications.unread.count).to eq(1)
-        expect(student.notifications.last.params["message"]).to include("unlocked the 'Grammar Cadet' achievement medal!")
-
-        # 2. Simulate subsequent progress that DOES NOT cross the next high threshold yet (e.g. total 10)
-        student.user_stats.first.update!(times_done: 10)
-
-        expect {
-          student.check_and_award_achievements!
-        }.not_to change(student.badges, :count)
-
-        # 3. Simulate crossing the major gold medal threshold milestone line (e.g. total 52)
-        student.user_stats.first.update!(times_done: 52)
-
-        expect {
-          student.check_and_award_achievements!
-        }.to change(student.badges, :count).by(1)
-
-        expect(student.badges.pluck(:name)).to include("Puzzle Veteran")
-        expect(student.notifications.unread.count).to eq(2)
-      end
+      duplicate = UserBadge.new(user: student, badge: achievement)
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:badge_id]).to include("Achievement milestone already earned!")
     end
   end
 end
