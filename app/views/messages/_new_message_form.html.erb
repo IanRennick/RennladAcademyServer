@@ -1,11 +1,17 @@
-<div class="form-group msg-form">
-    <%= form_with(model: [@single_room, @message], remote: true, class: "d-flex",
-        data: {
-            controller: "rooms",
-            action: "turbo:submit-end->rooms#resetForm"
-        }
-    ) do |f| %>
-        <%= f.text_field :body, id: "chat-text", class: "form-control msg-content", autocomplete: "off" %>
-        <%= f.submit data: {disable_with: false}, class: "btn btn-primary" %>
-    <% end %>
+<%# app/views/messages/_new_message_form.html.erb %>
+<div class="form-group msg-form w-100">
+  <%= form_with(model: [@single_room, @message], remote: true, class: "d-flex gap-2 align-items-center w-100",
+      data: {
+          controller: "rooms",
+          action: "turbo:submit-end->rooms#resetForm"
+      }
+  ) do |f| %>
+    <%= f.text_field :body, id: "chat-text", 
+        class: "form-control bg-black border-secondary text-white font-sans py-2 msg-content", 
+        placeholder: "Type your message here...", 
+        autocomplete: "off",
+        required: true
+    %>
+    <%= f.submit "Send", data: { disable_with: false }, class: "btn btn-primary px-3 fw-bold font-monospace" %>
+  <% end %>
 </div>

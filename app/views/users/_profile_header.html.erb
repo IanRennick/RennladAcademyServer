@@ -1,0 +1,118 @@
+<%# app/views/users/_profile_header.html.erb %>
+<%# =========================================================================
+    STUDENT PROFILE ACCENT HUB & IDENTITY BADGE PARTIAL
+    - Manages real-time presence visual status badges, emails, and shortcut channels
+    - Renders the historical progress tracking timeline cache logs
+   ========================================================================= %>
+
+<%# =======================================================================
+    SECTION A: PROFILE MASTER BRANDING STUDENT CARD
+   ======================================================================= %>
+<div class="card bg-black bg-opacity-40 border border-secondary border-opacity-20 mb-4 p-4 shadow-sm font-sans">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    
+    <%# Left Group: Avatar initial bubble block and student metadata credentials %>
+    <div class="d-flex align-items-center flex-wrap gap-3">
+      
+      <%# Safe CSS Circle Avatar Initial Badge Component %>
+      <div class="d-flex align-items-center justify-content-center text-white fw-bold shadow-sm rounded-circle" 
+           style="background-color: #3498db; width: 68px; height: 68px; font-size: 26px; user-select: none; line-height: 1; flex-shrink: 0;">
+        <%= @user.avatar_initial %>
+      </div>
+      
+      <div style="min-width: 0;">
+        <%# Fallback layout check ensures text handle is always crystal clear off-white %>
+        <h2 class="mb-1 fw-bold text-white tracking-wide" style="font-size: 1.5rem;"><%= @user.username.presence || @user.email %></h2>
+        <p class="text-white-50 mb-2 font-monospace" style="font-size: 0.8rem; letter-spacing: 0.2px;"><%= @user.email %></p>
+        
+        <%# Live Status & Activity Tracker Sync Metrics Row %>
+        <div class="d-flex align-items-center gap-2 flex-wrap" style="font-size: 0.8rem;">
+          <% case @user.status %>
+          <% when "online" %>
+            <span class="badge bg-success bg-opacity-15 border border-success text-success px-2 py-0.5 fw-medium">Online</span>
+          <% when "away" %>
+            <span class="badge bg-warning bg-opacity-15 border border-warning text-warning px-2 py-0.5 fw-medium">Away</span>
+          <% else %>
+            <span class="badge bg-secondary bg-opacity-15 border border-secondary text-white-50 px-2 py-0.5 fw-medium">Offline</span>
+          <% end %>
+
+          <span class="text-white-50 border-start border-secondary border-opacity-40 ps-2">
+            Last Online: <%= @user.last_seen_at.present? ? "#{time_ago_in_words(@user.last_seen_at)} ago" : "Never Active" %>
+          </span>
+
+          <%# ✅ NEW SPRINT VALUE: Dynamically exposes their real-time endpoint tracking description block natively %>
+          <% if @user.status == "online" || @user.status == "away" %>
+            <span class="text-success border-start border-secondary border-opacity-40 ps-2" style="color: #48bb78 !important; font-family: var(--bs-font-monospace);">
+              💻 <%= @user.last_activity_desc.presence || "Active initialization" %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <%# Right Group: Global Rating Meter & Action Deep Chat Shortcut Links %>
+    <div class="text-md-end text-start mt-2 mt-md-0 font-monospace">
+      <%# UI Contrast Fix: Changed bg-info text-dark to high-contrast white text over a solid badge frame %>
+      <span class="badge bg-info bg-opacity-25 border border-info text-white p-2.5 fs-6 d-block mb-2 shadow-sm fw-bold" style="min-width: 170px; letter-spacing: 0.3px;">
+        ⚡ <%= @user.rating %> Global Elo
+      </span>
+      <% if respond_to?(:user_chat_path) %>
+        <%= link_to user_chat_path(@user), class: "btn btn-sm btn-success fw-bold w-100 shadow-sm font-sans tracking-wide py-1.5" do %>
+          💬 Launch Chat Room
+        <% end %>
+      <% end %>
+    </div>
+
+  </div>
+</div>
+
+<%# =======================================================================
+    SECTION B: HISTORICAL PROGRESS LOG MATRIX PIPELINE
+   ======================================================================= %>
+<div class="card bg-dark bg-opacity-30 border border-secondary border-opacity-20 mb-4 shadow-sm font-sans">
+  <div class="card-header border-bottom border-secondary border-opacity-20 fw-bold bg-dark bg-opacity-50 text-white-50 small text-uppercase tracking-wider py-2.5">
+    📈 Daily Progress Log Timeline
+  </div>
+  
+  <div class="card-body p-0" style="max-height: 180px; overflow-y: auto; font-size: 0.88rem;">
+    <% if @user.elo_snapshots.any? %>
+      <div class="table-responsive">
+        <table class="table table-dark table-sm table-hover mb-0 align-middle" style="--bs-table-bg: transparent;">
+          <thead>
+            <tr class="text-white-50 border-bottom border-secondary border-opacity-20" style="font-size: 0.78rem; background-color: rgba(0,0,0,0.15);">
+              <th scope="col" class="ps-3 py-2 fw-semibold text-uppercase tracking-wider">Recorded Calendar Date</th>
+              <%# ✅ NEW SPRINT SNAPSHOT COLUMNS: Exposes our multi-dimensional category metadata maps %>
+              <th scope="col" class="py-2 fw-semibold text-uppercase tracking-wider">Category Breakdowns Map</th>
+              <th scope="col" class="text-end pe-3 py-2 fw-semibold text-uppercase tracking-wider">Rating Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @user.elo_snapshots.order(recorded_on: :desc).each do |snapshot| %>
+              <tr class="border-bottom border-secondary border-opacity-10" style="transition: background-color 0.1s;">
+                <td class="ps-3 text-white font-sans"><%= snapshot.recorded_on.strftime("%B %d, %Y") %></td>
+                
+                <%# ✅ DATA EXPANSION VALUE: Displays our new JSONB metric maps cleanly to admins %>
+                <td class="font-monospace text-white-50" style="font-size: 0.74rem;">
+                  <% if snapshot.category_ratings.any? %>
+                    <% snapshot.category_ratings.each do |cat, score| %>
+                      <span class="badge bg-secondary bg-opacity-10 border border-secondary border-opacity-30 text-light-50 me-1 py-0.5 px-1.5"><%= cat %>: <strong><%= score %></strong></span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-muted" style="font-style: italic;">Flat baseline rating</span>
+                  <% end %>
+                </td>
+                
+                <%# UI Contrast Fix: Brightened text columns from muted-info to text-white info tags %>
+                <td class="text-end pe-3 text-info fw-bold font-monospace" style="color: #0dcaf0 !important;"><%= snapshot.rating %> Elo</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="text-center py-4 text-white-50 small font-monospace">
+        📂 No historical daily progress snapshots logged yet. Midnight clock scheduler job runs automatically.
+      </div>
+    <% end %>
+  </div>
+</div>

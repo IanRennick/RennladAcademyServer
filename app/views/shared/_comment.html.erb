@@ -1,24 +1,33 @@
 <%# app/views/shared/_comment.html.erb %>
-<div class="comment-<%= comment.id %> container mb-3 p-3 bg-dark text-white rounded border border-secondary" style="margin-left: <%= comment.parent_id ? '30px' : '0px' %>;">
+<%# =========================================================================
+    UNIVERSAL POLYMORPHIC FORUM DISCUSSION CONVERSATION ROW
+    - Supports multi-level recursive student sub-thread reply streams
+    - Integrates rich inline JavaScript editing widgets and moderation gates
+   ========================================================================= %>
+<div class="comment-<%= comment.id %> mb-3 p-3 bg-dark bg-opacity-40 text-light rounded border border-secondary border-opacity-20 shadow-sm font-sans" 
+     style="margin-left: <%= comment.parent_id ? '24px' : '0px' %>; background-color: #14161a !important;">
   
-  <div class="d-flex justify-content-between text-muted text-sm mb-2">
-    <span><strong><%= comment.user.username %></strong></span>
-    <span>
+  <%# User Handle Header and Timestamp Meta Row %>
+  <div class="d-flex justify-content-between align-items-center text-white-50 mb-2.5" style="font-size: 0.82rem;">
+    <span><strong class="text-white fw-bold"><%= comment.user.username %></strong></span>
+    <span class="font-monospace opacity-85">
       <% if comment.created_at != comment.updated_at %>
-        <small class="text-warning">(Edited)</small> Posted <%= time_ago_in_words(comment.updated_at) %> ago
+        <small class="text-warning fw-semibold font-sans me-1">(Edited)</small> Posted <%= time_ago_in_words(comment.updated_at) %> ago
       <% else %>
         Posted <%= time_ago_in_words(comment.created_at) %> ago
       <% end %>
     </span>
   </div>
 
-  <div id="comment-body-<%= comment.id %>" class="my-2 p-2 bg-black bg-opacity-25 rounded text-light">
+  <%# Dynamic Comment Text Area Box %>
+  <div id="comment-body-<%= comment.id %>" class="my-2 p-2.5 bg-black bg-opacity-30 border border-secondary border-opacity-10 rounded text-light font-sans trix-content-dark" style="font-size: 0.9rem; line-height: 1.45; color: #e2e8f0 !important;">
     <%= comment.body %>
   </div>
 
-  <%# ADMIN INTERFACE CONTROLS %>
-  <div class="mt-2 text-end btn-group">
-    <button class="btn btn-sm btn-outline-warning" 
+  <%# Administrative Moderation & Interaction Controls %>
+  <div class="mt-2 text-end btn-group border border-secondary border-opacity-10 rounded overflow-hidden shadow-sm">
+    <button class="btn btn-sm btn-outline-warning font-monospace" 
+            style="font-size: 0.74rem; font-weight: 600;"
             data-controller="comments" 
             data-action="comments#toggleForm"
             data-comments-form-param="edit-form-<%= comment.id %>"
@@ -28,21 +37,22 @@
       Edit
     </button>
     
-    <%# POLYMORPHIC DELETE LINK: Automatically evaluates to question_comment_path or writing_comment_path %>
+    <%# Polymorphic Delete Post Trigger Gate %>
     <%= button_to "Delete", [comment.commentable || commentable, comment], 
-                  class: "btn btn-sm btn-outline-danger", 
+                  class: "btn btn-sm btn-outline-danger font-monospace", 
+                  style: "font-size: 0.74rem; font-weight: 600;",
                   method: :delete, 
                   data: { confirm: "Are you sure you want to moderate this conversation segment?" } %>
   </div>
 
-  <%# Inline Edit Form %>
-  <div id="edit-form-<%= comment.id %>" class="d-none mt-3"> 
-    <%= render "shared/comment_form", commentable: (comment.commentable || commentable), comment: comment, submit_label: "Update" %>
+  <%# Inline Asynchronous Edit Text Box Card %>
+  <div id="edit-form-<%= comment.id %>" class="d-none mt-3 border-top border-secondary border-opacity-10 pt-3"> 
+    <%= render "shared/comment_form", commentable: (comment.commentable || commentable), comment: comment, submit_label: "Update Response" %>
   </div>
 
-  <%# RECURSIVE REPLIES SYSTEM: Calls itself recursively using the shared path location %>
+  <%# Recursive Replies Tree Rendering Matrix %>
   <% if comment.replies.any? %>
-    <div class="replies-container mt-3 border-start border-secondary ps-2">
+    <div class="replies-container mt-3 border-start border-secondary border-opacity-30 ps-2.5 d-flex flex-column gap-1">
       <% comment.replies.includes(:user).each do |reply| %>
         <%= render "shared/comment", commentable: (comment.commentable || commentable), comment: reply %>
       <% end %>

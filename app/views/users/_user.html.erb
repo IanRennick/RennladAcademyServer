@@ -1,22 +1,36 @@
-<% if @single_room && @single_room.participant?(@single_room, user) %>
-  <% isActive = "active" %>
-<% else %>
-  <% isActive = "" %>
-<% end %>
+<%# app/views/users/_user.html.erb %>
+<%# =========================================================================
+    SIDEBAR ACTIVE STUDENT SELECTION ROW LIST COMPONENT
+    - Dynamically evaluates if a direct chat session is currently active
+    - Integrates the absolute presence monitoring badge dot
+   ========================================================================= %>
+<% is_active = (@single_room && @single_room.participant?(@single_room, user)) ? "bg-secondary bg-opacity-20 border-secondary" : "border-transparent" %>
 
-
-<li class="list-group-item d-flex align-items-center justify-content-between user_list_item <%= isActive %> ">
-  <div class="icon-container">
-    <div class="chat_pfp d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
-      style="background-color: #9b59b6; font-size: 18px; line-height: 1; user-select: none;">
+<li class="list-group-item bg-transparent d-flex align-items-center justify-content-between p-2 rounded border <%= is_active %> transition-all hover-user-row" style="margin-bottom: 4px;">
+  
+  <%# Avatar Circle and Presence Status Wrapper Box %>
+  <div class="position-relative flex-shrink-0" style="width: 38px; height: 38px;">
+    
+    <%# High-utility initial text placeholder container %>
+    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+         style="background-color: #9b59b6; width: 100%; height: 100%; font-size: 15px; user-select: none; line-height: 1;">
       <%= user.avatar_initial %>
     </div>
-    <%= turbo_stream_from "user_status" %>
-
-    <div>
+    
+    <%# Absolute floating placement for the real-time presence visual dot badge %>
+    <div class="position-absolute" style="bottom: -2px; right: -2px; z-index: 5;">
       <%= render "users/status", user: user %>
     </div>
   </div>
 
-  <%= link_to user.username, user_chat_path(user), class: "ms-2 me-auto username", data: {turbo: "false"} %>
+  <%# Clickable Student Handle Deep-Link Target %>
+  <%= link_to user.username, user_chat_path(user), 
+              class: "ms-3 me-auto text-decoration-none fw-semibold text-light username-link font-sans", 
+              data: { turbo: "false" }, 
+              style: "font-size: 0.9rem; letter-spacing: 0.3px;" %>
 </li>
+
+<style>
+  .hover-user-row:hover { background-color: rgba(255, 255, 255, 0.04) !important; border-color: rgba(255, 255, 255, 0.06) !important; }
+  .username-link:hover { color: #0dcaf0 !important; }
+</style>

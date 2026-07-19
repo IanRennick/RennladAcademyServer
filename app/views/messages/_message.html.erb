@@ -1,13 +1,38 @@
-<div class= "cont-<%= message.user.id %>">
-  <div class="message-box msg-<%= message.user.id %>">
-    <div class="d-flex align-items-center">
-      <%= image_tag(message.user.chat_avatar, class: "chat_pfp") %>
-      <div>
-        <h6 class="name"><%= message.user.username %></h6>
-        <p class="time"><%= time_ago_in_words(message.created_at) %> ago</p>
+<%# app/views/messages/_message.html.erb %>
+<%# =========================================================================
+    STREAM REAL-TIME CHAT BALLOON CONTAINER COMPONENT
+    - Decoupled completely from current_user session variables to prevent Warden thread crashes
+    - Enforces CSS Grid to rigidly lock vertical layout blocks
+    - Preserves exact uniform padding bounds on all sides during text drops
+   ========================================================================= %>
+<div id="<%= dom_id message %>" class="d-flex w-100 mb-2.5 chat-message-wrapper" data-sender-id="<%= message.user_id %>">
+  
+  <%# Master Balloon Card Box %>
+  <%# NOTE: Background color handles default to inbound user colors, client-side styles handle flipping our own color shifts %>
+  <div class="rounded border border-secondary border-opacity-10 shadow-sm msg-balloon-inner" 
+       style="display: grid !important; grid-template-rows: auto auto; row-gap: 4px; align-items: start; width: fit-content; max-width: 500px; background-color: #14161a; text-align: left; padding: 10px 14px;">
+    
+    <%# ROW 1: THE RIGID HEADER (Avatar, Name, Time) %>
+    <div class="d-flex align-items-center gap-2 w-100" style="white-space: nowrap; line-height: 1; grid-row: 1;">
+      <%# Profile Initial Fallback Circle Badge %>
+      <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm avatar-indicator" 
+           style="background-color: #27ae60; width: 22px; height: 22px; font-size: 11px; user-select: none; line-height: 1; min-width: 22px;">
+        <%= message.user.avatar_initial %>
       </div>
-    </div>
 
-    <%= message.body %>
+      <%# Student Handle Username Text %>
+      <h6 class="mb-0 text-white fw-bold small" style="font-size: 0.8rem; letter-spacing: 0.2px; line-height: 1;"><%= message.user.username %></h6>
+      
+      <%# Real-Time Relative Timestamp Tracker %>
+      <span class="font-monospace text-muted-inline" style="font-size: 0.65rem; color: #a0aec0; opacity: 0.7; line-height: 1;">
+        ⏱️ <%= (Time.current - message.created_at) < 15.seconds ? 'now' : "#{time_ago_in_words(message.created_at)} ago" %>
+      </span>
+    </div>
+    
+    <%# ROW 2: THE IMMUTABLE BODY TEXT %>
+    <div class="font-sans text-break text-white" 
+         style="grid-row: 2; font-size: 0.88rem; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap; color: #e2e8f0; width: 100%; padding-left: 2px;">
+      <%= message.body %>
+    </div>
   </div>
 </div>

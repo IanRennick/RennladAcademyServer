@@ -3,29 +3,10 @@ class NotificationsController < ApplicationController
   def mark_all_as_read
     current_user.notifications.unread.update_all(read_at: Time.current)
 
-    def mark_all_as_read
-    current_user.notifications.unread.update_all(read_at: Time.current)
-
     respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          # 1. ✅ NATIVE FIXED: Completely replaces the red badge container with a hidden, empty fallback tag!
-          turbo_stream.replace("nav-notification-badge", html: '
-            <span id="nav-notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem; padding: 0.25em 0.4em;">
-              0
-            </span>
-          '.html_safe),
-
-          # 2. Replaces the feed content stack with a clean, empty placeholder layout row
-          turbo_stream.update("notifications_feed", html: '
-            <li class="list-group-item bg-transparent text-muted text-center py-4 small" id="empty-notification-placeholder">
-              📂 Clean slate! No new notifications.
-            </li>
-          '.html_safe)
-          ]
-        end
-        format.html { redirect_back fallback_location: root_path }
-      end
+      # Force a clean layout reload so the bell icon instantly locks into its disabled state!
+      format.turbo_stream { render turbo_stream: turbo_stream.action(:reload, "") rescue redirect_back(fallback_location: root_path) }
+      format.html { redirect_back fallback_location: root_path }
     end
   end
 
@@ -42,30 +23,24 @@ class NotificationsController < ApplicationController
     unread_count = current_user.notifications.unread.count
 
     respond_to do |format|
-      format.turbo_stream do
-        streams = [
-          # Update the single row styling instantly
-          turbo_stream.replace(notification, partial: "notifications/notification", locals: { notification: notification })
-        ]
-
-        # Dynamically calculate the navbar bell red badge counter values
-        if unread_count.zero?
-          streams << turbo_stream.add_class("d-none", target: "nav-notification-badge")
-          streams << turbo_stream.replace("notifications_feed", html: '
-            <ul class="list-group list-group-flush bg-transparent mb-0" id="notifications_feed">
-              <li class="list-group-item bg-transparent text-muted text-center py-4 small" id="empty-notification-placeholder">
-                📂 Clean slate! No new notifications.
-              </li>
-            </ul>
-          ')
-        else
-          streams << turbo_stream.remove_class("d-none", target: "nav-notification-badge")
-          streams << turbo_stream.update("nav-notification-badge", html: unread_count.to_s)
+      if unread_count.zero?
+        # If no unread alerts remain, reload the page structure to smoothly lock the bell dropdown shut
+        format.turbo_stream { render turbo_stream: turbo_stream.action(:reload, "") rescue redirect_back(fallback_location: root_path) }
+        format.html { redirect_back fallback_location: root_path }
+      else
+        # If there are still items left in the queue, process the individual row update asynchronously
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace(notification, partial: "notifications/notification", locals: { notification: notification }),
+            turbo_stream.replace("nav-notification-badge", html: "
+              <span id='nav-notification-badge' class='position-absolute badge rounded-pill bg-danger' style='font-size: 0.62rem; padding: 0.25em 0.4em; top: 3px; right: -3px; z-index: 10;'>
+                #{unread_count}
+              </span>
+            ".html_safe)
+          ]
         end
-
-        render turbo_stream: streams
+        format.html { redirect_back fallback_location: root_path }
       end
-      format.html { redirect_back fallback_location: root_path }
     end
   end
 end

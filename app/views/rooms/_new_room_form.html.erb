@@ -1,9 +1,15 @@
-<%= form_with(model: @room, remote: true, class: "d-flex",
-  data: {
-            controller: "rooms",
-            action: "turbo:submit-end->rooms#resetForm"
-        }
+<%# app/views/rooms/_new_room_form.html.erb %>
+<%= form_with(model: @room, remote: true, class: "d-flex gap-2 align-items-center w-100",
+    data: {
+        controller: "rooms",
+        action: "turbo:submit-end->rooms#resetForm"
+    }
 ) do |f| %>
-  <%= f.text_field :name, class: "form-control", autocomplete: "off" %>
-  <%= f.submit data: {disable_with: false} %>
+  <%= f.text_field :name, 
+      class: "form-control form-control-sm bg-black border-secondary text-white font-monospace", 
+      placeholder: "Create channel name...", 
+      autocomplete: "off",
+      required: true
+  %>
+  <%= f.submit "+", data: { disable_with: false }, class: "btn btn-sm btn-success px-2.5 fw-bold" %>
 <% end %>

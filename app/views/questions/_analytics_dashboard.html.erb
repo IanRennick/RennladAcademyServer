@@ -1,0 +1,93 @@
+<%# app/views/questions/_analytics_dashboard.html.erb %>
+<%# =========================================================================
+    COLLAPSIBLE CONTENT-BALANCE & DATA ANALYTICS DASHBOARD COMPONENT
+    - Aggregates structural CEFR inventory counts and topic distributions
+    - Triggers low-stock data badge overrides asynchronously
+   ========================================================================= %>
+<div class="mb-4 font-sans">
+  
+  <%# Collapsible Toggle Control Button %>
+  <button class="btn btn-outline-info w-100 fw-bold py-2 shadow-sm font-monospace" type="button" data-bs-toggle="collapse" data-bs-target="#analyticsDashboard" aria-expanded="false" aria-controls="analyticsDashboard" style="letter-spacing: 0.3px;">
+    📊 Toggle Database Topology & Stock Balance Control Board
+  </button>
+  
+  <div class="collapse mt-3" id="analyticsDashboard">
+    <div class="card card-body bg-dark bg-opacity-30 border border-secondary border-opacity-20 p-4 shadow-lg" style="background-color: rgba(0,0,0,0.15) !important;">
+      <div class="row g-4">
+        
+        <%# =================================================================
+            KPI PANEL 1: CEFR LEVEL STOCK QUANTITIES
+           ================================================================= %>
+        <div class="col-lg-3 col-md-12 border-end border-secondary border-opacity-15">
+          <h5 class="text-info fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;">
+            <span>📈</span> CEFR Levels <span class="badge bg-secondary bg-opacity-15 border border-secondary text-white-50 font-monospace small"><%= @total_count %> Total</span>
+          </h5>
+          <div class="d-flex flex-column gap-2 pe-2">
+            <% %w[B1 B2 C1 C2].each do |lvl| %>
+              <div class="d-flex justify-content-between align-items-center py-1.5 border-bottom border-secondary border-opacity-10" style="font-size: 0.9rem;">
+                <span class="badge bg-secondary bg-opacity-25 border border-secondary text-white font-monospace px-2 py-0.5"><%= lvl %></span>
+                <span class="fw-bold text-white-50 font-monospace"><%= @level_counts[lvl] || 0 %> <small class="text-muted" style="font-size: 0.72rem;">puzzles</small></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# =================================================================
+            KPI PANEL 2: QUESTION KINDS & INVENTORY BADGES
+           ================================================================= %>
+        <div class="col-lg-5 col-md-12 border-end border-secondary border-opacity-15 px-lg-4 px-md-2">
+          <h5 class="text-info fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;">
+            <span>📋</span> Topology & Stock Footprints
+          </h5>
+          <div style="max-height: 450px; overflow-y: auto; padding-right: 12px;" class="pe-2">
+            <% Question.kinds.keys.each do |kind| %>
+              <div class="mb-3.5">
+                <div class="d-flex justify-content-between fw-bold border-bottom border-secondary border-opacity-20 pb-1.5" style="font-size: 0.92rem;">
+                  <span class="text-white"><%= kind.humanize %></span>
+                  <span class="text-warning font-monospace"><%= @kind_counts[kind] || 0 %></span>
+                </div>
+                
+                <%# Filter and loop through matching multi-array subtype tuples %>
+                <% @subtype_counts.select { |key, _| key.first == kind }.each do |key, count| %>
+                  <%# UI Contrast Upgrade: Swapped text-muted to crisp high-visibility text-white-50 %>
+                  <div class="d-flex justify-content-between text-white-50 font-sans ps-3 mt-1.5" style="font-size: 0.84rem;">
+                    <span class="text-white-50">↳ <%= key.last.to_s.humanize %></span>
+                    <span class="font-monospace text-light">
+                      <%= count %> 
+                      <% if count < 20 %>
+                        <span class="badge bg-danger bg-opacity-15 border border-danger text-danger ms-1 fw-bold tracking-normal font-sans" style="font-size: 0.62rem; padding: 0.2em 0.4em;">Low Stock</span>
+                      <% end %>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# =================================================================
+            KPI PANEL 3: MASTER GRAMMAR TAG CLOUD REPOSITORY
+           ================================================================= %>
+        <div class="col-lg-4 col-md-12 px-lg-4 px-md-2">
+          <h5 class="text-info fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;">
+            <span>🏷️</span> Tag Cloud Directory <span class="badge bg-secondary bg-opacity-15 border border-secondary text-white-50 font-monospace small"><%= @all_tags.count %> Active</span>
+          </h5>
+          
+          <div class="d-flex flex-wrap gap-2 pe-1" style="max-height: 450px; overflow-y: auto; padding-right: 8px;">
+            <% if @all_tags.any? %>
+              <% @all_tags.each do |tag_name, count| %>
+                <span class="badge bg-black bg-opacity-40 border border-secondary border-opacity-30 p-2 text-white-50 font-sans fw-normal d-flex align-items-center" style="font-size: 0.8rem; height: fit-content; gap: 4px;">
+                  <span>#<%= tag_name %></span> 
+                  <strong class="text-info font-monospace">(<%= count %>)</strong>
+                </span>
+              <% end %>
+            <% else %>
+              <p class="text-white-50 mb-0 py-3 small font-monospace text-center w-100">No tags used in active questions yet.</p>
+            <% end %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

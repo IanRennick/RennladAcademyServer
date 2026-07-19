@@ -1,109 +1,78 @@
-<!-- app/views/admin/dashboard/index.html.erb -->
-<div class="container-fluid min-vh-100 bg-dark text-light p-4">
+<%# app/views/dashboard/index.html.erb %>
+<%# =========================================================================
+    ADMINISTRATIVE CENTRAL MONITORING HUB
+    - Pulls system metrics for students, channels, and operational metrics
+    - Leverages modular sub-row view components to handle profile rows
+   ========================================================================= %>
+<div class="container-fluid bg-dark text-light p-4" style="background-color: #0f1115 !important;">
   
-  <!-- Header Bar -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+  <%# Header Status Control Bar %>
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
     <div>
-      <h2 class="fw-bold text-white mb-0">👑 Rennlad Academy Monitoring Station</h2>
-      <p class="text-muted mb-0">Real-time student activity tracking, metrics analytics, and deep-links</p>
+      <h2 class="fw-bold text-white mb-0 tracking-wide">👑 Rennlad Academy Monitoring Hub</h2>
+      <p class="text-white-50 small mb-0 mt-1">Real-time student asset logs, metrics analytics channels, and profile trackers</p>
     </div>
-    <span class="badge bg-primary px-3 py-2 fw-bold text-uppercase">System Mode: Live</span>
+    <span class="badge bg-success bg-opacity-25 border border-success text-white px-3 py-2 fw-bold text-uppercase font-monospace" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+      System Status: Functional
+    </span>
   </div>
 
-  <!-- Metric Overview Cards Row -->
-  <div class="row g-3 mb-4">
+  <%# Metric Overview Counters Row Grid %>
+  <div class="row g-3 mb-4 font-sans">
+    <%# Metric Box 1: Total Enrolled %>
     <div class="col-md-4">
-      <div class="card bg-black border-secondary text-light p-3">
-        <div class="small text-uppercase text-muted fw-bold">Total Enrolled Body</div>
-        <div class="display-5 fw-bold text-info"><%= @total_students %></div>
+      <div class="card bg-black bg-opacity-40 border border-secondary border-opacity-20 p-3 shadow-sm">
+        <div class="small text-uppercase tracking-wider fw-bold text-white-50" style="font-size: 0.72rem;">Total Students</div>
+        <div class="display-6 fw-bold text-info mt-1 font-monospace"><%= @total_students %></div>
       </div>
     </div>
+    
+    <%# Metric Box 2: Sockets Presence %>
     <div class="col-md-4">
-      <div class="card bg-black border-secondary text-light p-3">
-        <div class="small text-uppercase text-muted fw-bold">Active Sockets Online</div>
-        <div class="display-5 fw-bold text-success"><%= @online_count %></div>
+      <div class="card bg-black bg-opacity-40 border border-secondary border-opacity-20 p-3 shadow-sm">
+        <div class="small text-uppercase tracking-wider fw-bold text-white-50" style="font-size: 0.72rem;">Users Online</div>
+        <div class="display-6 fw-bold text-success mt-1 font-monospace"><%= @online_count %></div>
       </div>
     </div>
+    
+    <%# Metric Box 3: Users Away %>
     <div class="col-md-4">
-      <div class="card bg-black border-secondary text-light p-3">
-        <div class="small text-uppercase text-muted fw-bold">Idle State Users (Away)</div>
-        <div class="display-5 fw-bold text-warning"><%= @away_count %></div>
+      <div class="card bg-black bg-opacity-40 border border-secondary border-opacity-20 p-3 shadow-sm">
+        <div class="small text-uppercase tracking-wider fw-bold text-white-50" style="font-size: 0.72rem;">Users Away</div>
+        <div class="display-6 fw-bold text-warning mt-1 font-monospace"><%= @away_count %></div>
       </div>
     </div>
   </div>
 
-  <!-- Master Student Activity Directory Board -->
-  <div class="card bg-black border-secondary">
-    <div class="card-header bg-dark border-secondary py-3">
-      <h5 class="mb-0 text-white fw-bold">💼 Active Student Directory Roll</h5>
+  <%# Master Student Directory Board Card Container %>
+  <div class="card bg-black bg-opacity-30 border-secondary border-opacity-20 shadow-lg">
+    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-20 py-3">
+      <h5 class="mb-0 text-white fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
+        <span>💼</span> Active Student Directory Roll
+      </h5>
     </div>
+    
     <div class="table-responsive">
-      <table class="table table-dark table-hover align-middle mb-0">
+      <table class="table table-dark table-hover align-middle mb-0" style="--bs-table-bg: transparent;">
         <thead>
-          <tr class="text-muted border-secondary">
-            <th scope="col" class="ps-4">Student</th>
-            <th scope="col">Real-Time Presence</th>
-            <th scope="col">Global Scoreboard (Elo)</th>
-            <th scope="col">Last Server Connection</th>
-            <th scope="col" class="text-end pe-4">Admin Controls / Links</th>
+          <tr class="text-white-50 border-bottom border-secondary border-opacity-20" style="font-size: 0.8rem; background-color: rgba(0,0,0,0.15);">
+            <th scope="col" class="ps-4 py-3 text-uppercase tracking-wider fw-semibold">Username</th>
+            <th scope="col" class="py-3 text-uppercase tracking-wider fw-semibold">Status</th>
+            <th scope="col" class="py-3 text-uppercase tracking-wider fw-semibold">Rating</th>
+            <th scope="col" class="py-3 text-uppercase tracking-wider fw-semibold">Activity</th>
+            <th scope="col" class="py-3 text-uppercase tracking-wider fw-semibold">Last Online</th>
+            <th scope="col" class="text-end pe-4 py-3 text-uppercase tracking-wider fw-semibold">Links</th>
           </tr>
         </thead>
         <tbody>
-          <% @users.each do |user| %>
-            <tr class="border-secondary">
-              <!-- Avatar & Name -->
-              <td class="ps-4">
-                <div class="d-flex align-items-center">
-                  <div class="chat_pfp d-flex align-items-center justify-content-center text-white fw-bold shadow-sm me-3" 
-                       style="background-color: #3498db; width: 40px; height: 40px; border-radius: 50%; font-size: 16px;">
-                    <%= user.avatar_initial %>
-                  </div>
-                  <div>
-                    <span class="fw-bold text-white"><%= user.username %></span>
-                    <small class="d-block text-muted"><%= user.email %></small>
-                  </div>
-                </div>
-              </td>
-              
-              <!-- Live Presence Badge -->
-              <td>
-                <% case user.status %>
-                <% when "online" %>
-                  <span class="badge bg-success text-white px-2 py-1"><i class="bi bi-circle-fill me-1"></i> Online</span>
-                <% when "away" %>
-                  <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-clock-fill me-1"></i> Idle (Away)</span>
-                <% else %>
-                  <span class="badge bg-secondary text-light px-2 py-1">Offline</span>
-                <% end %>
-              </td>
-
-              <!-- Rating -->
-              <td>
-                <span class="badge bg-info text-dark fw-bold px-2 py-1 font-monospace" style="font-size: 14px;">
-                  ⚡ <%= user.rating %> Elo
-                </span>
-              </td>
-
-              <!-- Last Seen Activity Timestamp -->
-              <td class="text-muted small">
-                <% if user.last_seen_at.present? %>
-                  <!-- Display human-friendly relative time (e.g., "3 minutes ago" or "July 17, 14:32") -->
-                  <%= time_ago_in_words(user.last_seen_at) %> ago 
-                  <span class="d-block text-muted" style="font-size: 11px;"><%= user.last_seen_at.strftime("%b %d, %H:%M UTC") %></span>
-                <% else %>
-                  <span class="text-danger">Never Active</span>
-                <% end %>
-              </td>
-
-              <!-- Control Link Anchors -->
-              <td class="text-end pe-4">
-                <div class="btn-group btn-group-sm">
-                  <!-- Link to Open Their Personal History/Profile Subpage -->
-                  <%= link_to "👁️ Profile", user_path(user), class: "btn btn-outline-info" if respond_to?(:user_path) %>
-                  
-                  <!-- Link to Drop Straight Into an Active Direct Chat Room With This Student -->
-                  <%= link_to "💬 Chat", user_chat_path(user), class: "btn btn-outline-success" if respond_to?(:user_chat_path) %>
-                </div>
+          <% if @users.any? %>
+            <% @users.each do |user| %>
+              <%= render "dashboard/student_row", user: user %>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="6" class="text-center py-5 text-white-50 small font-monospace">
+                ⚠️ No active student accounts mapped inside the repository.
               </td>
             </tr>
           <% end %>

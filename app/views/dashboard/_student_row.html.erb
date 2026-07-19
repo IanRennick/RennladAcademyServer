@@ -1,0 +1,75 @@
+<%# app/views/dashboard/_student_row.html.erb %>
+<%# =========================================================================
+    ADMINISTRATIVE DIRECTORY DATA ROW MODULE
+    - Renders individual student profile indices, timestamps, and deep link paths
+   ========================================================================= %>
+<tr class="border-bottom border-secondary border-opacity-10 font-sans" style="transition: background-color 0.15s;">
+  
+  <%# 1. Username Column %>
+  <td class="ps-4 py-3">
+    <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center justify-content-center text-white fw-bold shadow-sm me-3 rounded-circle" 
+           style="background-color: #3498db; width: 36px; height: 36px; font-size: 14px; user-select: none; line-height: 1; flex-shrink: 0;">
+        <%= user.avatar_initial %>
+      </div>
+      <div style="min-width: 0;">
+        <span class="fw-bold text-white font-sans d-block text-truncate" style="font-size: 0.92rem; max-width: 180px;"><%= user.username %></span>
+        <small class="d-block text-white-50 font-monospace text-truncate" style="font-size: 0.76rem; max-width: 180px;"><%= user.email %></small>
+      </div>
+    </div>
+  </td>
+  
+  <%# 2. Status Column %>
+  <td class="py-3">
+    <% case user.status %>
+    <% when "online" %>
+      <span class="badge bg-success bg-opacity-15 border border-success text-success px-2 py-1 small fw-medium">Online</span>
+    <% when "away" %>
+      <span class="badge bg-warning bg-opacity-15 border border-warning text-warning px-2 py-1 small fw-medium">Idle (Away)</span>
+    <% else %>
+      <span class="badge bg-secondary bg-opacity-15 border border-secondary text-white-50 px-2 py-1 small fw-medium">Offline</span>
+    <% end %>
+  </td>
+
+  <%# 3. Rating Column %>
+  <td class="py-3">
+    <span class="badge bg-info bg-opacity-25 border border-info text-white fw-bold px-2.5 py-1 font-monospace" style="font-size: 0.82rem; letter-spacing: 0.3px;">
+      ⚡ <%= user.rating %> Elo
+    </span>
+  </td>
+
+  <%# 4. Activity Column %>
+  <td class="py-3 font-monospace text-white-50" style="font-size: 0.78rem; max-width: 200px; overflow: hidden; text-transform: capitalize; text-overflow: ellipsis; white-space: nowrap;">
+    <% if user.status == "online" || user.status == "away" %>
+      <span class="text-success-emphasis" style="color: #48bb78 !important;">💻 <%= user.last_activity_desc.presence || "Active initialization" %></span>
+    <% else %>
+      <span style="color: #718096;">💤 Dormant state</span>
+    <% end %>
+  </td>
+
+  <%# 5. Last Online Column %>
+  <td class="py-3">
+    <% if user.last_seen_at.present? %>
+      <span class="d-block text-white" style="font-size: 0.8rem; font-weight: 500;">
+        ⏱️ <%= time_ago_in_words(user.last_seen_at) %> ago
+      </span>
+      <span class="d-block font-monospace text-white-50" style="font-size: 0.68rem; margin-top: 1px;">
+        <%= user.last_seen_at.strftime("%b %d, %H:%M UTC") %>
+      </span>
+    <% else %>
+      <span class="badge bg-danger bg-opacity-10 border border-danger text-danger font-monospace px-1.5 py-0.5" style="font-size: 0.68rem;">Never Synchronised</span>
+    <% end %>
+  </td>
+
+  <%# 6. Links Column %>
+  <td class="text-end pe-4 py-3">
+    <div class="btn-group btn-group-sm border border-secondary border-opacity-10 rounded shadow-sm">
+      <%= link_to user_path(user), class: "btn btn-outline-info font-monospace fw-semibold px-2.5", style: "font-size: 0.75rem;" do %>
+        👁️ Profile
+      <% end %>
+      <%= link_to user_chat_path(user), class: "btn btn-outline-success font-monospace fw-semibold px-2.5", style: "font-size: 0.75rem;" do %>
+        💬 Chat
+      <% end %>
+    </div>
+  </td>
+</tr>

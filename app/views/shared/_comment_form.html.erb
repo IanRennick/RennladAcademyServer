@@ -1,18 +1,52 @@
 <%# app/views/shared/_comment_form.html.erb %>
-<%= form_with(model: [commentable, comment]) do |f| %>
-  <div class="form-control bg-dark border-secondary p-3 rounded">
+<%# =========================================================================
+    UNIVERSAL POLYMORPHIC FORUM TEXT SUBMISSION WIDGET
+    - Connects ActionText rich text capabilities
+    - Passes parent_id parameters safely to prevent thread loss
+   ========================================================================= %>
+<%= form_with(model: [commentable, comment], class: "w-100 font-sans") do |f| %>
+  <div class="card p-3 border border-secondary border-opacity-20 rounded shadow-sm" style="background-color: rgba(0,0,0,0.15) !important;">
     
-    <%# Threading Rule: If replying to a sub-thread, pass the parent ID down to the controller %>
+    <%# Threading Parameter Gate %>
     <% if comment.parent_id.present? %>
       <%= hidden_field_tag :parent_id, comment.parent_id %>
     <% end %>
 
-    <%# ActionText Rich Body Input %>
-    <%= f.rich_text_area :body, placeholder: "Type your thoughts or doubts here...", class: "bg-white text-dark rounded" %>
+    <%# Comment input %>
+    <div class="rich-text-dark-wrapper mb-2">
+      <%= f.rich_text_area :body, 
+          placeholder: "Type your thoughts, grammar doubts, or feedback observations here...", 
+          class: "form-control bg-black bg-opacity-60 border-secondary border-opacity-30 text-white rounded p-2" 
+      %>
+    </div>
 
-    <%# Submit Button %>
+    <%# Form Submission Trigger %>
     <div class="text-end">
-      <%= f.submit submit_label, class: "btn btn-primary mt-2 px-4" %>
+      <%= f.submit submit_label, class: "btn btn-sm btn-primary font-monospace fw-bold px-3 py-1.5 shadow-sm" %>
     </div>
   </div>
 <% end %>
+
+<style>
+  /* GLOBAL OVERRIDE: Brightens ActionText editor panels and links natively inside dark spaces */
+  .rich-text-dark-wrapper trix-editor {
+    background-color: #0c0e12 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f7fafc !important;
+    min-height: 100px;
+  }
+  .rich-text-dark-wrapper trix-toolbar {
+    background-color: #1a202c !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: none !important;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+  }
+  .rich-text-dark-wrapper trix-toolbar .trix-button {
+    background-color: transparent !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  .rich-text-dark-wrapper trix-toolbar .trix-button:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+</style>
