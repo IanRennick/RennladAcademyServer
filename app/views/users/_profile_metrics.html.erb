@@ -1,0 +1,245 @@
+<%# app/views/users/_profile_metrics.html.erb %>
+<%# =========================================================================
+    STUDENT MULTI-DIMENSIONAL SKILL METRICS & ACTIVITY STACK PARTIAL
+    - Evaluates CEFR accuracy tier maps, skill scores, and tag diagnostics
+    - Integrates the student review queue and historical interaction feeds
+    - Houses the live forum doubt logs and comments timeline
+   ========================================================================= %>
+<div class="row font-sans">
+  
+  <%# =======================================================================
+      COLUMN 1: Dynamic Analytics Metric Side Cards (Width: 4/12 columns)
+     ======================================================================= %>
+  <div class="col-lg-4 col-md-5 mb-4">
+    
+    <%# 1. CEFR Tier Accuracy Analytics Module %>
+    <div class="card bg-dark bg-opacity-30 border border-secondary border-opacity-20 mb-3 shadow-sm">
+      <div class="card-header border-bottom border-secondary border-opacity-20 fw-bold bg-info bg-opacity-10 text-info py-2.5 text-uppercase tracking-wider small">
+        🎯 CEFR Tier Accuracy Map
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush bg-transparent mb-0">
+          <% %w[B1 B2 C1 C2].each do |lvl| %>
+            <% total = @total_by_level[lvl].to_i %>
+            <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-10 py-2.5 px-3" style="font-size: 0.9rem;">
+              <span class="fw-medium text-light"><%= lvl %> Tier</span>
+              <% if total > 0 %>
+                <% pct = ((@correct_by_level[lvl].to_f / total) * 100).round(1) %>
+                <span class="fw-bold font-monospace" style="color: <%= pct > 75 ? '#48bb78' : (pct > 45 ? '#ecc94b' : '#f56565') %>;">
+                  <%= pct %>% <small class="text-white-50 ms-1" style="font-size: 0.72rem;">(<%= @correct_by_level[lvl].to_i %>/<%= total %>)</small>
+                </span>
+              <% else %>
+                <span class="text-white-50 small font-monospace">0 attempts</span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+    
+    <%# 2. Category Focus Elo Ratings Module %>
+    <div class="card bg-dark bg-opacity-30 border border-secondary border-opacity-20 mb-3 shadow-sm">
+      <div class="card-header border-bottom border-secondary border-opacity-20 fw-bold bg-dark bg-opacity-50 text-white-50 py-2.5 text-uppercase tracking-wider small">
+        📊 Subtype Grammar Analytics
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush bg-transparent mb-0">
+          <% if @kind_stats.any? %>
+            <% @kind_stats.each do |stat| %>
+              <li class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-10 py-2.5 px-3" style="font-size: 0.9rem;">
+                <span class="fw-medium text-light-50"><%= Question.kinds.key(stat.stat_key).to_s.humanize %></span>
+                <span class="badge bg-primary bg-opacity-15 border border-primary text-info fw-bold font-monospace py-1"><%= stat.rating %> Elo</span>
+              </li>
+            <% end %>
+          <% else %>
+            <li class="list-group-item bg-transparent text-white-50 border-0 p-3 small text-center font-monospace">
+              No category metrics logged yet.
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+    <%# 3. Dynamic Grammatical Tag Scoreboard Module %>
+    <div class="card bg-dark bg-opacity-30 border border-secondary border-opacity-20 mb-3 shadow-sm">
+      <div class="card-header border-bottom border-secondary border-opacity-20 fw-bold bg-dark bg-opacity-50 text-white-50 py-2.5 text-uppercase tracking-wider small">
+        🏷️ Structural Tag Scoreboard
+      </div>
+      <div class="card-body px-3 py-2" style="max-height: 280px; overflow-y: auto;">
+        <% if @user.user_tag_stat&.stats_json&.any? %>
+          <% @user.user_tag_stat.stats_json.each do |tag_name, metrics| %>
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary border-opacity-10 font-sans" style="font-size: 0.85rem;">
+              <span class="badge bg-secondary bg-opacity-10 border border-secondary border-opacity-40 text-white fw-normal">#<%= tag_name %></span>
+              <small class="text-white-50 font-monospace" style="font-size: 0.72rem;">(<%= metrics['correct'] %>/<%= metrics['done'] %>)</small>
+              <span class="badge bg-success bg-opacity-25 border border-success text-success fw-bold font-monospace"><%= metrics['rating'] %> Elo</span>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-white-50 mb-0 py-3 small text-center font-monospace">No grammar tags calculated yet.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# 4. Targeted Diagnostic Review Analyzer Module %>
+    <div class="card bg-dark bg-opacity-30 border border-secondary border-opacity-20 shadow-sm">
+      <div class="card-header border-bottom border-secondary border-opacity-20 fw-bold bg-danger bg-opacity-10 text-danger py-2.5 text-uppercase tracking-wider small">
+        ⚠️ Target Review Areas (<50% Acc)
+      </div>
+      <div class="card-body p-0" style="max-height: 250px; overflow-y: auto;">
+        <ul class="list-group list-group-flush bg-transparent mb-0">
+          <% if @user.user_tag_stat&.stats_json&.any? %>
+            <% weak_tags = [] %>
+            <% @user.user_tag_stat.stats_json.each do |tag_name, metrics| %>
+              <% done = metrics['done'].to_i %>
+              <% if done > 0 %>
+                <% accuracy = ((metrics['correct'].to_f / done) * 100).round(1) %>
+                <% weak_tags << { name: tag_name, acc: accuracy, correct: metrics['correct'], total: done } if accuracy < 50.0 %>
+              <% end %>
+            <% end %>
+
+            <% if weak_tags.any? %>
+              <% weak_tags.sort_by! { |t| t[:acc] }.each do |tag| %>
+                <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-10 py-2 px-3" style="font-size: 0.88rem;">
+                  <span class="badge bg-black border border-danger text-danger text-opacity-75">#<%= tag[:name] %></span>
+                  <span class="fw-bold text-danger font-monospace">
+                    <%= tag[:acc] %>% 
+                    <small class="text-white-50 ms-1" style="font-size: 0.72rem;">(<%= tag[:correct] %>/<%= tag[:total] %>)</small>
+                  </span>
+                </li>
+              <% end %>
+            <% else %>
+              <li class="list-group-item bg-transparent text-success text-center border-0 p-4 small font-monospace">
+                ✨ Outstanding! No grammar points currently sitting below 50% accuracy.
+              </li>
+            <% end %>
+          <% else %>
+            <li class="list-group-item bg-transparent text-white-50 text-center border-0 p-4 small font-monospace">No grammar diagnostics logged yet.</li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <%# =======================================================================
+      COLUMN 2: Review Queue & Recent History Feed Boards (Width: 8/12 columns)
+     ======================================================================= %>
+  <div class="col-lg-8 col-md-7 mb-4">
+    
+    <%# 1. Active Review Queue Component Container %>
+    <div class="mb-5 pb-1">
+      <h3 class="fw-bold mb-3 text-warning tracking-wide d-flex align-items-center gap-2" style="font-size: 1.25rem;">
+        <span>⏳</span> Active Review Queue <span class="badge bg-warning bg-opacity-15 border border-warning text-warning font-monospace py-0.5 px-2 rounded-pill small" style="font-size: 0.75rem;"><%= @review_queue.count %> Items</span>
+      </h3>
+      
+      <% if @review_queue.any? %>
+        <div class="list-group border border-warning border-opacity-20 rounded shadow-lg" style="max-height: 350px; overflow-y: auto;">
+          <% @review_queue.each do |history| %>
+            <div class="list-group-item bg-dark bg-opacity-40 text-white border-bottom border-secondary border-opacity-10 p-3">
+              <div class="d-flex w-100 justify-content-between align-items-baseline mb-1">
+                <h5 class="mb-0 text-info fw-bold font-monospace" style="font-size: 0.95rem;">Question #<%= history.question_id %></h5>
+                <small class="text-white-50" style="font-size: 0.74rem;">⚠️ Failed: <%= distance_of_time_in_words(history.updated_at, Time.current) %> ago</small>
+              </div>
+              <p class="mb-2 font-monospace text-light bg-black p-2 bg-opacity-40 border border-secondary border-opacity-20 rounded small text-break my-2" style="line-height: 1.4; color: #cbd5e0 !important;">
+                <%= history.question.main %>
+              </p>
+              <div class="small fw-semibold text-danger d-flex align-items-baseline gap-1.5 flex-wrap">
+                <span>Original Mistake Submitted:</span>
+                <code class="text-danger bg-danger bg-opacity-10 border border-danger border-opacity-20 px-2 py-0.5 rounded font-monospace" style="font-size: 0.78rem;">"<%= history.original_wrong_answer %>"</code>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-20 shadow-sm py-3 px-4 font-monospace small">
+          ✨ Clean slate! This student currently has no unresolved mistakes waiting in their review queue.
+        </div>
+      <% end %>
+    </div>
+
+    <%# 2. Universal Recent Interaction Performance Grid Container %>
+    <div class="mb-5">
+      <h3 class="fw-bold mb-3 text-info tracking-wide d-flex align-items-center gap-2" style="font-size: 1.25rem;">
+        <span>🎯</span> Recent Question Activity Feed
+      </h3>
+      
+      <% if @recent_activity.any? %>
+        <div class="card bg-black bg-opacity-20 border border-secondary border-opacity-20 rounded shadow-lg" style="max-height: 400px; overflow-y: auto;">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0" style="--bs-table-bg: transparent; font-size: 0.88rem;">
+              <thead>
+                <tr class="text-white-50 border-bottom border-secondary border-opacity-20" style="font-size: 0.78rem; background-color: rgba(0,0,0,0.15);">
+                  <th scope="col" class="ps-3 py-2.5 fw-semibold text-uppercase tracking-wider">Question Context</th>
+                  <th scope="col" class="py-2.5 fw-semibold text-uppercase tracking-wider">Outcome</th>
+                  <th scope="col" class="py-2.5 fw-semibold text-uppercase tracking-wider">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @recent_activity.each do |activity| %>
+                  <tr class="border-bottom border-secondary border-opacity-10">
+                    <td class="ps-3 py-2.5">
+                      <small class="text-white-50 d-block font-monospace mb-0.5" style="font-size: 0.7rem;">#<%= activity.question_id %></small>
+                      <span class="text-white font-sans text-break" style="max-width: 320px; display: block;"><%= activity.question.main %></span>
+                    </td>
+                    <td class="py-2.5">
+                      <% if activity.first_attempt_correct %>
+                        <span class="badge bg-success bg-opacity-15 border border-success text-success px-2 py-1 fw-semibold">Correct</span>
+                      <% else %>
+                        <div class="d-flex flex-column align-items-start gap-1">
+                          <span class="badge bg-danger bg-opacity-15 border border-danger text-danger px-2 py-1 fw-semibold">Failed First Try</span>
+                          <% if activity.original_wrong_answer.present? %>
+                            <small class="text-white-50 font-monospace text-truncate d-block" style="font-size: 0.74rem; max-width: 140px;">Typed: "<%= activity.original_wrong_answer %>"</small>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </td>
+                    <td class="py-2.5 font-monospace text-white-50" style="font-size: 0.78rem;">
+                      ⏱️ <%= activity.created_at.strftime("%b %d, %H:%M") %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-center py-4 text-white-50 border border-secondary border-opacity-20 rounded bg-dark bg-opacity-10 small font-monospace">
+          📂 No question attempts have been logged by this user profile yet.
+        </div>
+      <% end %>
+    </div>
+
+    <%# 3. Live Student Forum Activity Timeline Feed %>
+    <div>
+      <h3 class="fw-bold mb-3 text-info tracking-wide d-flex align-items-center gap-2" style="font-size: 1.25rem;">
+        <span>💬</span> Recent Student Doubts & Comments
+      </h3>
+      
+      <% if @recent_comments.any? %>
+        <div class="list-group border border-secondary border-opacity-20 rounded shadow-lg" style="max-height: 400px; overflow-y: auto;">
+          <% @recent_comments.each do |comment| %>
+            <% target_puzzle = comment.commentable %>
+            <div class="list-group-item bg-dark bg-opacity-40 text-white border-bottom border-secondary border-opacity-10 p-3">
+              <div class="d-flex w-100 justify-content-between align-items-baseline mb-2">
+                <%= link_to question_path(target_puzzle), class: "fw-bold text-warning text-decoration-none font-monospace small" do %>
+                  🚀 Question ##{target_puzzle.id} (<%= target_puzzle.kind.to_s.humanize %>)
+                <% end %>
+                <small class="text-white-50" style="font-size: 0.74rem;">⏱️ <%= time_ago_in_words(comment.created_at) %> ago</small>
+              </div>
+              <div class="font-monospace text-white-50 bg-black p-2 bg-opacity-40 border border-secondary border-opacity-20 rounded mb-2 small text-break" style="line-height: 1.4;">
+                <%= truncate(target_puzzle.main, length: 90) %>
+              </div>
+              <div class="text-white small border-start border-info border-opacity-70 ps-3 my-2" style="font-style: italic; color: #e2e8f0 !important;">
+                "<%= comment.body.to_s.gsub(/<\/?[^>]*>/, "").strip %>"
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-4 text-white-50 border border-secondary border-opacity-20 rounded bg-dark bg-opacity-10 small font-monospace">
+          📂 This student has not posted any question comments or forum queries yet.
+        </div>
+      <% end %>
+    </div>
+
+  </div> <%# Closes Column 2 %>
+</div> <%# Closes Master Row %>

@@ -1,3 +1,14 @@
-<div>
-  <%= link_to room.name, room %>
-</div>
+<%# app/views/rooms/_room.html.erb %>
+<%= link_to room_path(room), class: "text-decoration-none d-block w-100 mb-1" do %>
+  <div class="p-2 rounded border border-transparent bg-dark bg-opacity-30 text-white-50 hover-channel-card d-flex align-items-center justify-content-between transition-all" style="font-size: 0.88rem; min-height: 38px;">
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-muted font-monospace fw-bold" style="opacity: 0.5;">#</span>
+      <span class="text-light fw-medium"><%= room.name %></span>
+    </div>
+    <span class="text-muted small font-monospace" style="font-size: 0.7rem; opacity: 0.5;">➡️</span>
+  </div>
+<% end %>
+
+<style>
+  .hover-channel-card:hover { background-color: rgba(255, 255, 255, 0.04) !important; border-color: rgba(255, 255, 255, 0.06) !important; color: #ffffff !important; }
+</style>

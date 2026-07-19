@@ -1,26 +1,37 @@
 <%# app/views/user/_session_manager.html.erb %>
+<%# =========================================================================
+    AUTHENTICATION gateKEEPER AND REAL-TIME ALERTS STATUS DROPDOWNS
+    - Manages ActionCable notification stream links
+    - Houses profile session tokens, login paths, and account signouts
+   ========================================================================= %>
 
 <% if current_user %>
-  <!-- ✅ NEW: Real-time Notification Bell Dropdown Component -->
+  
+  <%# =======================================================================
+      A. REAL-TIME NOTIFICATION HUB DROPDOWN
+     ======================================================================= %>
+    
+  <% unread_count = current_user.notifications.unread.count %>
+
   <li class="nav-item dropdown me-2 position-relative align-self-center">
-    <a class="nav-link position-relative px-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationBellDropdown">
-      <!-- Bootstrap Bell Icon (Uses an emoji visual anchor fallback here, or you can swap to bi-bell) -->
-      <span style="font-size: 1.15rem; vertical-align: middle;">🔔</span>
+    <a class="nav-link position-relative px-2 text-white-50 <%= 'disabled' if unread_count == 0 %>" 
+       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationBellDropdown" 
+       style="<%= 'cursor: default; opacity: 0.35;' if unread_count == 0 %>">
+      <span style="font-size: 1.1rem; vertical-align: middle;">🔔</span>
       
-      <!-- Dynamic Real-Time Unread Counter Badge -->
-      <!-- If the user has unread notifications, it draws a vivid red indicator circle containing the count -->
-      <% unread_count = current_user.notifications.unread.count %>
-      <span id="nav-notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger <%= 'd-none' if unread_count == 0 %>" style="font-size: 0.65rem; padding: 0.25em 0.4em;">
+      <%# Dynamic Numeric Counter Badge Bubble %>
+      <span id="nav-notification-badge" class="position-absolute badge rounded-pill bg-danger <%= 'd-none' if unread_count == 0 %>" style="font-size: 0.62rem; padding: 0.25em 0.4em; top: 3px; right: -3px; z-index: 10;">
         <%= unread_count %>
       </span>
     </a>
 
-    <!-- Scrollable Notification Feed Dropdown Drawer Window Box -->
+    <%# Notification Dropdown Container Card Drawer %>
     <ul class="dropdown-menu dropdown-menu-end shadow-lg py-0 border-secondary" aria-labelledby="notificationBellDropdown" style="width: 320px; max-height: 400px; overflow-y: auto; font-size: 0.9rem; background-color: #1a1a1a;">
       <li class="p-2 border-bottom border-secondary bg-dark d-flex justify-content-between align-items-center">
-        <span class="fw-bold text-white small text-uppercase tracking-wider">Alerts Notification Hub</span>
+        <%# Instruction Update: Header label shortened to clean 'Notifications' %>
+        <span class="fw-bold text-white small text-uppercase tracking-wider">Notifications</span>
         
-        <!-- ✅ UPGRADED: Button form tag ensures Rails captures the post action seamlessly -->
+        <%# Asynchronous Hotwire Turbo Stream Batch-Clear Link Button %>
         <%= button_to mark_all_as_read_notifications_path, 
                       method: :post,
                       class: "btn btn-link text-info small text-decoration-none fw-semibold p-0 border-0", 
@@ -30,49 +41,55 @@
         <% end %>
       </li>
 
-      <!-- ✅ TURBO REAL-TIME SOCKET STREAM ARCHITECTURE CONTAINER -->
-      <!-- This wrapper listens on a user-specific secure ActionCable channel for live triggers -->
+      <%# Secure Turbo Stream Channel Listener for Real-Time Appending %>
       <%= turbo_stream_from "global_notifications_#{current_user.id}" %>
       
       <div id="notifications_feed_container">
         <ul class="list-group list-group-flush bg-transparent mb-0" id="notifications_feed">
-          <% recent_notifications = current_user.notifications.recent %>
-          <% if recent_notifications.any? %>
-            <% recent_notifications.each do |notification| %>
-              <!-- We will create a beautiful single item row view partial next step -->
-              <%= render "notifications/notification", notification: notification %>
+          <% recent_notifications = current_user.notifications.unread.recent %>
+            <% if recent_notifications.any? %>
+              <% recent_notifications.each do |notification| %>
+                <%= render "notifications/notification", notification: notification %>
+              <% end %>
+            <% else %>
+              <li class="list-group-item bg-transparent text-white-50 text-center py-4 small" id="empty-notification-placeholder">
+                📂 Clean slate! No new notifications.
+              </li>
             <% end %>
-          <% else %>
-            <!-- Default placeholder line shown when lists are clean -->
-            <li class="list-group-item bg-transparent text-muted text-center py-4 small" id="empty-notification-placeholder">
-              📂 Clean slate! No new notifications.
-            </li>
-          <% end %>
         </ul>
       </div>
     </ul>
   </li>
 
-  <!-- Standard User Profile Management Dropdown Menu (Your existing code polished) -->
+  <%# =======================================================================
+      B. STANDARD USER ACCOUNT MANAGEMENT DROPDOWN
+     ======================================================================= %>
   <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle fw-semibold text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <%# Dark mode text contrast alignment ensures user handle is beautifully legible %>
+    <a class="nav-link dropdown-toggle fw-semibold text-white px-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
       <%= current_user.username %>
     </a>
 
-    <ul class="dropdown-menu dropdown-menu-lg-end shadow border-secondary" style="background-color: #111111;">
-      <!-- Updated Link: Deep link directly into your beautiful upgraded administrative command station -->
-      <li><%= link_to "👑 Command Station", admin_dashboard_path, class: "dropdown-item text-light" if current_user.admin? %></li>
-      <li><%= link_to "⚙️ Edit Account", edit_user_registration_path, class: "dropdown-item text-light" %></li>
+    <ul class="dropdown-menu dropdown-menu-lg-end shadow border-secondary m-0" style="background-color: #111111;">
+      <%# Instruction Update: Named label modernized cleanly to 'Dashboard' %>
+      <li><%= link_to "📊 Dashboard", admin_dashboard_path, class: "dropdown-item text-light hover-dark-item" if current_user.admin? %></li>
+      <li><%= link_to "⚙️ Edit Account", edit_user_registration_path, class: "dropdown-item text-light hover-dark-item" %></li>
       <li><hr class="dropdown-divider border-secondary"></li>
-      <li><%= button_to "🚪 Sign Out", destroy_user_session_path, method: :delete, class: "dropdown-item text-danger" %></li>
+      <li><%= button_to "🚪 Sign Out", destroy_user_session_path, method: :delete, class: "dropdown-item text-danger hover-danger-item" %></li>
     </ul>
   </li>
 
 <% else %>
+  <%# Logged Out Guest Session Navigation Triggers %>
   <li class="nav-item">
-    <%= link_to "Sign Up", new_user_registration_path, class: "nav-link text-white-50" %>
+    <%= link_to "Sign Up", new_user_registration_path, class: "nav-link text-white-50 fw-semibold" %>
   </li>
   <li class="nav-item">
-    <%= link_to "Log In", new_user_session_path, class: "nav-link text-white-50" %>
+    <%= link_to "Log In", new_user_session_path, class: "nav-link text-white-50 fw-semibold" %>
   </li>
 <% end %>
+
+<style>
+  .hover-dark-item:hover { background-color: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; }
+  .hover-danger-item:hover { background-color: rgba(220, 53, 69, 0.1) !important; }
+</style>

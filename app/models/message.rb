@@ -3,8 +3,6 @@ class Message < ApplicationRecord
   belongs_to :user
   belongs_to :room
 
-  # Already verified! You passed the deep link smoothly:
-  "url" => "/rooms/#{room.id}"
 
   # Add new message to room without needing to refresh page
   after_create_commit { broadcast_append_to self.room }

@@ -1,25 +1,36 @@
-<!-- app/views/questions/show.html.erb -->
-<div class="container min-vh-100 bg-dark text-light p-4">
+<%# app/views/questions/show.html.erb %>
+<%# =========================================================================
+    ADMINISTRATIVE GRAMMAR PUZZLE DOSSIER BOARD
+    - Renders core puzzle blueprint templates, success metrics, and wrong answers
+    - Houses the interactive discussion threads and forum reply components
+   ========================================================================= %>
+<div class="container-fluid min-vh-100 bg-dark text-light p-4" style="background-color: #0f1115 !important;">
   
-  <!-- Navigation Header Bar -->
-  <div class="mb-4 d-flex justify-content-between align-items-center pb-3 border-bottom border-secondary">
+  <%# Navigation Header Status Bar %>
+  <div class="mb-4 d-flex justify-content-between align-items-center pb-3 border-bottom border-secondary border-opacity-25 font-sans">
     <div>
-      <%= link_to "⬅️ Back to Command Center", admin_dashboard_path, class: "btn btn-outline-secondary btn-sm me-2" %>
-      <%= link_to "📋 All Puzzles", questions_path, class: "btn btn-outline-light btn-sm" %>
+      <%# UI Update: Standardized named label to 'Dashboard' to match your navbar sprint %>
+      <%= link_to "⬅️ Back to Dashboard", admin_dashboard_path, class: "btn btn-outline-secondary btn-sm me-2 font-monospace fw-semibold" %>
+      <%= link_to "📋 All Puzzles", questions_path, class: "btn btn-outline-light btn-sm font-monospace fw-semibold" %>
     </div>
-    <span class="badge bg-info text-dark fw-bold font-monospace px-3 py-2" style="font-size: 14px;">
+    <%# UI Contrast Fix: Swapped text-dark to high-contrast white text over a solid container badge %>
+    <span class="badge bg-info bg-opacity-25 border border-info text-white fw-bold font-monospace px-3 py-2" style="font-size: 0.85rem; letter-spacing: 0.3px;">
       ⚡ <%= @question.rating %> Elo Puzzle
     </span>
   </div>
 
-  <div class="row g-4">
-    <!-- Left Column: Core Question Structural Blueprint -->
-    <div class="col-md-7">
-      <div class="card bg-black border-secondary mb-4 shadow-sm">
-        <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
-          <h5 class="mb-0 text-white fw-bold">🧩 Puzzle Blueprint Details</h5>
-          <!-- Dynamic Type Badge -->
-          <span class="badge bg-primary text-uppercase px-2 py-1 small">
+  <div class="row g-4 font-sans">
+    <%# =======================================================================
+        COLUMN 1: Core Blueprint Details & Forum Threads (Width: 7/12 columns)
+       ======================================================================= %>
+    <div class="col-lg-7 col-md-12">
+      <%# 1. Question Layout Card Wrapper %>
+      <div class="card bg-black bg-opacity-30 border border-secondary border-opacity-20 mb-4 shadow-sm">
+        <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-20 py-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-white fw-bold d-flex align-items-center gap-2" style="font-size: 1rem;">
+            <span>🧩</span> Puzzle Blueprint Details
+          </h5>
+          <span class="badge bg-primary bg-opacity-15 border border-primary text-info text-uppercase px-2.5 py-1 small font-monospace fw-semibold" style="font-size: 0.72rem;">
             <%= @question.kind.to_s.humanize %>
           </span>
         </div>
@@ -28,81 +39,93 @@
         </div>
       </div>
 
-      <!-- Forum Discussions / Comments Control Feed -->
-      <div class="card bg-black border-secondary shadow-sm">
-        <div class="card-header bg-dark border-secondary py-3">
-          <h5 class="mb-0 text-white fw-bold">💬 Student Discussion Thread (<%= @comments.count %>)</h5>
+      <%# 2. Forum Discussions/Comments Control Module %>
+      <div class="card bg-black bg-opacity-30 border border-secondary border-opacity-20 shadow-lg">
+        <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-20 py-3">
+          <h5 class="mb-0 text-white fw-bold d-flex align-items-center gap-2" style="font-size: 1rem;">
+            <span>💬</span> Student Discussion Thread <span class="badge bg-secondary bg-opacity-15 border border-secondary text-white-50 font-monospace py-0.5 px-2 rounded-pill small" style="font-size: 0.72rem;"><%= @comments.count %></span>
+          </h5>
         </div>
-        <div class="card-body">
-          <!-- Central Thread Creation Form -->
-          <div class="mb-4 bg-dark bg-opacity-40 p-3 border border-secondary rounded">
+        <div class="card-body p-3">
+          <%# Central Thread Input Form Wrapper %>
+          <div class="mb-4 bg-dark bg-opacity-40 p-3 border border-secondary border-opacity-25 rounded shadow-sm">
             <%= render "shared/comment_form", commentable: @question, comment: @question.comments.build, submit_label: "Post Admin Response" %>
           </div>
 
-          <!-- Loop and Print out Comment Threads -->
-          <div class="comments_feed_stack">
+          <%# Loop and Stream Asynchronous Comment Threads %>
+          <div class="comments_feed_stack d-flex flex-column gap-1">
             <% if @comments.any? %>
               <% @comments.each do |comment| %>
                 <%= render "shared/comment", commentable: @question, comment: comment %>
               <% end %>
             <% else %>
-              <p class="text-muted small text-center my-4">📂 No active student conversation threads logged for this question.</p>
+              <div class="text-center py-4 text-white-50 small font-monospace" id="empty-thread-placeholder">
+                📂 No active student conversation threads logged for this question.
+              </div>
             <% end %>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Right Column: Performance Analytics Matrix -->
-    <div class="col-md-5">
-      <!-- High Level Metrics Overview Row -->
-      <div class="row g-2 mb-4">
+    <%# =======================================================================
+        COLUMN 2: Operational Performance Metrics Data (Width: 5/12 columns)
+       ======================================================================= %>
+    <div class="col-lg-5 col-md-12">
+      <%# High Level Statistics Counters Overview Row %>
+      <div class="row g-3 mb-4">
+        <%# Global Attempts Meter %>
         <div class="col-6">
-          <div class="card bg-black border-secondary p-3 text-center">
-            <small class="text-muted text-uppercase fw-bold text-xs d-block mb-1">Global Attempts</small>
-            <span class="display-6 fw-bold text-info"><%= @question.times_done %></span>
+          <div class="card bg-black bg-opacity-40 border border-secondary border-opacity-20 p-3 text-center shadow-sm">
+            <%# UI Contrast Upgrade: Muted header tags changed to text-white-50 tracking labels %>
+            <small class="text-white-50 text-uppercase tracking-wider fw-bold d-block mb-1" style="font-size: 0.7rem;">Global Attempts</small>
+            <span class="display-6 fw-bold text-info font-monospace mt-1"><%= @question.times_done %></span>
           </div>
         </div>
+        
+        <%# Dynamic Success Ratio Color Gauge Meter %>
         <div class="col-6">
-          <div class="card bg-black border-secondary p-3 text-center">
-            <small class="text-muted text-uppercase fw-bold text-xs d-block mb-1">Success Ratio</small>
+          <div class="card bg-black bg-opacity-40 border border-secondary border-opacity-20 p-3 text-center shadow-sm">
+            <small class="text-white-50 text-uppercase tracking-wider fw-bold d-block mb-1" style="font-size: 0.7rem;">Success Ratio</small>
             <% if @question.times_done > 0 %>
               <% accuracy = ((@question.times_correct.to_f / @question.times_done) * 100).round(1) %>
-              <span class="display-6 fw-bold" style="color: <%= accuracy > 70 ? '#2ecc71' : (accuracy > 40 ? '#f1c40f' : '#e74c3c') %>;">
+              <span class="display-6 fw-bold font-monospace mt-1" style="color: <%= accuracy > 70 ? '#48bb78' : (accuracy > 40 ? '#ecc94b' : '#f56565') %>;">
                 <%= accuracy %>%
               </span>
             <% else %>
-              <span class="display-6 fw-bold text-muted">—</span>
+              <span class="display-6 fw-bold text-white-50 font-monospace mt-1">—</span>
             <% end %>
           </div>
         </div>
       </div>
 
-      <!-- Common Wrong Submissions Analytical Control Board -->
-      <div class="card bg-black border-secondary shadow-sm">
-        <div class="card-header bg-dark border-secondary py-3">
-          <h5 class="mb-0 text-white fw-bold">⚠️ Common Incorrect Distractors (Top 5)</h5>
+      <%# Common Incorrect Distractors Analysis Board Card %>
+      <div class="card bg-black bg-opacity-30 border border-secondary border-opacity-20 shadow-lg rounded overflow-hidden">
+        <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-20 py-3">
+          <h5 class="mb-0 text-white fw-bold d-flex align-items-center gap-2" style="font-size: 1rem;">
+            <span>⚠️</span> Common Incorrect Distractors (Top 5)
+          </h5>
         </div>
         <div class="card-body p-0">
           <% wrong_attempts = @question.wrong_answers.order(count: :desc).limit(5) %>
           <% if wrong_attempts.any? %>
             <div class="table-responsive">
-              <table class="table table-dark table-hover mb-0 align-middle">
+              <table class="table table-dark table-hover align-middle mb-0" style="--bs-table-bg: transparent; font-size: 0.88rem;">
                 <thead>
-                  <tr class="text-muted border-secondary" style="font-size: 0.8rem;">
-                    <th scope="col" class="ps-3 py-2">Submitted Distractor</th>
-                    <th scope="col" class="text-end pe-3 py-2">Frequency Count</th>
+                  <tr class="text-white-50 border-bottom border-secondary border-opacity-20" style="font-size: 0.78rem; background-color: rgba(0,0,0,0.15);">
+                    <th scope="col" class="ps-3 py-2 fw-semibold text-uppercase tracking-wider">Submitted Distractor</th>
+                    <th scope="col" class="text-end pe-3 py-2 fw-semibold text-uppercase tracking-wider">Frequency Count</th>
                   </tr>
                 </thead>
                 <tbody>
                   <% wrong_attempts.each do |wa| %>
-                    <tr class="border-secondary">
-                      <td class="ps-3">
-                        <code class="text-danger bg-danger bg-opacity-10 px-2 py-1 font-monospace" style="font-size: 13px;">
+                    <tr class="border-bottom border-secondary border-opacity-10" style="transition: background-color 0.15s;">
+                      <td class="ps-3 py-2.5">
+                        <code class="text-danger bg-danger bg-opacity-10 border border-danger border-opacity-10 px-2 py-0.5 rounded font-monospace" style="font-size: 0.82rem;">
                           "<%= wa.answer_text %>"
                         </code>
                       </td>
-                      <td class="text-end pe-3 font-monospace text-white-50">
+                      <td class="text-end pe-3 font-monospace text-white-50" style="font-size: 0.82rem;">
                         <%= pluralize(wa.count, "time") %>
                       </td>
                     </tr>
@@ -111,7 +134,9 @@
               </table>
             </div>
           <% else %>
-            <p class="text-muted small text-center my-4 p-3">🎉 Zero incorrect distractor strings logged yet! Perfect track record.</p>
+            <div class="text-center py-4 text-success font-monospace small px-3">
+              🎉 Zero incorrect distractor strings logged yet! Perfect student track record.
+            </div>
           <% end %>
         </div>
       </div>

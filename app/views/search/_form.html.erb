@@ -1,10 +1,15 @@
-<%= search_form_for(@query, url: search_path, method: :get, class: "d-flex") do |f| %>
-  <%# Queries main text, prompts, keywords, options, answers, and tags all at once! %>
+<%# app/views/search/_form.html.erb %>
+<%# =========================================================================
+    GLOBAL OMNI-SEARCH INPUT CONTAINER
+    - Utilizes Ransack to run database search queries across text keys and tags
+   ========================================================================= %>
+<%= search_form_for(@query, url: search_path, method: :get, class: "d-flex align-items-center me-2") do |f| %>
+  
+  <%# Universal Data Column Wildcard Text Finder Matrix %>
   <%= f.search_field :main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any, 
-      placeholder: "Search text, keywords, options, tags...",
-      class: "form-control me-2",
+      class: "form-control form-control-sm me-2 bg-black border-secondary text-light",
       style: "min-width: 350px;"
   %>
 
-  <%= f.submit "Search!", class: "btn btn-outline-success" %>
+  <%= f.submit "Search", class: "btn btn-sm btn-outline-success font-monospace" %>
 <% end %>

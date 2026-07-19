@@ -1,36 +1,41 @@
-<!-- app/views/questions/_question.html.erb -->
-<div id="<%= dom_id question %>">
+<%# app/views/questions/_question.html.erb %>
+<%# =========================================================================
+    INDIVIDUAL QUESTION BLUEPRINT DETAILS CARD PARTIAL
+    - Automatically shifts layout grids based on polymorphic question types
+    - Strictly decoupled from custom asset sheets to remain fully responsive
+   ========================================================================= %>
+<div id="<%= dom_id question %>" class="font-sans">
   
-  <!-- Subtype Sub-Badge Routing Label if it exists -->
+  <%# 1. Subtype Sub-Badge Routing Label if it exists %>
   <% if question.subtype.present? %>
     <div class="mb-3">
-      <span class="badge bg-outline-light border border-secondary text-white-50 text-xs">
+      <span class="badge bg-secondary bg-opacity-15 border border-secondary border-opacity-40 text-white-50 px-2.5 py-1.5 font-monospace small">
         Subtype Target: #<%= question.subtype.to_s.humanize %>
       </span>
     </div>
   <% end %>
 
-  <!-- Main Sentence Component Block Box -->
+  <%# 2. Main Sentence Component Block Box %>
   <div class="mb-4">
-    <label class="small text-muted text-uppercase fw-bold d-block mb-1">Main Prompt Content Context:</label>
-    <div class="p-3 bg-dark bg-opacity-70 font-monospace border border-secondary rounded text-white fs-5" style="white-space: pre-wrap; line-height: 1.5; letter-spacing: 0.5px;">
+    <label class="small text-white-50 text-uppercase tracking-wider fw-semibold d-block mb-1.5" style="font-size: 0.72rem;">Main Prompt Content Context:</label>
+    <div class="p-3 bg-dark bg-opacity-60 font-monospace border border-secondary border-opacity-20 rounded text-white shadow-sm" style="white-space: pre-wrap; line-height: 1.5; letter-spacing: 0.4px; font-size: 1.1rem; background-color: rgba(0,0,0,0.2) !important;">
       <%= question.main %>
     </div>
   </div>
 
-  <!-- Unique Structural Conditionals Mapping Base Layer Layout Cards -->
+  <%# 3. Dynamic Structural Conditionals Grid Matrix %>
   <div class="row g-3">
     
-    <!-- Multiple Choice Selection Array Options Grid -->
+    <%# A. Multiple Choice Selection Array Options Grid %>
     <% if question.multiple_choice? && question.options.is_a?(Array) && question.options.any? %>
       <div class="col-12 mb-2">
-        <label class="small text-muted text-uppercase fw-bold d-block mb-1">Configured Multiple Choice Options Options:</label>
+        <label class="small text-white-50 text-uppercase tracking-wider fw-semibold d-block mb-1.5" style="font-size: 0.72rem;">Configured Multiple Choice Options:</label>
         <div class="row g-2">
-          <% question.options.each_with_distinct.with_index do |option, idx| %>
+          <% question.options.uniq.each_with_index do |option, idx| %>
             <div class="col-md-6">
-              <div class="p-2 border border-secondary bg-dark bg-opacity-30 rounded small d-flex align-items-center">
-                <span class="badge bg-secondary me-2 font-monospace"><%= (65 + idx).chr %></span>
-                <span class="text-white-50"><%= option %></span>
+              <div class="p-2 border border-secondary border-opacity-10 bg-dark bg-opacity-40 rounded small d-flex align-items-center shadow-sm">
+                <span class="badge bg-secondary bg-opacity-20 border border-secondary border-opacity-40 text-white me-2 font-monospace px-2 py-1"><%= (65 + idx).chr %></span>
+                <span class="text-white-50 fw-medium font-sans"><%= option %></span>
               </div>
             </div>
           <% end %>
@@ -38,48 +43,47 @@
       </div>
     <% end %>
 
-    <!-- Word Formation Structural Keyword -->
+    <%# B. Word Formation Structural Keyword %>
     <% if question.word_formation? && question.keyword.present? %>
       <div class="col-md-6">
-        <div class="p-3 border border-secondary bg-dark bg-opacity-30 rounded h-100">
-          <label class="small text-muted text-uppercase fw-bold d-block mb-1">Base Target Keyword:</label>
-          <span class="fw-bold font-monospace text-warning fs-5"><%= question.keyword %></span>
+        <div class="p-3 border border-secondary border-opacity-20 bg-dark bg-opacity-40 rounded h-100 shadow-sm">
+          <label class="small text-white-50 text-uppercase tracking-wider fw-semibold d-block mb-1.5" style="font-size: 0.72rem;">Base Target Keyword:</label>
+          <span class="fw-bold font-monospace text-warning tracking-wide" style="font-size: 1.15rem;"><%= question.keyword %></span>
         </div>
       </div>
     <% end %>
 
-    <!-- Sentence Cloze Prompt Blueprint Attributes Mapping -->
+    <%# C. Sentence Cloze Prompt Blueprint Attributes Mapping %>
     <% if question.sentence_cloze? %>
       <% if question.prompt.present? %>
         <div class="col-md-6">
-          <div class="p-3 border border-secondary bg-dark bg-opacity-30 rounded h-100">
-            <label class="small text-muted text-uppercase fw-bold d-block mb-1">Structural Pivot Prompt:</label>
-            <span class="fw-bold font-monospace text-info fs-5"><%= question.prompt %></span>
+          <div class="p-3 border border-secondary border-opacity-20 bg-dark bg-opacity-40 rounded h-100 shadow-sm">
+            <label class="small text-white-50 text-uppercase tracking-wider fw-semibold d-block mb-1.5" style="font-size: 0.72rem;">Structural Pivot Prompt:</label>
+            <span class="fw-bold font-monospace text-info tracking-wide" style="font-size: 1.15rem; color: #0dcaf0 !important;"><%= question.prompt %></span>
           </div>
         </div>
       <% end %>
       
       <% if question.keyword.present? %>
         <div class="col-md-6">
-          <div class="p-3 border border-secondary bg-dark bg-opacity-30 rounded h-100">
-            <label class="small text-muted text-uppercase fw-bold d-block mb-1">Assigned Target Paradigm:</label>
-            <span class="fw-bold font-monospace text-warning fs-5"><%= question.keyword %></span>
+          <div class="p-3 border border-secondary border-opacity-20 bg-dark bg-opacity-40 rounded h-100 shadow-sm">
+            <label class="small text-white-50 text-uppercase tracking-wider fw-semibold d-block mb-1.5" style="font-size: 0.72rem;">Assigned Target Paradigm:</label>
+            <span class="fw-bold font-monospace text-warning tracking-wide" style="font-size: 1.15rem;"><%= question.keyword %></span>
           </div>
         </div>
       <% end %>
     <% end %>
 
-    <!-- Absolute Secure Accepted Backend Answers Key Box -->
-    <div class="col-12 mt-3 pt-3 border-top border-secondary border-opacity-30">
-      <label class="small text-muted text-uppercase fw-bold d-block mb-1">🔒 Authoritative Accepted Backend Answer String Keys:</label>
+    <%# D. Absolute Authoritative Accepted Answers Keys Box %>
+    <div class="col-12 mt-3 pt-3 border-top border-secondary border-opacity-20">
+      <label class="small text-white-50 text-uppercase tracking-wider fw-semibold d-block mb-2" style="font-size: 0.72rem;">🔒 Authoritative Accepted Backend Answer Keys:</label>
       <div class="d-flex gap-2 flex-wrap">
         <% question.answers.each do |ans| %>
-          <span class="badge bg-success bg-opacity-20 border border-success text-success px-3 py-2 font-monospace fs-6">
+          <span class="badge bg-success bg-opacity-25 border border-success text-white px-3 py-2 font-monospace" style="font-size: 0.88rem; letter-spacing: 0.3px;">
             "<%= ans %>"
           </span>
         <% end %>
       </div>
     </div>
-
   </div>
 </div>

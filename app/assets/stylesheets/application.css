@@ -1,133 +1,21 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
+/* app/assets/stylesheets/application.css */
+/* =========================================================================
+   CLEAN SLATE VERSION 2 STYLING ENGINE
+   - Stripped of all legacy padding and color conflicts
+   - Preserves core framework dimensions safely
+   ========================================================================= */
 
-
-.msg-form {
-  flex-shrink: 0;             /* Blocks long message feeds from crushing the input box */
+#chatroom_container, #side_panel, #room-container {
+  height: calc(100vh - 58px) !important;
+  max-height: calc(100vh - 58px) !important;
 }
 
-#single_room {
-  height: 100%;
-  display: flex;
-  flex-direction: column;     /* Stacks children vertically */
-  justify-content: space-between;
-}
-
-#messages {
-  flex-grow: 1;               /* Forces messages to dynamically fill all middle space */
-  overflow-x: hidden;
+#side_panel, #messages {
   overflow-y: auto;
-  /* ✅ HIDE SCROLLBARS FOR ALL BROWSERS */
-  -ms-overflow-style: none;  /* IE and old Edge */
-  scrollbar-width: none;     /* Firefox */
+  scrollbar-width: none;     /* Suppresses native scrollbar clutter in Firefox */
+  -ms-overflow-style: none;  /* Suppresses native scrollbar clutter in IE/Edge */
 }
 
-/* Chrome, Safari, and newer Opera/Edge engines */
-#messages::-webkit-scrollbar {
-  display: none;
-}
-
-#room-container {
-  height: calc(100vh - 56px); /* 56px navbar space subtraction */
-  overflow: hidden;           /* Halts global container distortion */
-  padding: 15px;
-}
-
-#side_panel {
-  /* ✅ Fix the side panel height calculation */
-  height: calc(100vh - 56px);
-  overflow-x: hidden;
-  overflow-y: auto;
-  border-right: 1px solid #555555;
-  /* ✅ HIDE SCROLLBARS FOR THE SIDE PANEL TOO */
-  -ms-overflow-style: none;  /* IE and old Edge */
-  scrollbar-width: none;     /* Firefox */
-}
-
-#side_panel::-webkit-scrollbar {
-  display: none;
-}
-
-
-#chatroom_container {
-   /* ✅ FIX: Subtract the 56px navbar height so the chat fits perfectly on screen! */
-  height: calc(100vh - 56px); 
-  margin-left: 0px !important;
-  margin-right: 0px !important;
-  overflow: hidden; /* Locks out any global scrolling */
-}
-
-.msg-content {
-  width: 80%;
-  margin-right: 5px;
-}
-.message-box {
-  word-wrap: break-word;
-  width: fit-content;
-  max-width: 40%;
-  padding: 5px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  background-color: #555555;
-}
-
-.user_row {
-  height: 50px;
-  padding: 10px;
-  border-bottom: 1px solid #555555;
-}
-
-.username {
-  overflow: hidden;
-}
-
-.chat_pfp {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-.user_list_item {
-  height: 55px;
-  background-color: #343a40 !important;
-}
-.room_list_item {
-  height: 55px;
-  background-color: #343a40 !important;
-  color: #fff;
-}
-
-.name {
-  margin-top: 15px;
-  padding-bottom: 0px;
-  margin-bottom: 0px;
-}
-.time {
-  padding-top: 0px;
-  margin-top: 0px;
-  padding-bottom: 0px;
-  margin-bottom: 0px;
-}
-.icon-container {
-  width: 50px;
-  height: 50px;
-  position: relative;
-}
-.status-circle {
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background-color: grey;
-  border: 2px solid white;
-  bottom: 10px;
-  right: 10px;
-  position: absolute;
+#side_panel::-webkit-scrollbar, #messages::-webkit-scrollbar {
+  display: none;             /* Suppresses native scrollbar clutter in Chrome/Safari */
 }

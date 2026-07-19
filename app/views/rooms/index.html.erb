@@ -1,69 +1,106 @@
+<%# app/views/rooms/index.html.erb %>
+<%# =========================================================================
+    CENTRAL REAL-TIME CHAT ENGINE MATRIX FRAMEWORK
+    - Manages ActionCable streams for global user status updates
+    - Features a scrollable left dashboard navigation panel and main screen stage
+   ========================================================================= %>
 <%= turbo_frame_tag "appearance_channel" %>
 <div id="appearance_channel"></div>
-
 <%= turbo_stream_from "user_status" %>
 
-<%# Main structural layout view %>
-<div id="chatroom_container" class="row bg-dark text-light g-0">
-  <div id="side_panel" class="col-md-4 col-sm-4 px-3 pt-3">
+<div id="chatroom_container" class="row bg-dark text-light g-0" 
+     style="background-color: #0f1115 !important; height: calc(100vh - 58px); max-height: calc(100vh - 58px); overflow: hidden !important;">
+  
+  <%# =======================================================================
+      A. LEFT SIDEBAR PANEL CONTROLS (Navigation deck)
+     ====================================================================== %>
+  <div id="side_panel" class="col-md-4 col-sm-5 d-flex flex-column bg-black bg-opacity-40 p-4 border-end border-secondary border-opacity-25" style="height: 100%; max-height: 100%; overflow-y: auto;">
     
-    <%# Current User Status Card %>
-    <ul class="list-group list-group-flush mb-3">
-      <li class="list-group-item d-flex align-items-center justify-content-between user_list_item border-0">
-        <div class="icon-container">
-          <div class="chat_pfp d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
-            style="background-color: #3498db; font-size: 18px; line-height: 1; user-select: none;">
-            <%= current_user.avatar_initial %>
-          </div>
-          <div>
-            <%= render "users/status", user: current_user %>
-          </div>
-        </div>
-        <div class="ms-2 me-auto username fw-bold">
-          <%= current_user.username %>
-        </div>
-      </li>
-    </ul>
-
-    <%# Active Users Queue %>
-    <h5 class="text-muted small text-uppercase fw-bold mb-2">Users</h5>
-    <%= turbo_stream_from "users" %>
-    <div id="users" class="mb-4">
-      <%= render @users %>
+    <%# 1. Active Academy Users Queue %>
+    <div class="mb-4">
+      <h6 class="text-white-50 text-uppercase tracking-wider fw-bold mb-3 d-flex align-items-center" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+        🟢 Active Students
+      </h6>
+      <%= turbo_stream_from "users" %>
+      <div id="users" class="d-flex flex-column gap-1">
+        <%= render @users %>
+      </div>
     </div>
 
-    <%# Chat Rooms Queue %>
-    <h5 class="text-muted small text-uppercase fw-bold mb-2">Rooms</h5>
-    <%= render "rooms/new_room_form" %>
-    
-    <%= turbo_stream_from "rooms" %>
-    <div id="rooms" class="mt-2">
-      <%= render @rooms %>
+    <%# 2. Interactive Study Channels / Rooms Area %>
+    <div class="mt-2 flex-grow-1">
+      <h6 class="text-white-50 text-uppercase tracking-wider fw-bold mb-3 d-flex align-items-center" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+        💬 Discussion Channels
+      </h6>
+      
+      <%# inline room form wrapper card container %>
+      <div class="bg-dark bg-opacity-50 p-2 border border-secondary border-opacity-25 rounded mb-3 shadow-sm">
+        <%= render "rooms/new_room_form" %>
+      </div>
+      
+      <%= turbo_stream_from "rooms" %>
+      <div id="rooms" class="d-flex flex-column gap-1 mt-2">
+        <%= render @rooms %>
+      </div>
     </div>
   </div>
 
-  <%# Active Chat Window Panel Workspace %>
-  <div id="room-container" class="col-md-8 col-sm-8 bg-dark text-light p-3 border-start border-secondary border-opacity-25">
+  <%# =======================================================================
+      B. RIGHT SIDEBAR WORKSPACE FRAME (Active main screen stage)
+     ====================================================================== %>
+  <div id="room-container" class="col-md-8 col-sm-7 d-flex flex-column bg-dark bg-opacity-10 p-4 position-relative" style="height: 100%; max-height: 100%; overflow: hidden;">
     <% if @single_room %>
-      <div id="single_room">
-        <%# 1. Chat Header Title Line %>
-        <h4 class="mb-3 pb-2 border-bottom border-secondary border-opacity-25"><%= @user&.username || @single_room.name %></h4>
+      <div id="single_room" class="d-flex flex-column h-100 w-100">
+        
+        <%# Header: Displays the room name cleanly %>
+        <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+          <h4 class="mb-0 text-white fw-bold tracking-wide" style="font-size: 1.2rem;">
+            <%= @user&.username || @single_room.name %>
+          </h4>
+          <span class="badge bg-secondary bg-opacity-10 border border-secondary border-opacity-30 text-white-50 font-monospace small" style="font-size: 0.7rem;">
+            Room ID: <%= @single_room.id %>
+          </span>
+        </div>
 
-        <%# 2. Dynamic Messages Container Scroll Box %>
+        <%# Dynamic Messages Container View Window (Scroll box) %>
         <%= turbo_stream_from @single_room %>
-        <div id="messages" data-controller="rooms" data-rooms-target="scrollable" class="pe-2">
+        <%# ✅ FIXED: Adding 'd-flex flex-column align-items-start' stops incoming messages from vertically stretching or doubling their gaps! %>
+        <div id="messages" data-controller="rooms" data-rooms-target="scrollable" class="flex-grow-1 pe-2 py-2 d-flex flex-column align-items-start" style="overflow-y: auto; scroll-behavior: smooth;">
           <%= render @messages %>
         </div>
 
-        <%# 3. ✅ FIXED: Input Form explicitly locked into place using a zero-shrink boundary wrap %>
-        <div class="msg-form w-100 flex-shrink-0 mt-auto pt-3">
+        <%# Bottom Locked Message Submission Input Card %>
+        <div class="msg-form w-100 flex-shrink-0 mt-auto pt-3 border-top border-secondary border-opacity-20">
           <%= render "messages/new_message_form" %>
         </div>
       </div>
     <% else %>
-      <div class="d-flex h-100 align-items-center justify-content-center text-muted small">
-        💬 Select a room or user from the side panel to start chatting.
+      <div class="d-flex flex-column h-100 align-items-center justify-content-center text-center p-5">
+        <div class="rounded-circle bg-dark border border-secondary border-opacity-25 d-flex align-items-center justify-content-center mb-3 shadow" style="width: 56px; height: 56px; background-color: rgba(0,0,0,0.2) !important;">
+          <span style="font-size: 1.5rem;">💬</span>
+        </div>
+        <h5 class="text-white fw-semibold mb-1" style="font-size: 1.05rem;">Academy Communication Suite</h5>
+        <p class="text-white-50 small mb-0 mx-auto" style="max-width: 320px; font-size: 0.8rem; line-height: 1.4;">
+          Select an active study channel or click on a student profile row from the sidebar to establish a secure chat session.
+        </p>
       </div>
     <% end %>
   </div>
 </div>
+
+<style>
+  /* ✅ ADVANCED CLIENT-SIDE LAYOUT ALIGNMENT MATRIX
+     Locks text-cards rigidly to the edges of the dashboard window container cleanly */
+  .chat-message-wrapper[data-sender-id="<%= current_user.id %>"] {
+    justify-content: flex-end !important;
+    align-self: flex-end !important; /* ✅ FIXED: Tells your OWN sent messages to stick to the right wall instead of left */
+  }
+  
+  .chat-message-wrapper[data-sender-id="<%= current_user.id %>"] .msg-balloon-inner {
+    background-color: #1e2530 !important;
+  }
+
+  .chat-message-wrapper[data-sender-id="<%= current_user.id %>"] .avatar-indicator {
+    background-color: #2980b9 !important;
+  }
+</style>

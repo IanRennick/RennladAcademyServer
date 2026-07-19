@@ -1,2 +1,11 @@
-<%= turbo_frame_tag "user-status" %>
-<div class="status-circle <%= user.status_to_css %>" id="<%= dom_id(user) %>"></div>
+<%# app/views/users/_status.html.erb %>
+<%# =========================================================================
+    REAL-TIME PRESENCE HUB INDICATOR DOT COMPONENT
+    - Updates dynamically over ActionCable appearance matrix sweeps
+   ========================================================================= %>
+<%= turbo_frame_tag "user-status-#{user.id}" do %>
+  <div class="rounded-circle border border-dark <%= user.status_to_css %>" 
+       id="<%= dom_id(user) %>" 
+       style="width: 11px; height: 11px; box-shadow: <%= '0 0 6px #2ecc71' if user.status == 'online' %>; border-width: 2px !important; transition: background-color 0.3s;">
+  </div>
+<% end %>

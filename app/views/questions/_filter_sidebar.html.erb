@@ -1,0 +1,45 @@
+<%# app/views/questions/_filter_sidebar.html.erb %>
+<%# =========================================================================
+    CURRICULUM REPOSITORY FILTER ENGINE SIDEBAR WIDGET
+    - Connects Ransack form fields for search, kind enums, and check-boxes
+    - Built using full dark layout parameters with complete contrast safety
+   ========================================================================= %>
+<div class="card card-body bg-black bg-opacity-30 border border-secondary border-opacity-20 sticky-top shadow-lg p-3.5" style="top: 20px; z-index: 1020;">
+  <h5 class="fw-bold mb-3 text-info border-bottom border-secondary border-opacity-20 pb-2 tracking-wide text-uppercase" style="font-size: 0.9rem;">
+    <span>🔍</span> Filter Engine
+  </h5>
+  
+  <%= search_form_for @query, url: questions_path, method: :get do |f| %>
+    
+    <%# 1. Master Input Search Query Box %>
+    <div class="mb-3.5">
+      <%= f.label :main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any, "Master Keyword Search", class: "form-label text-white-50 text-uppercase tracking-wider small fw-semibold", style: "font-size: 0.72rem;" %>
+      <%= f.search_field :main_or_prompt_or_keyword_or_options_as_text_or_answers_as_text_or_tags_name_i_cont_any, placeholder: "Type text, tags, options...", class: "form-control form-control-sm bg-black border-secondary text-white font-sans" %>
+    </div>
+
+    <%# 2. Select Question Type Enum Menu %>
+    <div class="mb-3.5">
+      <%= f.label :kind_eq, "Filter by Puzzle Type", class: "form-label text-white-50 text-uppercase tracking-wider small fw-semibold", style: "font-size: 0.72rem;" %>
+      <%= f.select :kind_eq, Question.kinds.keys.map { |k| [k.humanize, Question.kinds[k]] }, { include_blank: "Show All Types" }, { class: "form-select form-select-sm bg-black border-secondary text-white font-sans" } %>
+    </div>
+
+    <%# 3. Checkboxes Difficulty Matrix for CEFR Levels %>
+    <div class="mb-4">
+      <label class="form-label text-white-50 text-uppercase tracking-wider small fw-semibold d-block mb-2" style="font-size: 0.72rem;">Target CEFR Levels</label>
+      <div class="d-flex flex-wrap gap-2 pt-1">
+        <% %w[B1 B2 C1 C2].each do |lvl| %>
+          <div class="form-check form-check-inline me-1">
+            <input class="form-check-input bg-black border-secondary" type="checkbox" name="q[level_name_in][]" value="<%= lvl %>" id="check_<%= lvl %>" <%= 'checked' if params.dig(:q, :level_name_in)&.include?(lvl) %>>
+            <label class="form-check-label text-light small fw-medium font-monospace" for="check_<%= lvl %>"><%= lvl %></label>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# 4. Filter Action Confirmation Row Control Buttons %>
+    <div class="d-grid gap-2 font-monospace">
+      <%= f.submit "Apply Filters", class: "btn btn-sm btn-info fw-bold py-1.5" %>
+      <%= link_to "Clear All", questions_path, class: "btn btn-sm btn-outline-secondary text-white-50 font-sans fw-medium" %>
+    </div>
+  <% end %>
+</div>

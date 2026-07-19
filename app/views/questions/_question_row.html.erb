@@ -1,92 +1,102 @@
-<tr>
+<%# app/views/questions/_question_row.html.erb %>
+<%# =========================================================================
+    CURRICULUM REPOSITORY DATA ROW ITEM
+    - Dynamically evaluates active filter contexts to map specific column data
+    - Enforces full-page dark layout consistency with zero contrast bugs
+   ========================================================================= %>
+<tr class="border-bottom border-secondary border-opacity-10 font-sans" style="transition: background-color 0.15s;">
+  
   <%# 1. ID Column %>
-  <td><small class="text-muted">#<%= question.id %></small></td>
+  <td class="ps-3 py-2.5"><small class="text-white-50 font-monospace" style="font-size: 0.74rem;">#<%= question.id %></small></td>
 
-  <%# 2. Subtype Column %>
-  <td>
+  <%# 2. Subtype Target Column %>
+  <td class="py-2.5">
     <% if question.subtype.present? %>
-      <span class="text-nowrap" style="font-size: 0.85rem;"><%= question.subtype.to_s.humanize %></span>
+      <span class="text-nowrap text-light" style="font-size: 0.85rem;"><%= question.subtype.to_s.humanize %></span>
     <% else %>
-      <span class="text-muted small">None</span>
+      <span class="text-white-50 font-monospace small" style="opacity: 0.5;">—</span>
     <% end %>
   </td>
 
-  <%# 3. Main Text Content Column (Truncated with CSS for pristine scannability) %>
-  <td>
-    <div class="text-truncate" style="max-width: 320px;" title="<%= question.main %>">
-      <%= question.main %>
+  <%# 3. Main Text Content Column (Truncated for clean scannability) %>
+  <td class="py-2.5">
+    <div class="text-truncate fw-medium text-white" style="max-width: 320px;" title="<%= question.main %>">
+      <%= link_to question.main, question_path(question), class: "text-decoration-none text-white hover-info-link" %>
     </div>
   </td>
 
-  <%# 4. DYNAMIC CLUES & DATA MATRIX COLUMNS %>
+  <%# 4. DYNAMIC ADAPTIVE CLUES & TOPOLOGY INVENTORY SECTIONS %>
   <% case current_filter %>
   <% when "0" # Filtered strictly to Multiple Choice %>
-    <td>
-      <small class="text-info font-monospace">
+    <td class="py-2.5">
+      <small class="text-info font-monospace" style="font-size: 0.78rem;">
         <%= question.options.join(", ") %>
       </small>
     </td>
 
   <% when "2" # Filtered strictly to Word Formation %>
-    <td><strong class="text-warning font-monospace"><%= question.keyword %></strong></td>
+    <td class="py-2.5"><strong class="text-warning font-monospace fw-bold" style="font-size: 0.88rem;"><%= question.keyword %></strong></td>
 
-  <% when "3" # Filtered strictly to Sentence Cloze (Displays both columns) %>
-    <td><strong class="text-warning font-monospace"><%= question.keyword %></strong></td>
-    <td>
-      <%# Prompt sentences are long, so we apply a safe clipping threshold too %>
-      <div class="text-truncate font-monospace text-muted" style="max-width: 250px;" title="<%= question.prompt %>">
+  <% when "3" # Filtered strictly to Sentence Cloze %>
+    <td class="py-2.5"><strong class="text-warning font-monospace fw-bold" style="font-size: 0.88rem;"><%= question.keyword %></strong></td>
+    <td class="py-2.5">
+      <div class="text-truncate font-monospace text-white-50" style="max-width: 250px; font-size: 0.8rem;" title="<%= question.prompt %>">
         <%= question.prompt %>
       </div>
     </td>
 
-  <% else # Mixed General View Mode (Displays a smart unified text paragraph description cell) %>
-    <td>
+  <% else # Mixed General View Mode (Unified metadata text paragraph blocks) %>
+    <td class="py-2.5">
       <% case question.kind %>
       <% when "multiple_choice" %>
-        <small class="text-muted">Choices: <%= question.options.join(", ") %></small>
+        <small class="text-white-50 font-sans">Choices: <span class="text-info font-monospace" style="font-size: 0.76rem;"><%= question.options.join(", ") %></span></small>
       <% when "word_formation" %>
-        <small class="text-muted">Base: <strong class="text-warning font-monospace"><%= question.keyword %></strong></small>
+        <small class="text-white-50 font-sans">Base: <strong class="text-warning font-monospace"><%= question.keyword %></strong></small>
       <% when "sentence_cloze" %>
-        <small class="text-muted">Clue: <strong class="text-warning font-monospace"><%= question.keyword %></strong> | Prompt: <span class="font-monospace text-muted small"><%= truncate(question.prompt, length: 20) %></span></small>
+        <small class="text-white-50 font-sans">Clue: <strong class="text-warning font-monospace"><%= question.keyword %></strong> | Prompt: <span class="font-monospace text-white-50 small"><%= truncate(question.prompt, length: 20) %></span></small>
       <% else %>
-        <span class="text-muted small">—</span>
+        <span class="text-white-50 font-monospace small" style="opacity: 0.5;">—</span>
       <% end %>
     </td>
   <% end %>
 
   <%# 5. First Answer Column %>
-  <td>
-    <code class="text-success fw-bold bg-black bg-opacity-25 px-2 py-1 rounded">
-      <%= question.answers.first || "N/A" %>
+  <td class="py-2.5">
+    <%# UI Contrast Fix: Swapped text-success bg-black to a clean, integrated theme tag %>
+    <code class="text-success bg-success bg-opacity-10 border border-success border-opacity-10 px-2 py-0.5 rounded font-monospace" style="font-size: 0.8rem;">
+      "<%= question.answers.first || "N/A" %>"
     </code>
   </td>
 
   <%# 6. CEFR Level Badge %>
-  <td>
-    <span class="badge bg-secondary font-monospace"><%= question.level&.name || "N/A" %></span>
+  <td class="py-2.5">
+    <span class="badge bg-secondary bg-opacity-15 border border-secondary text-white-50 font-monospace small"><%= question.level&.name || "N/A" %></span>
   </td>
 
   <%# 7. Elo Rating Badge %>
-  <td>
-    <span class="badge bg-info text-dark fw-bold"><%= question.rating %> Elo</span>
+  <td class="py-2.5">
+    <%# UI Contrast Fix: Swapped text-dark to crisp white over low opacity container frames %>
+    <span class="badge bg-info bg-opacity-25 border border-info text-white fw-bold font-monospace">
+      ⚡ <%= question.rating %> Elo
+    </span>
   </td>
 
-  <%# 8. Success Rate Percentage Aggregator %>
-  <td>
+  <%# 8. Success Rate Percentage Aggregator Column %>
+  <td class="py-2.5 font-monospace">
     <% if question.times_done > 0 %>
       <% success_percentage = ((question.times_correct.to_f / question.times_done) * 100).round(1) %>
-      <span style="font-weight: bold; color: <%= success_percentage > 70 ? '#198754' : (success_percentage > 40 ? '#ffc107' : '#dc3545') %>;">
+      <span class="fw-bold" style="font-size: 0.88rem; color: <%= success_percentage > 70 ? '#48bb78' : (success_percentage > 40 ? '#ecc94b' : '#f56565') %>;">
         <%= success_percentage %>%
       </span>
     <% else %>
-      <span class="text-muted small">0%</span>
+      <span class="text-white-50 small" style="opacity: 0.5;">0.0%</span>
     <% end %>
   </td>
 
-  <%# 9. Simple Action Button Control %>
-  <td>
-    <%= link_to question_path(question), class: "btn btn-xs btn-outline-light px-2 py-1 text-xs", style: "font-size: 0.75rem;" do %>
-      🔍 View
+  <%# 9. Simple Action Button Shortcut Column %>
+  <td class="text-end pe-4 py-2.5">
+    <%= link_to question_path(question), class: "btn btn-xs btn-outline-light font-monospace fw-semibold px-2.5 py-0.5", style: "font-size: 0.72rem;" do %>
+      🔍 Dossier
     <% end %>
   </td>
 </tr>
