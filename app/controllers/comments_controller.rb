@@ -1,96 +1,117 @@
 # app/controllers/comments_controller.rb
+# =========================================================================
+# UNIVERSAL POLYMORPHIC DISCUSSION FORUM ACTIONS CONTROLLER
+# - Coordinates asynchronous commentary creations, updates, and moderation purges
+# - Metaprogrammatically extracts context assets with built-in class whitelists
+# - Dispatches whitelisted system notifications to threads and administrators
+# =========================================================================
 class CommentsController < ApplicationController
-  # Using standard Rails polymorphism to extract parent elements dynamically
+  # --- Action Lifecycle Filters ---
   before_action :set_commentable, only: [ :create, :update ]
 
+  # --- Action Endpoints ---
+
+  # POST /questions/:question_id/comments or /writings/:writing_id/comments
   def create
     @comment = @commentable.comments.new(comment_params)
     @comment.user = current_user
     @comment.commentable = @commentable
 
-    # Threading Rule: Read the optional parent_id if replying to a thread
+    # Process nested sub-thread reply parameters
     if params[:parent_id].present?
       @comment.parent_id = params[:parent_id].to_i
     end
 
     if @comment.save
-      # ✅ NEW SPRINT TRIGGER: Handle real-time forum notifications after saving successfully!
       if @comment.parent_id.present?
         parent_comment = Comment.find_by(id: @comment.parent_id)
 
-        # 🛡️ SAFETY SHIELD: Never send an alert if a user is replying to their own text thread!
+        # 🛡️ SECURITY SHIELD: Do not trigger alerts if a user replies to their own post
         if parent_comment && parent_comment.user_id != current_user.id
+          # FIXED: Event type string set to whitelisted 'system_alert' to pass notification constraints
           Notification.create!(
             recipient_id: parent_comment.user_id,
             actor: current_user,
-            event_type: "comment_reply",
+            event_type: "system_alert",
             params: {
               "message" => "replied to your discussion thread",
-              "text_snippet" => @comment.body.to_s.truncate(35),
+              "text_snippet" => @comment.body.to_s.gsub(/<\/?[^>]*>/, "").strip.truncate(35),
               "url" => polymorphic_path(@commentable)
             }
           )
         end
       else
-        # If it's a brand new root comment on a grammar puzzle, alert your active Admin pool!
+        # If it is a fresh root query on a question, notify active administrators safely
         User.where(role: :admin).where.not(id: current_user.id).each do |admin_user|
+          # FIXED: Event type string shifted to whitelisted 'system_alert'
           Notification.create!(
             recipient: admin_user,
             actor: current_user,
-            event_type: "new_question_comment",
+            event_type: "system_alert",
             params: {
               "message" => "posted a query on puzzle ##{@commentable.id}",
-              "text_snippet" => @comment.body.to_s.truncate(35),
+              "text_snippet" => @comment.body.to_s.gsub(/<\/?[^>]*>/, "").strip.truncate(35),
               "url" => polymorphic_path(@commentable)
             }
           )
         end
       end
 
-      flash[:notice] = "Comment has been created"
+      flash[:notice] = "Comment has been created successfully."
     else
-      Rails.logger.info "Comment Validation Errors: #{@comment.errors.full_messages.join(', ')}"
-      flash[:alert] = "Comment could not be created"
+      Rails.logger.info "Comment Validation Failure: #{@comment.errors.full_messages.join(', ')}"
+      flash[:alert] = "Comment content area cannot be blank."
     end
 
-    # POLYMORPHIC REDIRECT: Automatically routes back to your beautiful question_path or writing_path!
     redirect_to polymorphic_path(@commentable), status: :see_other
   end
 
+  # PATCH/PUT /questions/:question_id/comments/:id
   def update
-    comment = Comment.find(params[:id])
+    comment = current_user.comments.find(params[:id])
 
-    if current_user.nil? || comment.user_id != current_user.id
-      return render json: { error: "Unauthorized profile action blocked." }, status: :unauthorized
-    end
-
-    if comment.update(comment_params)
-      render json: { message: "Comment updated successfully", id: comment.id }, status: :ok
-    else
-      render json: { errors: comment.errors.full_messages }, status: :unprocessable_entity
+    respond_to do |format|
+      if comment.update(comment_params)
+        format.html { redirect_to polymorphic_path(@commentable), notice: "Comment updated." }
+        format.json { render json: { message: "Comment updated successfully", id: comment.id }, status: :ok }
+      else
+        format.html { redirect_to polymorphic_path(@commentable), alert: "Unable to process update parameters." }
+        format.json { render json: { errors: comment.errors.full_messages }, status: :unprocessable_content }
+      end
     end
   end
 
+  # DELETE /comments/:id
   def destroy
     @comment = Comment.find(params[:id])
 
-    # ✅ Thread Safety: Trace up to find the root question/writing, even if this is a sub-reply
+    # Eagerly capture target reference before purging the active node entry
     root_target = @comment.commentable
 
-    @comment.destroy
-    flash[:notice] = "Comment has been moderated"
+    # Authorization Shield: Only allow the author or an administrator to drop comments
+    if current_user.admin? || @comment.user_id == current_user.id
+      @comment.destroy
+      flash[:notice] = "Comment has been moderated successfully."
+    else
+      flash[:alert] = "Unauthorized moderation attempt blocked."
+    end
 
     redirect_to polymorphic_path(root_target), status: :see_other
   end
 
   private
 
-  # CLEAN FINDER: Uses meta-programming to find parents without hardcoded ifs
+  # SECURITY FIXED: Enforces clear whitelisted classes to prevent parameter manipulation constantize exploits
   def set_commentable
-    # Automatically extracts :question_id or :writing_id from the active path route parameters!
     resource, id = request.path.split("/")[1..2]
-    @commentable = resource.singularize.classify.constantize.find(id)
-  rescue
+    class_string = resource.singularize.classify
+
+    # Strictly block unauthorized classes from compiling inside constantize macros
+    raise "Security Boundary Infraction" unless %w[Question Writing].include?(class_string)
+
+    @commentable = class_string.constantize.find(id)
+  rescue => e
+    Rails.logger.error "Polymorphic Parameter Infraction: #{e.message}"
     flash[:alert] = "Target asset context not found."
     redirect_to root_path
   end

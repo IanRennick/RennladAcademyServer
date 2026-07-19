@@ -1,50 +1,48 @@
-require 'rails_helper'
+# spec/requests/api/v1/registrations_spec.rb
+require "rails_helper"
 
-RSpec.describe "Api::V1::Registrations", type: :request do
-  # Create a Doorkeeper Application to generate a valid client_id
-  let!(:application) { Doorkeeper::Application.create!(name: "Frontend Client", redirect_uri: "urn:ietf:wg:oauth:2.0:oob", uid: "imv3SELnwic1eZYgohTlnf_ixo7xUVT_6t0_PyR5sRc", secret: "456") }
+RSpec.describe "Stateless API V1 User Registrations Gateway Matrix", type: :request do
+  # --- Setup Shared Test Matrix Variables ---
+  let!(:oauth_application) { Doorkeeper::Application.create!(name: "Rennlad Client App", redirect_uri: "https://localhost/callback", scopes: "") }
 
   describe "POST /api/v1/users" do
-    let(:valid_attributes) do
-      {
-        email: "new_student@example.com",
-        username: "Jeff",
-        password: "password123",
-        password_confirmation: "password123",
-        client_id: application.uid # Passes the mock frontend client_id
-      }
-    end
-
-    # Test with valid credentials
-    context "with valid parameters" do
-      it "creates a new User and returns a successful status" do
+    context "with valid signup parameters and application identifiers" do
+      it "creates the user account, returns an access token body, and drops an encrypted cookie" do
         expect {
-          post "/api/v1/users",
-               params: valid_attributes.to_json,
-               headers: { "CONTENT_TYPE" => "application/json", "ACCEPT" => "application/json" }
+          post "/api/v1/users", params: {
+            username: "api_newcomer",
+            email: "newcomer@test.com",
+            password: "securepassword123",
+            client_id: oauth_application.uid
+          }
         }.to change(User, :count).by(1)
 
-        expect(response).to have_http_status(:created).or(have_http_status(:ok))
+        expect(response).to have_http_status(:ok)
+
+        # 1. Verify response token body payload
+        json = JSON.parse(response.body)
+        expect(json).to have_key("access_token")
+        expect(json).not_to have_key("refresh_token")
+
+        # 2. Verify encrypted HttpOnly cookie injection parameters
+        expect(cookies[:_refresh_token]).not_to be_nil
       end
     end
 
-    # Test with invalid credentials
-    context "with invalid parameters (missing password)" do
-      it "does not create a user and returns validation errors" do
-        invalid_attributes = {
-          email: "bad_email@example.com",
-          username: "Jeff",
-          password: "",
-          client_id: application.uid
-        }
-
+    context "with an invalid or missing client application identifier" do
+      it "rejects the processing pipeline early with an unauthorized 401 response status" do
         expect {
-          post "/api/v1/users",
-               params: invalid_attributes.to_json,
-               headers: { "CONTENT_TYPE" => "application/json", "ACCEPT" => "application/json" }
+          post "/api/v1/users", params: {
+            username: "api_orphan",
+            email: "orphan@test.com",
+            password: "password123",
+            client_id: "corrupt_fake_client_id_123"
+          }
         }.not_to change(User, :count)
 
-        expect(response).to have_http_status(:unprocessable_content).or(have_http_status(:ok))
+        expect(response).to have_http_status(:unauthorized)
+        json = JSON.parse(response.body)
+        expect(json["error"]).to include("Client authentication failed due to unknown client")
       end
     end
   end
