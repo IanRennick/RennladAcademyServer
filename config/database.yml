@@ -58,13 +58,18 @@ test:
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  database: server_test  # ✅ Synced layout naming to match your server_development table format
-  # ✅ FIXED: Commented out TCP network hosts so local rspec uses your working passwordless Unix sockets!
-  # host: 127.0.0.1
-  # port: 5432
+  database: server_test
+
+  # FIXED: Dynamically fall back to environment variables.
+  # If running locally without them, it defaults to nil/blank, using your local passwordless Unix sockets!
+  # If running on GitHub Actions, it reads the passed network environment variables perfectly.
+  host: <%= ENV.fetch("DB_HOST", nil) %>
+  port: <%= ENV.fetch("DB_PORT", nil) %>
+  username: <%= ENV.fetch("DB_USERNAME", nil) %>
+  password: <%= ENV.fetch("DB_PASSWORD", nil) %>
 
 # 🚀 GITHUB ACTIONS CI RUNNER CONFIGURATION:
-# Keeps your automated workflow credentials locked in place for the cloud environment containers
+# (You can leave this here or remove it, as the updated 'test:' block above handles both now)
 ci:
   adapter: postgresql
   encoding: unicode
