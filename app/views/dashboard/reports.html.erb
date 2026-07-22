@@ -1,0 +1,84 @@
+<div class="container-fluid min-vh-100 bg-dark text-light py-5 font-sans">
+  <div class="row max-w-7xl mx-auto">
+    
+    <!-- Header Summary Matrix -->
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center border-bottom border-secondary pb-3">
+      <div>
+        <h1 class="h2 text-warning font-weight-bold mb-1">Crowdsourced Issue Board</h1>
+        <p class="text-muted small mb-0">Track, investigate, and resolve user-submitted bugs, typos, and platform feedback loops.</p>
+      </div>
+      <div>
+        <%= link_to "Back to Dashboard", admin_dashboard_path, class: "btn btn-outline-secondary btn-sm text-light transition-all" %>
+      </div>
+    </div>
+
+    <!-- Main Ingestion Table Box -->
+    <div class="col-12">
+      <% if @reports.empty? %>
+        <div class="card bg-black border-secondary text-center py-5">
+          <div class="card-body">
+            <span class="display-4 text-muted">🎉</span>
+            <h3 class="h5 text-muted mt-3">Prinstine State Verified</h3>
+            <p class="text-muted small mb-0">No active bug tickets or typos have been reported by students yet.</p>
+          </div>
+        </div>
+      <% else %>
+        <div class="table-responsive bg-black rounded border border-secondary shadow-sm">
+          <table class="table table-dark table-hover table-striped mb-0 align-middle">
+            <thead class="table-secondary text-dark text-uppercase font-weight-bold small">
+              <tr>
+                <th scope="col" class="py-3 px-4">Ticket</th>
+                <th scope="col" class="py-3">Type</th>
+                <th scope="col" class="py-3">Reporter</th>
+                <th scope="col" class="py-3" style="width: 40%;">Description</th>
+                <th scope="col" class="py-3">Context Location</th>
+                <th scope="col" class="py-3 text-center">Status</th>
+                <th scope="col" class="py-3 text-center px-4">Action</th>
+              </tr>
+            </thead>
+            <tbody class="font-sans text-light">
+              <% @reports.each do |report| %>
+                <tr class="border-bottom border-secondary transition-all">
+                  <td class="font-weight-bold text-muted px-4">#<%= report.id %></td>
+                  <td>
+                    <span class="badge px-2.5 py-1.5 rounded-pill font-weight-bold text-uppercase tracking-wider font-sans
+                      <%= case report.report_type
+                          when 'typo' then 'bg-warning text-dark'
+                          when 'broken_answer' then 'bg-danger text-light'
+                          when 'ui_bug' then 'bg-info text-dark'
+                          else 'bg-secondary text-light'
+                          end %>">
+                      <%= report.report_type.humanize %>
+                    </span>
+                  </td>
+                  <td class="font-weight-bold text-warning"><%= report.user.username %></td>
+                  <td class="text-muted font-sans font-size-14 leading-relaxed py-3"><%= report.description %></td>
+                  <td>
+                    <% if report.question_id.present? %>
+                      <%= link_to "Puzzle ##{report.question_id}", question_path(report.question_id), class: "text-info font-weight-bold text-decoration-none hover-underline" %>
+                    <% elsif report.url.present? %>
+                      <code class="text-muted bg-dark px-2 py-1 rounded small"><%= report.url %></code>
+                    <% else %>
+                      <span class="text-muted font-italic small">Global State</span>
+                    <% end %>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge px-2 py-1 font-sans text-uppercase font-weight-bold
+                      <%= report.resolved? ? 'bg-success text-light' : 'bg-outline-warning border border-warning text-warning' %>">
+                      <%= report.status %>
+                    </span>
+                  </td>
+                  <td class="text-center px-4">
+                    <%= button_to resolve_admin_report_path(report), method: :patch, class: "btn btn-sm font-weight-bold font-sans transition-all #{report.resolved? ? 'btn-outline-warning' : 'btn-success'}" do %>
+                      <%= report.resolved? ? "Re-open" : "Resolve" %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

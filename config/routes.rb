@@ -19,6 +19,8 @@ Rails.application.routes.draw do
 
   # --- Administrative Control Panel Board ---
   get "/admin/dashboard", to: "dashboard#index", as: :admin_dashboard
+  get   "/admin/dashboard/reports",     to: "dashboard#reports",        as: :admin_reports
+  patch "/admin/dashboard/reports/:id", to: "dashboard#resolve_report", as: :resolve_admin_report
 
   # --- Polymorphic Discussion Forum Resources ---
   resources :writings do

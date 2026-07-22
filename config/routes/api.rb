@@ -35,5 +35,15 @@ namespace :api, defaults: { format: :json } do
 
     # --- 5. POLYMORPHIC DISCUSSION FORUM COMMUNICATIONS ---
     resources :comments, only: [ :create, :update, :destroy ]
+
+    # --- 6. STATELESS NOTIFICATIONS ALERTS CONTROL (NEW) ---
+    resources :notifications, only: [ :index, :update ] do
+      collection do
+        post :mark_all_as_read
+      end
+    end
+
+    # --- 7. CROWDSOURCED BUG & TYPO REPORTING GATEWAY (NEW) ---
+    resources :reports, only: [ :create ]
   end
 end

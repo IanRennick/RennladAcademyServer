@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_18_164559) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -181,6 +181,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_164559) do
     t.index ["level_id"], name: "index_questions_on_level_id"
   end
 
+  create_table "reports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description", null: false
+    t.bigint "question_id"
+    t.string "report_type", null: false
+    t.string "status", default: "open", null: false
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.bigint "user_id", null: false
+    t.index ["question_id"], name: "index_reports_on_question_id"
+    t.index ["user_id"], name: "index_reports_on_user_id"
+  end
+
   create_table "rooms", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "is_private", default: false
@@ -299,6 +312,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_164559) do
   add_foreign_key "question_tags", "questions"
   add_foreign_key "question_tags", "tags"
   add_foreign_key "questions", "levels"
+  add_foreign_key "reports", "questions"
+  add_foreign_key "reports", "users"
   add_foreign_key "user_badges", "badges"
   add_foreign_key "user_badges", "users"
   add_foreign_key "user_histories", "questions"
