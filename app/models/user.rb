@@ -31,6 +31,7 @@ class User < ApplicationRecord
   has_many :user_badges, dependent: :destroy
   has_many :badges, through: :user_badges
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
+  has_many :reports, dependent: :destroy
 
   # --- Lifecycle Callback Hooks ---
   after_create :build_initial_tag_stat

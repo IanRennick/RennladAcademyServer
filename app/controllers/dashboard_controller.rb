@@ -18,4 +18,26 @@ class DashboardController < ApplicationController
     @online_count   = User.where(status: :online).count
     @away_count     = User.where(status: :away).count
   end
+
+  # GET /admin/dashboard/reports
+  def reports
+    # Collects crowd-sourced bug issues, eager loading associations to prevent N+1 query leaks
+    @reports = Report.includes(:user, :question).order(created_at: :desc)
+  end
+
+  # PATCH /admin/dashboard/reports/:id
+  def resolve_report
+    @report = Report.find(params[:id])
+
+    # Toggles active ticket status state loops efficiently
+    if @report.open? || @report.investigating?
+      @report.resolved!
+      flash[:notice] = "Ticket ##{@report.id} marked as resolved successfully."
+    else
+      @report.open!
+      flash[:notice] = "Ticket ##{@report.id} re-opened for active investigation."
+    end
+
+    redirect_to admin_reports_path
+  end
 end
