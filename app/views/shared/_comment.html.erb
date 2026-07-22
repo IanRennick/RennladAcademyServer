@@ -26,14 +26,15 @@
 
   <%# Administrative Moderation & Interaction Controls %>
   <div class="mt-2 text-end btn-group border border-secondary border-opacity-10 rounded overflow-hidden shadow-sm">
-    <button class="btn btn-sm btn-outline-warning font-monospace" 
-            style="font-size: 0.74rem; font-weight: 600;"
-            data-controller="comments" 
-            data-action="comments#toggleForm"
-            data-comments-form-param="edit-form-<%= comment.id %>"
-            data-comments-body-param="comment-body-<%= comment.id %>"
-            data-comments-edit-param="edit-btn-<%= comment.id %>"
-            id="edit-btn-<%= comment.id %>">
+    <button 
+      id="edit-btn-<%= comment.id %>"
+      class="btn btn-secondary btn-sm"
+      data-action="click->comments#toggleForm"
+      data-comments-form-param="edit-form-<%= comment.id %>"
+      data-comments-body-param="comment-body-<%= comment.id %>"
+      data-comments-edit-param="edit-btn-<%= comment.id %>"
+      data-comment-editing="false"
+      data-cancel-text="Cancel">
       Edit
     </button>
     

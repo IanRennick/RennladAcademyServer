@@ -1,10 +1,18 @@
+# spec/requests/http_interface_spec.rb
+# =========================================================================
+# HTTP ADMIN INTERFACE CORE GRAPHICAL SPEC
+# - Stress-tests high-density UI layout assembly blocks and text tokens
+# - Validates Pagy collection split thresholds slicing at exact limits
+# - Asserts admin access dossier panels render secure answer matrices cleanly
+# - Verifies structural modifications match branding label updates perfectly
+# =========================================================================
 require 'rails_helper'
 
 RSpec.describe "HTTP Admin Interface System", type: :request do
   include Devise::Test::IntegrationHelpers
   include Pagy::Frontend
 
-  # Ensure base database records are instantiated in the correct structural order
+  # --- Setup Shared Test Matrix Variables ---
   let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1200 } }
   let!(:admin_user) { User.create!(username: "head_teacher", email: "admin@academy.com", password: "password123", password_confirmation: "password123", role: :admin) }
 
@@ -32,7 +40,7 @@ RSpec.describe "HTTP Admin Interface System", type: :request do
 
       expect(response).to have_http_status(:ok)
 
-      # ✅ SYNCED: Matches our polished typography label headers exactly
+      # Verify that typography label headers and filter frameworks load cleanly
       expect(response.body).to include("Database Topology & Stock Balance Control Board")
       expect(response.body).to include("Filter Engine")
 
@@ -56,7 +64,7 @@ RSpec.describe "HTTP Admin Interface System", type: :request do
 
       expect(response).to have_http_status(:ok)
 
-      # ✅ SYNCED: Updated check strings to match your new high-contrast layout labels perfectly
+      # Verify that high-contrast layout labels and forum widgets assemble cleanly
       expect(response.body).to include("CEFR Tier Accuracy Map")
       expect(response.body).to include("Target Review Areas (<50% Acc)")
       expect(response.body).to include("Recent Student Doubts & Comments")
@@ -114,7 +122,7 @@ RSpec.describe "HTTP Admin Interface System", type: :request do
   end
 
   # =========================================================================
-  # 4. GLOBAL LAYOUT FRAMEWORK MATRIX TEST
+  # 4. GLOBAL LAYOUT NAVIGATION FRAMEWORK MATRIX TEST
   # =========================================================================
   describe "Global Navbar Integrity Matrix" do
     before do

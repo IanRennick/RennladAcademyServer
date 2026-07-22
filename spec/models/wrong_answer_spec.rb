@@ -1,26 +1,45 @@
 # spec/models/wrong_answer_spec.rb
+# =========================================================================
+# CURRICULUM DISTRACTOR ANALYTICS MODEL MATRIX SPEC
+# - Stress-tests tracking metrics and erroneous string entry ingestion logs
+# - Asserts rigorous attribute constraints block broken or missing keys
+# - Enforces unique index constraints preventing duplicate distractor entries
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "Curriculum Distractor Analytics Engine", type: :model do
+  # --- Setup Shared Test Matrix Variables ---
   let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1200 } }
   let!(:puzzle) { Question.create!(kind: :open_cloze, level: b2_level, main: "This is an analytics sample sentence context.", answers: [ "test" ]) }
 
+  # =========================================================================
+  # 1. CORE TELEMETRY INGESTION VALIDITY TESTS
+  # =========================================================================
   describe "Data Integrity Guard Shields" do
     it "allows a valid incorrect answer tracking row to save cleanly" do
       wa = WrongAnswer.new(question: puzzle, answer_text: "wrong_guess", count: 1)
       expect(wa).to be_valid
     end
 
+    # =========================================================================
+    # 2. REQUIRED ATTRIBUTES ACCURACY CONTROLS TESTS
+    # =========================================================================
     it "blocks record creations missing required question identifiers or text blocks" do
       bad_wa = WrongAnswer.new(question: nil, answer_text: nil, count: 1)
       expect(bad_wa).not_to be_valid
     end
 
+    # =========================================================================
+    # 3. FREQUENCY TRACKING MATHEMATICAL FLOOR SHIELDS TESTS
+    # =========================================================================
     it "strictly rejects negative values or zeros inside the frequency tracking counter" do
       broken_counter = WrongAnswer.new(question: puzzle, answer_text: "bad_try", count: 0)
       expect(broken_counter).not_to be_valid
     end
 
+    # =========================================================================
+    # 4. COMPOUND UNIQUE TEXT STRING LOCK GATES TESTS
+    # =========================================================================
     it "strictly blocks duplicate text strings from being registered for the same target question" do
       WrongAnswer.create!(question: puzzle, answer_text: "common_trap", count: 2)
 

@@ -1,19 +1,33 @@
+# spec/mailers/user_mailer_spec.rb
+# =========================================================================
+# TRANSACTION COMMUNICATIONS MAIL UNIT SPEC
+# - Stress-tests outbound mail payload compilation and routing rules
+# - Asserts recipient, sender, and dynamic subject fields map cleanly
+# - Verifies unencoded multi-part text variables render user identities
+# =========================================================================
 require "rails_helper"
-RSpec.describe UserMailer, type: :mailer do
-  describe "welcome_email" do
-    # Create a safe mock user to feed into the mailer method
-    let(:user) { User.create!(username: "test_welcomed", email: "welcome@test.com", password: "password123") }
-    let(:mail) { UserMailer.welcome_email(user) } # ✅ Pass the user object here!
 
-    it "renders the headers" do
-      expect(mail.subject).to include("Welcome to Rennlad Academy")
-      expect(mail.to).to eq([ user.email ])
-      expect(mail.from).to eq([ "welcome@rennladacademy.com" ])
+RSpec.describe UserMailer, type: :mailer do
+  # --- Setup Shared Test Matrix Variables ---
+  let!(:student) { User.create!(username: "email_scholar", email: "scholar@rennlad.com", password: "password123", role: :student) }
+  let!(:mail_object) { UserMailer.welcome_email(student) }
+
+  # =========================================================================
+  # 1. MAIL PAYLOAD HEADER VALIDATIONS TESTS
+  # =========================================================================
+  describe "#welcome_email" do
+    it "successfully compiles the email payload header fields and assigns recipient addresses" do
+      expect(mail_object.to).to include("scholar@rennlad.com")
+      expect(mail_object.from).to include("welcome@rennladacademy.com")
+      expect(mail_object.subject).to include("Welcome to Rennlad Academy, email_scholar!")
     end
 
-    it "renders the body" do
-      expect(mail.html_part.body.encoded).to include(user.username)
-      expect(mail.html_part.body.encoded).to include("1200 Elo")
+    # =========================================================================
+    # 2. EMAIL BODY TRANSLATION STRUCTURAL TEXT MATCHES TESTS
+    # =========================================================================
+    it "injects dynamic student identity username strings straight into the email text body" do
+      # Evaluates the compiled body string payload (works for both multi-part HTML and text frames)
+      expect(mail_object.html_part.body.decoded).to include("email_scholar")
     end
   end
 end

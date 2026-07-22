@@ -1,10 +1,25 @@
-namespace :api do
+# config/routes/api.rb
+# =========================================================================
+# SYSTEM ISOLATED STATELESS API MICRO-ROUTING EXTENSION REGISTER
+# - Houses all versioned, stateless JSON endpoints for external integration
+# - Groups business actions and token generation structures under a unified namespace
+# - Maps OAuth client creation and revocation routes to specialized controllers
+# =========================================================================
+namespace :api, defaults: { format: :json } do
   namespace :v1 do
-    # Register User API Route
+    # --- 1. USER ENROLLMENT & IDENTITY MANAGEMENT ---
     scope :users, module: :users do
       post "/", to: "registrations#create", as: :user_registration
     end
 
+    # --- 2. OAUTH SECURITY GATEWAY CHECKPOINTS ---
+    # Unified directly inside the core versioned namespace to optimize client routes
+    use_doorkeeper do
+      skip_controllers :authorizations, :applications, :authorized_applications
+      controllers tokens: "custom_tokens", token_revocations: "custom_token_revocations"
+    end
+
+    # --- 3. CURRICULUM QUESTIONS POOL ENDPOINTS ---
     resources :questions, only: [ :show ] do
       collection do
         get :random
@@ -15,17 +30,10 @@ namespace :api do
       end
     end
 
+    # --- 4. MULTI-DIMENSIONAL PERFORMANCE TELEMETRY ---
     resource :stats, only: [ :show ]
-    resources :comments, only: [ :create, :update, :destroy ]
-  end
-end
 
-scope :api do
-  scope :v1 do
-    use_doorkeeper do
-      skip_controllers :authorizations, :applications, :authorized_applications
-      # Map creation and revocation to dedicated custom controllers
-      controllers tokens: "custom_tokens", token_revocations: "custom_token_revocations"
-    end
+    # --- 5. POLYMORPHIC DISCUSSION FORUM COMMUNICATIONS ---
+    resources :comments, only: [ :create, :update, :destroy ]
   end
 end

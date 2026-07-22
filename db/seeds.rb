@@ -1,35 +1,35 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# db/seeds.rb
+# =========================================================================
+# AUTHORITATIVE INDEMPOTENT SEED ENGINE REGISTRY
+# - Provisions core operational dependencies safely across all environments
+# - Enforces strict validation schemes to accommodate modern Doorkeeper rules
+# - Automates synchronization for CEFR tiers, achievement medals, and chatrooms
+# =========================================================================
 
-# 1. ✅ PROTECT DOORKEEPER: Uses find_or_create_by! to completely protect your active React token keys
+# --- 1. OAUTH DOORKEEPER GATEWAY ---
 puts "🔑 Checking Production Doorkeeper Token Client..."
 Doorkeeper::Application.find_or_create_by!(name: "React Frontend App Client") do |app|
-  app.redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+  # ✅ FIXED: Shifted placeholder string to a fully qualified web scheme to satisfy strict RFC validation rules
+  app.redirect_uri = "https://localhost/callback"
   app.confidential = false
 end
 
-# 2. ✅ PROTECT ADMIN: Uses find_or_initialize_by to prevent email/username unique crashes
+# --- 2. ADMINISTRATIVE MASTER ACCOUNT ---
 puts "👤 Checking Admin User Accounts..."
 admin = User.find_or_initialize_by(email: "renn@example.com")
 if admin.new_record?
   admin.username = "Rennick"
-  admin.password = "password" # Make sure to change this to a secure string on your live app screen!
+  admin.password = "password" # NOTE: Change this to an environment variable string on production screens!
   admin.password_confirmation = "password"
-  admin.role = User.roles[:admin]
+  # ✅ FIXED: Simplified enum mapping lookup strings
+  admin.role = "admin"
   admin.save!
   puts "👤 Created master admin account: Rennick"
 else
   puts "👤 Admin account already exists. Skipping."
 end
 
-# 3. ✅ PROTECT CEFR LEVELS: Uses find_or_initialize_by so ratings and descriptions are never wiped out
+# --- 3. CEFR LEVELS TIERS ---
 puts "🎯 Checking CEFR Level baseline tiers..."
 levels_data = [
   { name: "B1", initial_rating: 900,  description: "Intermediate language level. Can understand familiar matters." },
@@ -40,18 +40,16 @@ levels_data = [
 
 levels_data.each do |data|
   level = Level.find_or_initialize_by(name: data[:name])
-  if level.new_record?
-    level.initial_rating = data[:initial_rating]
-    level.description = data[:description]
-    level.save!
-    puts "🎯 Created CEFR Tier: #{data[:name]}"
-  else
-    puts "🎯 CEFR Tier #{data[:name]} already exists. Skipping."
-  end
+  # ✅ FIXED: Shifted to an update macro so editing descriptions here pushes down to database fields seamlessly
+  level.update!(
+    initial_rating: data[:initial_rating],
+    description: data[:description]
+  )
 end
+puts "🎯 CEFR Level baseline tiers synchronized successfully."
 
+# --- 4. GAMIFICATION PLATFORM BADGES ---
 puts "🚀 Seeding master platform Achievement Badges..."
-
 badges_data = [
   {
     name: "Grammar Cadet",
@@ -94,7 +92,15 @@ badges_data.each do |badge_attrs|
   badge = Badge.find_or_initialize_by(name: badge_attrs[:name])
   badge.update!(badge_attrs)
 end
-
 puts "✨ Successfully loaded #{Badge.count} authoritative achievement medals into the database registry!"
+
+# --- 5. GLOBAL CHAT CHANNELS ---
+puts "💬 Provisioning baseline communication streams..."
+[ "general-curriculum", "ielts-vocabulary-lounge", "teachers-station" ].each do |channel_name|
+  Room.find_or_create_by!(name: channel_name) do |room|
+    room.is_private = false
+  end
+end
+puts "💬 Baseline communication streams active."
 
 puts "🎉 Safe Seeds Check Execution Complete!"
