@@ -6,7 +6,7 @@
 # =========================================================================
 module Api
   module V1
-    class CustomTokenRevocationsController < Doorkeeper::TokenRevocationsController
+    class CustomTokenRevocationsController < Doorkeeper::TokensController
       include ActionController::Cookies
 
       # Bypasses standard ApplicationController security walls safely
