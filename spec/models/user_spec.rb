@@ -1,9 +1,18 @@
 # spec/models/user_spec.rb
+# =========================================================================
+# SYSTEM USER ACCOUNT MODEL MATRIX SPEC
+# - Stress-tests unique handle validations and case-insensitive collision guards
+# - Verifies dual credentials logic handling usernames and emails interchangeably
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "User Model Identity Matrix", type: :model do
+  # --- Setup Shared Test Matrix Variables ---
   let!(:admin) { User.create!(username: "master_admin", email: "admin@test.com", password: "password123", role: :admin) }
 
+  # =========================================================================
+  # 1. DATA INTEGRITY SHIELD TESTS
+  # =========================================================================
   describe "Data Integrity Guard Shields" do
     it "safely creates user accounts with standard roles and default offline statuses" do
       student = User.create!(username: "new_student", email: "student@test.com", password: "password123", role: :student)
@@ -26,6 +35,9 @@ RSpec.describe "User Model Identity Matrix", type: :model do
     end
   end
 
+  # =========================================================================
+  # 2. DUAL CREDENTIALS INTERCHANGEABLE AUTHENTICATION GATES TEST
+  # =========================================================================
   describe ".authenticate (Dual Credentials Gate)" do
     let!(:auth_user) { User.create!(username: "login_test", email: "logintest@test.com", password: "securepassword", role: :student) }
 

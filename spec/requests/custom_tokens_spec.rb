@@ -1,4 +1,9 @@
 # spec/requests/custom_tokens_spec.rb
+# =========================================================================
+# DOORKEEPER COOKIE-ISOLATION SECURITY MATRIX SPEC
+# - Stress-tests payload masking stripping refresh keys out of raw JSON bodies
+# - Verifies encrypted client-side browser cookies register accurately
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "Doorkeeper Cookie-Isolated Token Security Matrix", type: :request do
@@ -6,6 +11,9 @@ RSpec.describe "Doorkeeper Cookie-Isolated Token Security Matrix", type: :reques
   let!(:oauth_application) { Doorkeeper::Application.create!(name: "Rennlad React Client", redirect_uri: "https://localhost/callback", scopes: "") }
   let!(:student_user) { User.create!(username: "api_scholar", email: "scholar@test.com", password: "password123", role: :student) }
 
+  # =========================================================================
+  # 1. ACCESS TOKEN OAUTH PAYLOAD FILTERING TEST
+  # =========================================================================
   describe "POST /api/v1/oauth/token (Access Token Acquisition Portal)" do
     context "with valid login credentials" do
       it "returns a filtered JSON body containing only the access token and sets an HTTP-Only cookie" do
@@ -19,21 +27,21 @@ RSpec.describe "Doorkeeper Cookie-Isolated Token Security Matrix", type: :reques
 
         expect(response).to have_http_status(:ok)
 
-        # 1. Verify JSON body isolation constraints
         json_response = JSON.parse(response.body)
         expect(json_response).to have_key("access_token")
         expect(json_response).not_to have_key("refresh_token")
         expect(json_response).not_to have_key("expires_in")
 
-        # 2. Verify encrypted HttpOnly cookie injection parameters
         expect(cookies[:_refresh_token]).not_to be_nil
       end
     end
   end
 
+  # =========================================================================
+  # 2. TOKEN REVOCATION & COOKIE CLEANUP MARKS TEST
+  # =========================================================================
   describe "POST /api/v1/oauth/revoke (Logout Portal)" do
     it "reads the token parameters, revokes the token, and purges the cookie node" do
-      # Programmatically create a valid refresh token mapping tuple
       access_token = Doorkeeper::AccessToken.create!(
         application_id: oauth_application.id,
         resource_owner_id: student_user.id,
@@ -49,7 +57,6 @@ RSpec.describe "Doorkeeper Cookie-Isolated Token Security Matrix", type: :reques
 
       expect(response).to have_http_status(:ok)
 
-      # Verify the token record has been revoked inside the database
       access_token.reload
       expect(access_token).to be_revoked
     end

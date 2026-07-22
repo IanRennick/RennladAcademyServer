@@ -1,7 +1,15 @@
 # spec/services/elo_calculator_spec.rb
+# =========================================================================
+# STATELESS ELO CALCULATOR SERVICE MATH LOGIC SPEC
+# - Validates fractional score calculations computing partial credits cleanly
+# - Asserts provisional account volume weight factors shift ratings fluidly
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe EloCalculator, type: :service do
+  # =========================================================================
+  # 1. MATHEMATICAL LOGARITHMIC CURVES CALCULATIONS TEST
+  # =========================================================================
   describe ".calculate" do
     context "when a student earns a perfect win (1.0)" do
       it "gains points while the question decays proportionally" do
@@ -17,16 +25,16 @@ RSpec.describe EloCalculator, type: :service do
         provisional_user, _ = EloCalculator.calculate(1200, 1200, 1.0, 5, 50)
         stable_user, _      = EloCalculator.calculate(1200, 1200, 1.0, 50, 50)
 
-        # High provisional weighting forces a larger point shift on win cycles
         expect(provisional_user).to be > stable_user
       end
     end
 
+    # =========================================================================
+    # 2. FRACTIONAL CREDIT & BOUNDARY LIMIT FLOORS TEST
+    # =========================================================================
     context "when a student earns V2 fractional partial credit (0.5)" do
       it "calculates precise floating-point variance values seamlessly" do
         new_user, _ = EloCalculator.calculate(1200, 1200, 0.5, 50, 50)
-
-        # At an exact equal rating match, expecting a 0.5 outcome results in a 0 delta adjustment shift
         expect(new_user).to eq(1200)
       end
     end

@@ -1,3 +1,10 @@
+# spec/models/badge_spec.rb
+# =========================================================================
+# SYSTEM GAMIFICATION ACHIEVEMENT ENGINE SPEC
+# - Stress-tests automated achievement award routines and user badge linking
+# - Verifies live system notification payloads dispatched upon unlocking milestones
+# - Enforces data integrity shields protecting badge naming uniqueness limits
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "Achievement Badge System Engine", type: :model do
@@ -24,7 +31,7 @@ RSpec.describe "Achievement Badge System Engine", type: :model do
   end
 
   # =========================================================================
-  # MATRIX TEST BLOCK 1: AUTOMATED MILESTONE AWARD LIFECYCLE
+  # 1. AUTOMATED MILESTONE AWARD LIFECYCLE TESTS
   # =========================================================================
   describe "#check_and_award_achievements!" do
     context "when a student is practicing questions" do
@@ -64,7 +71,7 @@ RSpec.describe "Achievement Badge System Engine", type: :model do
   end
 
   # =========================================================================
-  # MATRIX TEST BLOCK 2: DATA INTEGRITY & VALIDATION GUARD SHIELDS
+  # 2. DATA INTEGRITY & VALIDATION GUARD SHIELDS TESTS
   # =========================================================================
   describe "Authoritative Data Validation Shield" do
     it "blocks badges missing mandatory name, type, or threshold keys" do

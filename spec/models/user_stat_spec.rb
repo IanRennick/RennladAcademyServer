@@ -1,31 +1,53 @@
 # spec/models/user_stat_spec.rb
+# =========================================================================
+# MULTI-DIMENSIONAL USER STATISTICS MODEL MATRIX SPEC
+# - Stress-tests numerical bounds, counter initializations, and tier balances
+# - Asserts validation shields block impossible metrics or unsupported axes
+# - Enforces unique index constraints preventing duplicate category mappings
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "Multi-Dimensional User Statistics Matrix", type: :model do
+  # --- Setup Shared Test Matrix Variables ---
   let!(:student) { User.create!(username: "stats_tracker", email: "stats@test.com", password: "password123", role: :student) }
 
+  # =========================================================================
+  # 1. METRICS INITIALIZATION & INGESTION ACCURACY TESTS
+  # =========================================================================
   describe "Data Integrity Guard Shields" do
     it "allows a valid performance metrics statistic row to save cleanly" do
       stat = UserStat.new(user: student, stat_type: "kind", stat_key: 0, times_done: 10, times_correct: 7, rating: 1250)
       expect(stat).to be_valid
     end
 
+    # =========================================================================
+    # 2. SCHEMA DIMENSION AND STRING WHITELIST CHECKS TESTS
+    # =========================================================================
     it "blocks record creations containing invalid stat_type parameter strings" do
       bad_type = UserStat.new(user: student, stat_type: "invalid_axis", stat_key: 1, times_done: 1, times_correct: 1, rating: 1200)
       expect(bad_type).not_to be_valid
     end
 
+    # =========================================================================
+    # 3. SCORE MATHEMATICAL BOUNDARY SHIELDS TESTS
+    # =========================================================================
     it "strictly rejects negative tracking integers inside counter columns" do
       broken_counters = UserStat.new(user: student, stat_type: "kind", stat_key: 0, times_done: -5, times_correct: 0, rating: 1200)
       expect(broken_counters).not_to be_valid
     end
 
+    # =========================================================================
+    # 4. MATH LOGIC CONSISTENCY CHECKS TESTS
+    # =========================================================================
     it "blocks anomalous entries where correct metrics exceed the total attempt counts" do
       impossible_math = UserStat.new(user: student, stat_type: "kind", stat_key: 0, times_done: 5, times_correct: 12, rating: 1200)
       expect(impossible_math).not_to be_valid
       expect(impossible_math.errors[:times_correct]).to include("cannot mathematically represent a value higher than total times_done logs")
     end
 
+    # =========================================================================
+    # 5. COMPOUND UNIQUE LAYER COLLISION GATES TESTS
+    # =========================================================================
     it "strictly blocks duplicate key initializations across the exact same mapping scope" do
       UserStat.create!(user: student, stat_type: "kind", stat_key: 3, times_done: 1, times_correct: 1, rating: 1200)
 

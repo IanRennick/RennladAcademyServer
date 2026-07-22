@@ -1,4 +1,10 @@
 # spec/requests/dashboard_spec.rb
+# =========================================================================
+# SYSTEM ADMINISTRATIVE CONTROL BOARD REGISTRY SPEC
+# - Stress-tests secure backend route interception panels and access filters
+# - Asserts cross-controller activity metrics update real-time database columns
+# - Verifies live student statistics gauges calculate aggregate telemetry counters
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "Dashboard Gatekeeper Shield", type: :request do

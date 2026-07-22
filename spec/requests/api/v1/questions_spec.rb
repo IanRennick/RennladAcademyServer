@@ -1,4 +1,9 @@
 # spec/requests/api/v1/questions_spec.rb
+# =========================================================================
+# STATELESS API V1 QUESTIONS ROUTING MATRIX SPEC
+# - Asserts dynamic search axis parameter filters pluck single targets cleanly
+# - Verifies serializer object conversions mask string enums back to integers
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "Stateless API V1 Curriculum Gateway Matrix", type: :request do
@@ -7,7 +12,6 @@ RSpec.describe "Stateless API V1 Curriculum Gateway Matrix", type: :request do
   # --- Setup Shared Test Matrix Variables ---
   let!(:b2_level) { Level.find_or_create_by!(name: "B2") { |l| l.initial_rating = 1200 } }
   let!(:student_user) { User.create!(username: "api_scholar", email: "api@test.com", password: "password123", role: :student) }
-
   let!(:puzzle) do
     Question.create!(
       kind: :multiple_choice,
@@ -23,6 +27,9 @@ RSpec.describe "Stateless API V1 Curriculum Gateway Matrix", type: :request do
     allow_any_instance_of(Api::V1::QuestionsController).to receive(:current_user).and_return(student_user)
   end
 
+  # =========================================================================
+  # 1. SERIALIZER PAYLOAD SHAPING TEST
+  # =========================================================================
   describe "GET /api/v1/questions/:id" do
     it "successfully parses the record, invokes the serializer, and returns integer enums" do
       get "/api/v1/questions/#{puzzle.id}"
@@ -31,11 +38,14 @@ RSpec.describe "Stateless API V1 Curriculum Gateway Matrix", type: :request do
       json = JSON.parse(response.body)
 
       expect(json["id"]).to eq(puzzle.id)
-      expect(json["kind"]).to eq(0) # multiple_choice resolves back to its integer token mapping
+      expect(json["kind"]).to eq(0)
       expect(json["options"]).to match_array([ "at", "on", "in" ])
     end
   end
 
+  # =========================================================================
+  # 2. DYNAMIC RANDOM TOPIC DRAWS INTERACTION TEST
+  # =========================================================================
   describe "GET /api/v1/questions/random" do
     it "resolves criteria filters accurately and returns a single matching question row" do
       get "/api/v1/questions/random", params: { level: "b2", type: "0" }

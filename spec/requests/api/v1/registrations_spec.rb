@@ -1,10 +1,18 @@
 # spec/requests/api/v1/registrations_spec.rb
+# =========================================================================
+# STATELESS API V1 STUDENT ENROLLMENT GATEWAY SPEC
+# - Validates high-speed account processing allocations under OAuth boundaries
+# - Asserts invalid client ID keys block records from corrupting table inventories
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "Stateless API V1 User Registrations Gateway Matrix", type: :request do
   # --- Setup Shared Test Matrix Variables ---
   let!(:oauth_application) { Doorkeeper::Application.create!(name: "Rennlad Client App", redirect_uri: "https://localhost/callback", scopes: "") }
 
+  # =========================================================================
+  # 1. COMPETE ONBOARDING ENROLLMENT LOG LOOPS TEST
+  # =========================================================================
   describe "POST /api/v1/users" do
     context "with valid signup parameters and application identifiers" do
       it "creates the user account, returns an access token body, and drops an encrypted cookie" do
@@ -19,16 +27,17 @@ RSpec.describe "Stateless API V1 User Registrations Gateway Matrix", type: :requ
 
         expect(response).to have_http_status(:ok)
 
-        # 1. Verify response token body payload
         json = JSON.parse(response.body)
         expect(json).to have_key("access_token")
         expect(json).not_to have_key("refresh_token")
 
-        # 2. Verify encrypted HttpOnly cookie injection parameters
         expect(cookies[:_refresh_token]).not_to be_nil
       end
     end
 
+    # =========================================================================
+    # 2. BAD APPLICATION GRANTS REJECTION SHIELD TEST
+    # =========================================================================
     context "with an invalid or missing client application identifier" do
       it "rejects the processing pipeline early with an unauthorized 401 response status" do
         expect {

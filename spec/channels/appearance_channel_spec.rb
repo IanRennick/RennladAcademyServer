@@ -1,15 +1,20 @@
 # spec/channels/appearance_channel_spec.rb
+# =========================================================================
+# WEBSOCKET APPEARANCE PRESENCE CONNECTIONS SPEC
+# - Stress-tests subscription confirmations linking listeners safely
+# - Asserts client event triggers mutate relational state fields to away
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe AppearanceChannel, type: :channel do
   # --- Setup Shared Test Matrix Variables ---
   let!(:student) { User.create!(username: "presence_tester", email: "tracker@test.com", password: "password123", role: :student) }
 
-  before do
-    # Bind our test user instance to the ApplicationCable connection mocking thread context
-    stub_connection current_user: student
-  end
+  before { stub_connection current_user: student }
 
+  # =========================================================================
+  # 1. SUBSCRIPTION LIFECYCLE HOOKS TEST
+  # =========================================================================
   describe "Subscription Connection Lifecycle Loops" do
     it "successfully registers the stream subscription and marks the user online automatically" do
       subscribe
@@ -23,9 +28,6 @@ RSpec.describe AppearanceChannel, type: :channel do
 
     it "handles client unsubscription loops and purges active presence rows" do
       subscribe
-      expect(student.status).to eq("online")
-
-      # Simulates the client socket connection tearing down or closing
       unsubscribe
 
       student.reload
@@ -33,11 +35,12 @@ RSpec.describe AppearanceChannel, type: :channel do
     end
   end
 
+  # =========================================================================
+  # 2. STATE CLIENT TRANSITION PARSING TEST
+  # =========================================================================
   describe "State Inter-Process Actions" do
     it "successfully parses raw client actions to transition statuses into away states" do
       subscribe
-
-      # Simulates the client browser transmitting an 'away' payload packet down the wire
       perform :away
 
       student.reload

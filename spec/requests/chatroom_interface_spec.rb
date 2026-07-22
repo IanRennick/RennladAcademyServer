@@ -1,10 +1,16 @@
 # spec/requests/chatroom_interface_spec.rb
+# =========================================================================
+# WEBSOCKET CHATROOM INTERFACE SYSTEM SPEC
+# - Stress-tests UI frame generation layouts for core communication rooms
+# - Asserts sidebar panels populate active public user indices and room streams
+# - Verifies structural message card wrappers decouple message state threads
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "WebSocket Chatroom Interface System", type: :request do
   include Devise::Test::IntegrationHelpers
 
-  # Seed our active test cluster users and a study room channel
+  # --- Setup Shared Test Matrix Variables ---
   let!(:student_user) { User.create!(username: "chatty_student", email: "chatty@test.com", password: "password123", role: :student) }
   let!(:peer_user) { User.create!(username: "study_buddy", email: "buddy@test.com", password: "password123", role: :student) }
   let!(:public_room) { Room.create!(name: "ielts-grammar-hub") }
@@ -12,6 +18,9 @@ RSpec.describe "WebSocket Chatroom Interface System", type: :request do
   # Seed a test conversation message stream row inside our target room
   let!(:chat_message) { Message.create!(user: peer_user, room: public_room, body: "Hey everyone! Welcome to the new study channel layout.") }
 
+  # =========================================================================
+  # 1. APPLICATION SIDEBAR CHAT SUITE NAVIGATION FRAMEWORK TEST
+  # =========================================================================
   describe "GET /rooms (Master Communication Suite Framework)" do
     context "when an authenticated student opens the chat hub" do
       before { sign_in student_user }
@@ -38,6 +47,9 @@ RSpec.describe "WebSocket Chatroom Interface System", type: :request do
     end
   end
 
+  # =========================================================================
+  # 2. CHAT STREAM VIEW ELEMENT SELECTION MOUNTS TEST
+  # =========================================================================
   describe "GET /rooms/:id (Active Chat Thread Window State)" do
     context "when a student selects a specific study channel path link" do
       before { sign_in student_user }

@@ -1,11 +1,21 @@
 # spec/models/room_spec.rb
+# =========================================================================
+# REAL-TIME COMMUNICATIONS SUITE ROOM MODEL SPEC
+# - Stress-tests atomic private channel factory methods and multi-user mappings
+# - Verifies participant query guards accurately flag user clearance scopes
+# - Enforces strict unique case-insensitive constraints across channel entries
+# =========================================================================
 require "rails_helper"
 
 RSpec.describe "Real-Time Room Channel Engine", type: :model do
+  # --- Setup Shared Test Matrix Variables ---
   let!(:user_a) { User.create!(username: "chat_partner_a", email: "partner_a@chat.com", password: "password123", role: :student) }
   let!(:user_b) { User.create!(username: "chat_partner_b", email: "partner_b@chat.com", password: "password123", role: :student) }
   let!(:outsider) { User.create!(username: "room_lurker", email: "lurker@chat.com", password: "password123", role: :student) }
 
+  # =========================================================================
+  # 1. PRIVATE FACTORY SYSTEM MAPPINGS TESTS
+  # =========================================================================
   describe "Private Factory & Participant Helpers" do
     it "creates a private room and instantiates participant join table rows for all passed users" do
       private_room = Room.create_private_room([ user_a, user_b ], "chat_partner_a-chat_partner_b")
@@ -17,6 +27,9 @@ RSpec.describe "Real-Time Room Channel Engine", type: :model do
     end
   end
 
+  # =========================================================================
+  # 2. DATA INTEGRITY & UNIQUE FIELD CONSTRAINT SHIELDS TESTS
+  # =========================================================================
   describe "Data Integrity Guard Shields" do
     it "blocks room creations that are missing explicit channel name tags" do
       bad_room = Room.new(name: nil)
