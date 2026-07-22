@@ -1,6 +1,11 @@
+# config/application.rb
+# =========================================================================
+# AUTHORITATIVE PLATFORM SYSTEM CONFIGURATION APPLICATION HUB
+# - Configures base frame dependencies, global middleware stacks, and engines
+# - Sets up automated server-reset fallback callbacks to flush statuses
+# - Enforces clean automated loading perimeters to protect production paths
+# =========================================================================
 require_relative "boot"
-require_relative "../lib/request_store_middleware"
-
 require "rails/all"
 
 # Require the gems listed in Gemfile, including any gems
@@ -25,27 +30,16 @@ module Server
       Rails.logger.warn "Skipped offline user sync during early boot initialization task: #{e.message}"
     end
 
-    # Execute this early in the stack to track the context safely
+    # Force load the custom context middleware using an absolute Rails root hook
+    # to prevent early-boot require relative namespace pointer collisions!
+    require Rails.root.join("lib", "request_store_middleware")
     config.middleware.use RequestStoreMiddleware
 
-    # Remove or comment out this entire block:
-    # config.after_initialize do |_config|
-    #   if ActiveRecord::Base.connection.table_exists?(:users)
-    #     User.update_all(status: User.statuses[:offline])
-    #   end
-    # end
-
-    # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
-    # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks])
+    # Explicitly ignore your manually required middleware file inside the library
+    # exclusion tracker array to successfully bypass FrozenArray crashes during CI runs!
+    config.autoload_lib(ignore: %w[assets tasks request_store_middleware])
 
     # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    # Settings can be overridden in specific environments using the files in config/environments.
   end
 end
