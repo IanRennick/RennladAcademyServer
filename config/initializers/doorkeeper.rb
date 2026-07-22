@@ -556,27 +556,30 @@ Doorkeeper.configure do
 end
 
 
+# =========================================================================
+# ADVANCED OAUTH REFRESH TOKEN COOKIE-INTERCEPTION EXTENSION
+# - Extends RefreshTokenRequest initialization to support stateless cookie loops
+# - Dynamically extracts HTTP-Only cookie payloads when request body parameters are missing
+# - Safely injects values to pass standard Doorkeeper RFC schema validations
+# =========================================================================
 Rails.application.config.to_prepare do
   Doorkeeper::OAuth::RefreshTokenRequest.class_eval do
     alias_method :original_initialize, :initialize
 
     def initialize(server, refresh_token, credentials, parameters = {})
-      # If the refresh_token is missing from the HTTP request body params...
-      if parameters[:refresh_token].blank? && Current.request.present?
-        # Extract the true decrypted token string value out of the cookie jar
+      # Intercept request only if parameters are missing from the request body string parameters
+      if parameters[:refresh_token].blank? && defined?(Current) && Current.request.present?
+        # Decrypt client browser identity cookie frames seamlessly
         cookie_token = Current.request.cookie_jar.encrypted[:_refresh_token]
 
         if cookie_token.present?
-          # 1. Safely inject it into the parameters hash for Doorkeeper's parser
+          # Safely inject it into the parameters hash and let Doorkeeper
+          # natively handle the database object allocation lookup internally
           parameters[:refresh_token] = cookie_token
-
-          # 2. Query the database using Doorkeeper's token model to fetch the true instance
-          # This replaces our raw string with the exact object Doorkeeper expects.
-          refresh_token = Doorkeeper::AccessToken.by_refresh_token(cookie_token)
         end
       end
 
-      # Forward the parameters safely into the original initializer loop
+      # Forward parameters safely forward into the core framework initializer loop
       original_initialize(server, refresh_token, credentials, parameters)
     end
   end

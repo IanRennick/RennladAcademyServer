@@ -1,37 +1,40 @@
+# config/routes.rb
+# =========================================================================
+# SYSTEM authoritative GLOBAL ROUTING REGISTRY
+# - Handles standard web views, administrative dashboards, and membership paths
+# - Integrates Devise authentication filters and handles custom profile sub-paths
+# - Delegates versioned API micro-routing splits cleanly to the draw engine
+# =========================================================================
 Rails.application.routes.draw do
-  # View only rails pages
+  # --- Standard Web Application Views Pages ---
   root "pages#home"
   get "info", to: "pages#info"
-  get "/u/:id", to: "users#profile", as: "user"
-  get "/u/:id/chat", to: "users#chat", as: "user_chat"
-  get "search", to: "search#index"
-  get "multiple_choices", to: "questions#multiple_choices"
-  get "open_clozes", to: "questions#open_clozes"
-  get "word_formations", to: "questions#word_formations"
-  get "sentence_clozes", to: "questions#sentence_clozes"
 
+  # Clean, short student profile and interactive chat workspace paths
+  get "/u/:id",      to: "users#profile", as: "user"
+  get "/u/:id/chat", to: "users#chat",    as: "user_chat"
+
+  get "search", to: "search#index"
+
+
+  # --- Administrative Control Panel Board ---
   get "/admin/dashboard", to: "dashboard#index", as: :admin_dashboard
 
-  # Admin Pages
-  get "admin", to: "admin#index"
-  get "admin/users"
-  get "admin/writings"
-  get "admin/show_writing/:id", to: "admin#show_writing", as: "admin_writing"
-
-  # Rails Poutes
+  # --- Polymorphic Discussion Forum Resources ---
   resources :writings do
-    resources :comments
+    resources :comments, only: [ :create, :update, :destroy ]
   end
 
   resources :questions, only: [ :index, :show ] do
-    resources :comments
+    resources :comments, only: [ :create, :update, :destroy ]
   end
 
-
+  # --- Real-Time Communications Rooms Suite ---
   resources :rooms do
-    resources :messages
+    resources :messages, only: [ :create ]
   end
 
+  # --- Navbar Async Alerts System ---
   resources :notifications, only: [] do
     collection do
       post :mark_all_as_read
@@ -41,23 +44,18 @@ Rails.application.routes.draw do
     end
   end
 
-  # Devise user pages
+  # --- Devise Authentication Views Sessions Controllers ---
   devise_for :users, controllers: {
     sessions: "users/sessions",
     registrations: "users/registrations"
   }
 
-  # Draw API routes
+  # --- Modular Micro-Routing Extension Splits ---
+  # Automatically draws the isolated stateless API endpoints from config/routes/api.rb
+  # ✅ NOTE: Your custom use_doorkeeper cookie configuration block lives securely inside that file!
   draw :api
 
-  # Set up Doorkeeper for API auth
-  use_doorkeeper
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  # --- Platform System Health & Telemetry ---
+  # Exposes an active checkpoint for load-balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 end
