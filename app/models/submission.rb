@@ -11,6 +11,9 @@ class Submission < ApplicationRecord
   belongs_to :submitter, class_name: "User", foreign_key: :submitter_id
   belongs_to :corrector, class_name: "User", foreign_key: :corrector_id, optional: true
 
+  # Register submissions into polymorphic discussion forum
+  has_many :comments, as: :commentable, dependent: :destroy
+
   # --- ActionText Rich Typography Wrappers ---
   # Allows teachers to color-code slip-ups and highlight text on the web pane
   has_rich_text :teacher_feedback

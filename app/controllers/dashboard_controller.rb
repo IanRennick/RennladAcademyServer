@@ -40,4 +40,52 @@ class DashboardController < ApplicationController
 
     redirect_to admin_reports_path
   end
+
+  # GET /admin/dashboard/submissions
+  def submissions
+    @pending_submissions = Submission.includes(:submitter, :prompt).where(status: :submitted).order(created_at: :asc)
+    @corrected_submissions = Submission.includes(:submitter, :prompt, :corrector).where(status: :corrected).order(updated_at: :desc)
+  end
+
+  # GET /admin/dashboard/submissions/:id
+  def show_submission
+    @submission = Submission.find(params[:id])
+  end
+
+  # PATCH /admin/dashboard/submissions/:id
+  def grade_submission
+    @submission = Submission.find(params[:id])
+
+    # Process structured scoring maps passing through your form fields
+    assigned_scores = params[:scores].permit!.to_h # grammar, vocabulary, coherence, task_achievement, pronunciation, etc.
+
+    # Calculate a simple average float score out of the category hashes passed
+    valid_scores = assigned_scores.values.map(&:to_f).select { |v| v > 0 }
+    calculated_average = (valid_scores.sum / valid_scores.size).round(2) rescue 0.0
+
+    if @submission.update(
+      scores: assigned_scores,
+      final_result: calculated_average,
+      teacher_feedback: params[:teacher_feedback],
+      corrector: current_user,
+      status: :corrected
+    )
+      # Trigger an automated alert straight to the student's notification center
+      Notification.create!(
+        recipient: @submission.submitter,
+        actor: current_user,
+        event_type: "system_alert",
+        params: {
+          "message" => "corrected your #{@submission.prompt.prompt_type} task: '#{@submission.prompt.title}'",
+          "url" => "/submissions/#{@submission.id}"
+        }
+      )
+
+      flash[:notice] = "Submission graded successfully. Student notified."
+      redirect_to admin_submissions_path
+    else
+      flash[:alert] = "Grading update failed: #{@submission.errors.full_messages.join(', ')}"
+      render :show_submission
+    end
+  end
 end

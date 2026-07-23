@@ -1,0 +1,50 @@
+<!-- app/views/dashboard/submissions.html.erb -->
+<div class="container-fluid min-vh-100 bg-dark text-light py-5 font-sans">
+  <div class="row max-w-7xl mx-auto">
+    
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center border-bottom border-secondary pb-3">
+      <div>
+        <h1 class="h2 text-warning fw-bold mb-1">Evaluations Queue Desk</h1>
+        <p class="text-muted small mb-0">Grade open student essays and review digital audio submissions.</p>
+      </div>
+      <%= link_to "Monitoring Hub", admin_dashboard_path, class: "btn btn-outline-secondary btn-sm text-light" %>
+    </div>
+
+    <!-- Active Open Requests -->
+    <div class="col-12 mb-5">
+      <h3 class="h5 text-white fw-bold mb-3">⚠️ Pending Student Submissions</h3>
+      <% if @pending_submissions.empty? %>
+        <p class="text-muted small bg-black p-4 rounded border border-secondary">Inbox completely cleared. No pending submissions.</p>
+      <% else %>
+        <div class="table-responsive bg-black rounded border border-secondary">
+          <table class="table table-dark table-striped mb-0 align-middle">
+            <thead>
+              <tr class="table-secondary text-dark small text-uppercase fw-bold">
+                <th class="py-3 px-4">ID</th>
+                <th>Student</th>
+                <th>Task Title</th>
+                <th>CEFR Pool</th>
+                <th>Date Received</th>
+                <th class="text-center px-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @pending_submissions.each do |sub| %>
+                <tr>
+                  <td class="px-4 fw-bold text-muted">#<%= sub.id %></td>
+                  <td class="text-warning fw-bold"><%= sub.submitter.username %></td>
+                  <td><%= sub.prompt.title %> (<span class="text-info text-capitalize"><%= sub.prompt.prompt_type %></span>)</td>
+                  <td><span class="badge bg-dark border border-secondary"><%= sub.prompt.level.name %></span></td>
+                  <td class="text-muted small"><%= sub.created_at.strftime("%b %d, %Y - %H:%M") %></td>
+                  <td class="text-center px-4">
+                    <%= link_to "Evaluate Work", admin_submission_path(sub), class: "btn btn-sm btn-warning fw-bold text-dark" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

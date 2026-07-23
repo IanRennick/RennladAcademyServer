@@ -45,5 +45,9 @@ namespace :api, defaults: { format: :json } do
 
     # --- 7. CROWDSOURCED BUG & TYPO REPORTING GATEWAY (NEW) ---
     resources :reports, only: [ :create ]
+
+    # --- 8. EXAMS POOLS & SUBMISSIONS GATEWAYS (NEW V3) ---
+    resources :prompts, only: [ :index, :show ]
+    resources :submissions, only: [ :index, :show, :create, :update ]
   end
 end

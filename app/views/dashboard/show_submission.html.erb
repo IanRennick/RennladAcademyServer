@@ -1,0 +1,73 @@
+<!-- app/views/dashboard/show_submission.html.erb -->
+<div class="container-fluid min-vh-100 bg-dark text-light py-5 font-sans">
+  <div class="row max-w-5xl mx-auto">
+    
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center border-bottom border-secondary pb-3">
+      <div>
+        <h2 class="text-warning fw-bold mb-1">Grading Suite Workspace</h2>
+        <p class="text-muted small mb-0">Review student submission inputs and evaluate parameters using your score sliders.</p>
+      </div>
+      <%= link_to "Return to Queue", admin_submissions_path, class: "btn btn-outline-secondary btn-sm text-light" %>
+    </div>
+
+    <!-- Student Submission Display Box -->
+    <div class="col-md-7 mb-4">
+      <div class="card bg-black border-secondary p-4 h-100">
+        <h4 class="h6 text-uppercase tracking-wider text-muted fw-bold mb-3">Student Answer Payload</h4>
+        
+        <% if @submission.prompt.writing? %>
+          <div class="p-3 bg-dark rounded border border-secondary font-monospace text-light leading-relaxed whitespace-pre-wrap" style="min-vh: 300px;"><%= @submission.student_payload %></div>
+        <% else %>
+          <div class="p-4 bg-dark rounded border border-secondary text-center">
+            <span class="d-block mb-3 text-info">🎙️ Audio Clip Attached</span>
+            <code class="text-muted small d-block mb-3"><%= @submission.student_payload %></code>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Analytical Grading Evaluation Panel Form -->
+    <div class="col-md-5 mb-4">
+      <div class="card bg-black border-secondary p-4">
+        <h4 class="h6 text-uppercase tracking-wider text-warning fw-bold mb-4">Criteria Evaluation Scores Matrix</h4>
+        
+        <%= form_with url: grade_admin_submission_path(@submission), method: :patch, local: true do |f| %>
+          
+          <%# Base Metrics Shared Across Both Categories %>
+          <% %w[grammar vocabulary coherence].each do |criterion| %>
+            <div class="mb-3">
+              <label class="form-label text-capitalize small text-white-50"><%= criterion %></label>
+              <%= select_tag "scores[#{criterion}]", options_for_select(1..5, 4), class: "form-select bg-dark text-light border-secondary" %>
+            </div>
+          <% end %>
+
+          <%# Writing Specific Flag %>
+          <% if @submission.prompt.writing? %>
+            <div class="mb-3">
+              <label class="form-label small text-white-50">Task Achievement</label>
+              <%= select_tag "scores[task_achievement]", options_for_select(1..5, 4), class: "form-select bg-dark text-light border-secondary" %>
+            </div>
+          <% end %>
+
+          <%# Speaking Specific Flags %>
+          <% if @submission.prompt.speaking? %>
+            <% %w[pronunciation interactive_style].each do |criterion| %>
+              <div class="mb-3">
+                <label class="form-label text-capitalize small text-white-50"><%= criterion.humanize %></label>
+                <%= select_tag "scores[#{criterion}]", options_for_select(1..5, 4), class: "form-select bg-dark text-light border-secondary" %>
+              </div>
+            <% end %>
+          <% end %>
+
+          <!-- ActionText Rich Feedback Content Box -->
+          <div class="mb-4 mt-4">
+            <label class="form-label small text-warning fw-bold mb-2">Teacher Corrections & Feedback Notes</label>
+            <%= rich_text_area_tag :teacher_feedback, @submission.teacher_feedback, class: "bg-light text-dark rounded" %>
+          </div>
+
+          <%= f.submit "Commit Scores & Dispatch Correction", class: "btn btn-warning w-100 fw-bold text-dark shadow mt-2" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
