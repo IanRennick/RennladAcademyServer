@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_23_161140) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,12 +63,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   end
 
   create_table "comments", force: :cascade do |t|
-    t.integer "commentable_id", null: false
+    t.bigint "commentable_id", null: false
     t.string "commentable_type", null: false
     t.datetime "created_at", null: false
     t.integer "parent_id"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
@@ -97,9 +97,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   create_table "messages", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
-    t.integer "room_id", null: false
+    t.bigint "room_id", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["room_id"], name: "index_messages_on_room_id"
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
@@ -118,12 +118,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   end
 
   create_table "oauth_access_tokens", force: :cascade do |t|
-    t.integer "application_id", null: false
+    t.bigint "application_id", null: false
     t.datetime "created_at", null: false
     t.integer "expires_in"
     t.string "previous_refresh_token", default: "", null: false
     t.string "refresh_token"
-    t.integer "resource_owner_id"
+    t.bigint "resource_owner_id"
     t.datetime "revoked_at"
     t.string "scopes"
     t.string "token", null: false
@@ -147,17 +147,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
 
   create_table "participants", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "room_id", null: false
+    t.bigint "room_id", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["room_id"], name: "index_participants_on_room_id"
     t.index ["user_id"], name: "index_participants_on_user_id"
   end
 
+  create_table "prompts", force: :cascade do |t|
+    t.integer "attempts_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.bigint "level_id", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.string "prompt_type", null: false
+    t.string "title", null: false
+    t.string "topic", null: false
+    t.datetime "updated_at", null: false
+    t.index ["level_id"], name: "index_prompts_on_level_id"
+    t.index ["prompt_type", "level_id"], name: "index_prompts_on_prompt_type_and_level_id"
+  end
+
   create_table "question_tags", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "question_id", null: false
-    t.integer "tag_id", null: false
+    t.bigint "question_id", null: false
+    t.bigint "tag_id", null: false
     t.datetime "updated_at", null: false
     t.index ["question_id"], name: "index_question_tags_on_question_id"
     t.index ["tag_id"], name: "index_question_tags_on_tag_id"
@@ -169,7 +182,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.datetime "created_at", null: false
     t.string "keyword"
     t.integer "kind"
-    t.integer "level_id", null: false
+    t.bigint "level_id", null: false
     t.string "main"
     t.json "options", default: []
     t.string "prompt"
@@ -211,6 +224,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.index ["created_at"], name: "index_solid_cable_messages_on_created_at"
   end
 
+  create_table "submissions", force: :cascade do |t|
+    t.bigint "corrector_id"
+    t.datetime "created_at", null: false
+    t.float "final_result"
+    t.bigint "prompt_id", null: false
+    t.jsonb "scores", default: {}, null: false
+    t.string "status", default: "draft", null: false
+    t.text "student_payload"
+    t.bigint "submitter_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["corrector_id"], name: "index_submissions_on_corrector_id"
+    t.index ["prompt_id"], name: "index_submissions_on_prompt_id"
+    t.index ["submitter_id", "status"], name: "index_submissions_on_submitter_id_and_status"
+    t.index ["submitter_id"], name: "index_submissions_on_submitter_id"
+  end
+
   create_table "tags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -233,9 +262,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.boolean "first_attempt_correct", null: false
     t.boolean "needs_review", default: false, null: false
     t.string "original_wrong_answer"
-    t.integer "question_id", null: false
+    t.bigint "question_id", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["question_id"], name: "index_user_histories_on_question_id"
     t.index ["user_id", "question_id"], name: "index_user_histories_on_user_id_and_question_id", unique: true
     t.index ["user_id"], name: "index_user_histories_on_user_id"
@@ -249,7 +278,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.integer "times_correct", default: 0, null: false
     t.integer "times_done", default: 0, null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id", "stat_type", "stat_key"], name: "index_user_stats_on_user_id_and_stat_type_and_stat_key", unique: true
     t.index ["user_id"], name: "index_user_stats_on_user_id"
   end
@@ -258,7 +287,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.datetime "created_at", null: false
     t.json "stats_json", default: {}, null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_user_tag_stats_on_user_id"
   end
 
@@ -281,19 +310,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
-  create_table "writings", force: :cascade do |t|
-    t.integer "comments_count"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["user_id"], name: "index_writings_on_user_id"
-  end
-
   create_table "wrong_answers", force: :cascade do |t|
     t.string "answer_text"
     t.integer "count", default: 0, null: false
     t.datetime "created_at", null: false
-    t.integer "question_id", null: false
+    t.bigint "question_id", null: false
     t.datetime "updated_at", null: false
     t.index ["question_id"], name: "index_wrong_answers_on_question_id"
   end
@@ -309,17 +330,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
   add_foreign_key "participants", "rooms"
   add_foreign_key "participants", "users"
+  add_foreign_key "prompts", "levels"
   add_foreign_key "question_tags", "questions"
   add_foreign_key "question_tags", "tags"
   add_foreign_key "questions", "levels"
   add_foreign_key "reports", "questions"
   add_foreign_key "reports", "users"
+  add_foreign_key "submissions", "prompts"
+  add_foreign_key "submissions", "users", column: "corrector_id"
+  add_foreign_key "submissions", "users", column: "submitter_id"
   add_foreign_key "user_badges", "badges"
   add_foreign_key "user_badges", "users"
   add_foreign_key "user_histories", "questions"
   add_foreign_key "user_histories", "users"
   add_foreign_key "user_stats", "users"
   add_foreign_key "user_tag_stats", "users"
-  add_foreign_key "writings", "users"
   add_foreign_key "wrong_answers", "questions"
 end
