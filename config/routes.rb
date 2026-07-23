@@ -23,10 +23,6 @@ Rails.application.routes.draw do
   patch "/admin/dashboard/reports/:id", to: "dashboard#resolve_report", as: :resolve_admin_report
 
   # --- Polymorphic Discussion Forum Resources ---
-  resources :writings do
-    resources :comments, only: [ :create, :update, :destroy ]
-  end
-
   resources :questions, only: [ :index, :show ] do
     resources :comments, only: [ :create, :update, :destroy ]
   end

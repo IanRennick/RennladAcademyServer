@@ -21,7 +21,6 @@ class User < ApplicationRecord
   has_one_attached :avatar
 
   # --- Associations ---
-  has_many :writings, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :messages, dependent: :destroy
   has_many :user_histories, dependent: :destroy

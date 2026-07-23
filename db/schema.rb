@@ -63,12 +63,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   end
 
   create_table "comments", force: :cascade do |t|
-    t.integer "commentable_id", null: false
+    t.bigint "commentable_id", null: false
     t.string "commentable_type", null: false
     t.datetime "created_at", null: false
     t.integer "parent_id"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
@@ -97,9 +97,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   create_table "messages", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
-    t.integer "room_id", null: false
+    t.bigint "room_id", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["room_id"], name: "index_messages_on_room_id"
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
@@ -118,12 +118,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   end
 
   create_table "oauth_access_tokens", force: :cascade do |t|
-    t.integer "application_id", null: false
+    t.bigint "application_id", null: false
     t.datetime "created_at", null: false
     t.integer "expires_in"
     t.string "previous_refresh_token", default: "", null: false
     t.string "refresh_token"
-    t.integer "resource_owner_id"
+    t.bigint "resource_owner_id"
     t.datetime "revoked_at"
     t.string "scopes"
     t.string "token", null: false
@@ -147,17 +147,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
 
   create_table "participants", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "room_id", null: false
+    t.bigint "room_id", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["room_id"], name: "index_participants_on_room_id"
     t.index ["user_id"], name: "index_participants_on_user_id"
   end
 
   create_table "question_tags", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "question_id", null: false
-    t.integer "tag_id", null: false
+    t.bigint "question_id", null: false
+    t.bigint "tag_id", null: false
     t.datetime "updated_at", null: false
     t.index ["question_id"], name: "index_question_tags_on_question_id"
     t.index ["tag_id"], name: "index_question_tags_on_tag_id"
@@ -169,7 +169,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.datetime "created_at", null: false
     t.string "keyword"
     t.integer "kind"
-    t.integer "level_id", null: false
+    t.bigint "level_id", null: false
     t.string "main"
     t.json "options", default: []
     t.string "prompt"
@@ -233,9 +233,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.boolean "first_attempt_correct", null: false
     t.boolean "needs_review", default: false, null: false
     t.string "original_wrong_answer"
-    t.integer "question_id", null: false
+    t.bigint "question_id", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["question_id"], name: "index_user_histories_on_question_id"
     t.index ["user_id", "question_id"], name: "index_user_histories_on_user_id_and_question_id", unique: true
     t.index ["user_id"], name: "index_user_histories_on_user_id"
@@ -249,7 +249,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.integer "times_correct", default: 0, null: false
     t.integer "times_done", default: 0, null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id", "stat_type", "stat_key"], name: "index_user_stats_on_user_id_and_stat_type_and_stat_key", unique: true
     t.index ["user_id"], name: "index_user_stats_on_user_id"
   end
@@ -258,7 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.datetime "created_at", null: false
     t.json "stats_json", default: {}, null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_user_tag_stats_on_user_id"
   end
 
@@ -285,7 +285,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.integer "comments_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_writings_on_user_id"
   end
 
@@ -293,7 +293,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.string "answer_text"
     t.integer "count", default: 0, null: false
     t.datetime "created_at", null: false
-    t.integer "question_id", null: false
+    t.bigint "question_id", null: false
     t.datetime "updated_at", null: false
     t.index ["question_id"], name: "index_wrong_answers_on_question_id"
   end
