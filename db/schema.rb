@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_23_151540) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -152,6 +152,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
     t.bigint "user_id", null: false
     t.index ["room_id"], name: "index_participants_on_room_id"
     t.index ["user_id"], name: "index_participants_on_user_id"
+  end
+
+  create_table "prompts", force: :cascade do |t|
+    t.integer "attempts_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.bigint "level_id", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.string "prompt_type", null: false
+    t.string "title", null: false
+    t.string "topic", null: false
+    t.datetime "updated_at", null: false
+    t.index ["level_id"], name: "index_prompts_on_level_id"
+    t.index ["prompt_type", "level_id"], name: "index_prompts_on_prompt_type_and_level_id"
   end
 
   create_table "question_tags", force: :cascade do |t|
@@ -309,6 +322,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_214145) do
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
   add_foreign_key "participants", "rooms"
   add_foreign_key "participants", "users"
+  add_foreign_key "prompts", "levels"
   add_foreign_key "question_tags", "questions"
   add_foreign_key "question_tags", "tags"
   add_foreign_key "questions", "levels"
