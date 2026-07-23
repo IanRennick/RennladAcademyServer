@@ -18,9 +18,15 @@ Rails.application.routes.draw do
 
 
   # --- Administrative Control Panel Board ---
-  get "/admin/dashboard", to: "dashboard#index", as: :admin_dashboard
-  get   "/admin/dashboard/reports",     to: "dashboard#reports",        as: :admin_reports
-  patch "/admin/dashboard/reports/:id", to: "dashboard#resolve_report", as: :resolve_admin_report
+  get   "/admin/dashboard",                  to: "dashboard#index",          as: :admin_dashboard
+  get   "/admin/dashboard/reports",          to: "dashboard#reports",        as: :admin_reports
+  patch "/admin/dashboard/reports/:id",      to: "dashboard#resolve_report", as: :resolve_admin_report
+
+  # Grading Dashboard workspaces and administrative prompt tools
+  get   "/admin/dashboard/submissions",      to: "dashboard#submissions",    as: :admin_submissions
+  get   "/admin/dashboard/submissions/:id",  to: "dashboard#show_submission",as: :admin_submission
+  patch "/admin/dashboard/submissions/:id",  to: "dashboard#grade_submission",as: :grade_admin_submission
+  resources :prompts, only: [:new, :create, :destroy], path: "admin/dashboard/prompts"
 
   # --- Polymorphic Discussion Forum Resources ---
   resources :questions, only: [ :index, :show ] do

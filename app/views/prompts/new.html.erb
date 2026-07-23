@@ -1,0 +1,61 @@
+<!-- app/views/prompts/new.html.erb -->
+<div class="container min-vh-100 bg-dark text-light py-5 font-sans">
+  <div class="row max-w-2xl mx-auto">
+    <div class="col-12 card bg-black border-secondary p-4 shadow-lg">
+      
+      <div class="border-bottom border-secondary pb-3 mb-4 d-flex justify-content-between align-items-center">
+        <h2 class="text-success fw-bold h4 mb-0">＋ Provision New Task Prompt</h2>
+        <%= link_to "Cancel", admin_dashboard_path, class: "text-muted small text-decoration-none" %>
+      </div>
+
+      <%= form_with model: @prompt, url: prompts_path, local: true, multipart: true do |f| %>
+        
+        <div class="mb-3">
+          <%= f.label :level_id, "CEFR Pool Tier Target", class: "form-label small text-white-50" %>
+          <%= f.collection_select :level_id, Level.all, :id, :name, {}, class: "form-select bg-dark text-light border-secondary" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :prompt_type, "Task Genre Category", class: "form-label small text-white-50" %>
+          <%= f.select :prompt_type, [["Writing Task", "writing"], ["Speaking Task", "speaking"]], {}, class: "form-select bg-dark text-light border-secondary" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :title, "Task Assignment Title", class: "form-label small text-white-50" %>
+          <%= f.text_field :title, class: "form-control bg-dark text-light border-secondary", placeholder: "e.g., The Future of Transport" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :topic, "Core Theme Axis (Single Word)", class: "form-label small text-white-50" %>
+          <%= f.text_field :topic, class: "form-control bg-dark text-light border-secondary", placeholder: "e.g., transport, education, science" %>
+        </div>
+
+        <div class="p-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 rounded mb-4">
+          <h5 class="small text-warning fw-bold mb-3">Variable Meta Parameters Fields</h5>
+          
+          <div class="mb-2">
+            <label class="form-label small text-muted mb-1">Situation Prompt Text (Writing)</label>
+            <%= text_area_tag :situation, nil, rows: 3, class: "form-control bg-dark text-light border-secondary" %>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small text-muted mb-1">Target Word Count Bounds (Writing)</label>
+            <%= text_field_tag :word_count, "140-190", class: "form-control bg-dark text-light border-secondary" %>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small text-muted mb-1">Core Follow-Up Question (Speaking)</label>
+            <%= text_field_tag :question, nil, class: "form-control bg-dark text-light border-secondary" %>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <%= f.label :photo, "Attach Photo Asset Link (Speaking Tasks Only)", class: "form-label small text-white-50 d-block mb-2" %>
+          <%= f.file_field :photo, class: "form-control bg-dark border-secondary text-muted text-sm" %>
+        </div>
+
+        <%= f.submit "Commit New Prompt to Active Inventory Pool", class: "btn btn-success w-100 fw-bold shadow mt-2" %>
+      <% end %>
+    </div>
+  </div>
+</div>
