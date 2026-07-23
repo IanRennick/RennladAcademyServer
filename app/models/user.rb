@@ -32,6 +32,10 @@ class User < ApplicationRecord
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
   has_many :reports, dependent: :destroy
 
+  # Hook up submission logs split cleanly by role profiles
+  has_many :student_submissions, class_name: "Submission", foreign_key: :submitter_id, dependent: :destroy
+  has_many :corrections, class_name: "Submission", foreign_key: :corrector_id, dependent: :nullify
+
   # --- Lifecycle Callback Hooks ---
   after_create :build_initial_tag_stat
   after_create_commit { broadcast_append_to "users" }

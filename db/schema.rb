@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_23_151540) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_23_161140) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -224,6 +224,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_151540) do
     t.index ["created_at"], name: "index_solid_cable_messages_on_created_at"
   end
 
+  create_table "submissions", force: :cascade do |t|
+    t.bigint "corrector_id"
+    t.datetime "created_at", null: false
+    t.float "final_result"
+    t.bigint "prompt_id", null: false
+    t.jsonb "scores", default: {}, null: false
+    t.string "status", default: "draft", null: false
+    t.text "student_payload"
+    t.bigint "submitter_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["corrector_id"], name: "index_submissions_on_corrector_id"
+    t.index ["prompt_id"], name: "index_submissions_on_prompt_id"
+    t.index ["submitter_id", "status"], name: "index_submissions_on_submitter_id_and_status"
+    t.index ["submitter_id"], name: "index_submissions_on_submitter_id"
+  end
+
   create_table "tags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -294,14 +310,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_151540) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
-  create_table "writings", force: :cascade do |t|
-    t.integer "comments_count"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["user_id"], name: "index_writings_on_user_id"
-  end
-
   create_table "wrong_answers", force: :cascade do |t|
     t.string "answer_text"
     t.integer "count", default: 0, null: false
@@ -328,12 +336,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_151540) do
   add_foreign_key "questions", "levels"
   add_foreign_key "reports", "questions"
   add_foreign_key "reports", "users"
+  add_foreign_key "submissions", "prompts"
+  add_foreign_key "submissions", "users", column: "corrector_id"
+  add_foreign_key "submissions", "users", column: "submitter_id"
   add_foreign_key "user_badges", "badges"
   add_foreign_key "user_badges", "users"
   add_foreign_key "user_histories", "questions"
   add_foreign_key "user_histories", "users"
   add_foreign_key "user_stats", "users"
   add_foreign_key "user_tag_stats", "users"
-  add_foreign_key "writings", "users"
   add_foreign_key "wrong_answers", "questions"
 end
