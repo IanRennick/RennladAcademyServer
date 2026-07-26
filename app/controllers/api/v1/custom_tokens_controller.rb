@@ -17,6 +17,16 @@ module Api
 
       # POST /api/v1/oauth/token
       def create
+        # FIXED: Enforce parameter mappings onto both standard params and raw rack request environments!
+        if params[:grant_type] == "refresh_token" || params.dig(:custom_token, :grant_type) == "refresh_token"
+          cookie_token = cookies.encrypted[:_refresh_token]
+
+          if cookie_token.present?
+            params[:refresh_token] = cookie_token
+            request.parameters[:refresh_token] = cookie_token
+          end
+        end
+
         super
         set_refresh_token_cookie
 
@@ -43,9 +53,10 @@ module Api
         cookies.encrypted[:_refresh_token] = {
           value: token_object.refresh_token,
           httponly: true,
-          secure: Rails.env.production?,
-          same_site: :lax,
-          expires: 14.days.from_now
+          secure: true, # Must be true when SameSite is :none
+          same_site: :none,
+          expires_at: 14.days.from_now, # Used by low-level metal controllers
+          expires: 14.days.from_now     # Used by standard action controllers
         }
       end
     end

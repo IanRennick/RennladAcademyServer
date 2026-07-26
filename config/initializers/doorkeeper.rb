@@ -555,7 +555,6 @@ Doorkeeper.configure do
   # realm "Doorkeeper"
 end
 
-
 # =========================================================================
 # ADVANCED OAUTH REFRESH TOKEN COOKIE-INTERCEPTION EXTENSION
 # - Extends RefreshTokenRequest initialization to support stateless cookie loops

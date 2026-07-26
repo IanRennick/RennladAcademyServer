@@ -11,6 +11,8 @@ module Api
         # Skip token authorization rules on user registration creation endpoints
         skip_before_action :authenticate_api_user!, raise: false
 
+        wrap_parameters false
+
         # Include cross-cutting OAuth token generation cookie utilities
         include DoorkeeperRegisterable
 
