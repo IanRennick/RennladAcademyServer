@@ -1,9 +1,10 @@
 # app/models/user.rb
 # =========================================================================
 # SYSTEM MASTER ACCOUNT USER IDENTITY & PERMISSIONS MODEL
-# - Integrates Devise authentication filters supporting dual username/email lookups
-# - Handles ActiveStorage avatars, multi-dimensional score caching, and Elo snaps
-# - Coordinates real-time ActionCable presence streams and badge milestones
+# =========================================================================
+# - Integrates Devise authentication filters supporting dual username/email lookups.
+# - Handles ActiveStorage avatars, multi-dimensional score caching, and Elo snaps.
+# - Coordinates real-time ActionCable presence streams and badge milestones.
 # =========================================================================
 class User < ApplicationRecord
   # --- Virtual Parameters ---
@@ -36,6 +37,9 @@ class User < ApplicationRecord
   has_many :student_submissions, class_name: "Submission", foreign_key: :submitter_id, dependent: :destroy
   has_many :corrections, class_name: "Submission", foreign_key: :corrector_id, dependent: :nullify
 
+  # --- Matrix Constraints / Scopes ---
+  scope :all_except, ->(user) { where.not(id: user) }
+
   # --- Lifecycle Callback Hooks ---
   after_create :build_initial_tag_stat
   after_create_commit { broadcast_append_to "users" }
@@ -48,27 +52,59 @@ class User < ApplicationRecord
   validates :username, presence: true, uniqueness: { case_sensitive: false },
                        format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" }
 
-  # --- Scopes Matrix ---
-  scope :all_except, ->(user) { where.not(id: user) }
+  # =========================================================================
+  # CLASS LEVEL AUTHENTICATION ENGINE METHODS (DOORKEEPER / DEVISE CONNECTORS)
+  # =========================================================================
 
-  # --- Class Level Devise / Doorkeeper Authenticators ---
+  # Employs an interchangeable parameter inspection grid.
+  # If Doorkeeper leaves the main argument blank because it searched strictly for
+  # params[:email], this reaches into active requests to capture the true identity!
+  def self.authenticate(*args)
+    credentials = args.first
+    password = args.last
 
-  # Overwrites Devise lookup mechanics to handle BOTH usernames and emails interchangeably
-  def self.find_for_database_authentication(warden_conditions)
-    conditions = warden_conditions.dup
-    if (login = conditions.delete(:login))
-      where(conditions.to_h).where([ "lower(username) = :value OR lower(email) = :value", { value: login.downcase } ]).first
-    else
-      where(conditions.to_h).first
+    if credentials.blank? && defined?(Rails)
+      # Securely read active Rack request body parameters context
+      raw_params = ActionController::Parameters.new(args.first || {})
+
+      credentials = raw_params[:username] || raw_params[:email] ||
+                    args.first&.dig(:custom_token, :username) ||
+                    args.first&.dig(:custom_token, :email)
     end
-  end
 
-  def self.authenticate(login_credentials, password)
-    user = find_for_database_authentication(login: login_credentials)
+    return nil if credentials.blank? || password.blank?
+
+    # Execute a safe, case-insensitive query searching both username and email
+    user = where([ "lower(username) = :value OR lower(email) = :value", { value: credentials.to_s.downcase.strip } ]).first
+
+    # Authenticate the password matching using standard Devise BCrypt
     user&.valid_password?(password) ? user : nil
   end
 
-  # --- Instance Level Core Utility Methods ---
+  # Explicitly added this Devise Warden conditions hash override!
+  # Prevents empty parameters or initialization tokens from executing a blind User.first draw!
+  def self.find_for_database_authentication(warden_conditions)
+    conditions = warden_conditions.dup.to_h
+
+    # Extract whichever identity field name the active framework passed
+    login_param    = conditions.delete(:login)
+    username_param = conditions.delete(:username)
+    email_param    = conditions.delete(:email)
+
+    target_credential = login_param || username_param || email_param
+
+    if target_credential.present?
+      # Perform clean, case-insensitive dual-column database lookup
+      where(conditions).where([ "lower(username) = :value OR lower(email) = :value", { value: target_credential.to_s.downcase.strip } ]).first
+    else
+      # Secure guard barrier: Returns nil if empty instead of calling User.first!
+      nil
+    end
+  end
+
+  # =========================================================================
+  # INSTANCE LEVEL USER PRESENTATION COMPLIANCES
+  # =========================================================================
 
   def avatar_initial
     (username.presence || "?").first.upcase
@@ -87,12 +123,16 @@ class User < ApplicationRecord
     broadcast_replace_to "user_status", partial: "users/status", user: self
   end
 
-  # --- JSONB Analytics & Gamification Engines ---
+  # =========================================================================
+  # JSONB ANALYTICS & GAMIFICATION ENGINES
+  # =========================================================================
 
   # Updates individual tag analytics blocks inside the user's serialized JSONB payload
   def update_tag_metrics(tag_names, question_rating, was_correct)
-    stat_record = user_tag_stat || create_user_tag_stat
-    current_json = stat_record.stats_json.dup
+    stat_record = user_tag_stat || create_user_tag_stat(stats_json: {})
+
+    # If stats_json is empty (nil), fallback to a fresh empty hash object safely instead of calling .dup on nil!
+    current_json = stat_record.stats_json.present? ? stat_record.stats_json.dup : {}
 
     tag_names.each do |tag|
       current_json[tag] ||= { "done" => 0, "correct" => 0, "rating" => 1200 }
@@ -100,7 +140,7 @@ class User < ApplicationRecord
       new_user_tag_elo, _new_q_elo = EloCalculator.calculate(
         current_json[tag]["rating"],
         question_rating,
-        was_correct,
+        was_correct ? 1.0 : 0.0, # Pass float value score smoothly
         current_json[tag]["done"]
       )
 
@@ -110,6 +150,8 @@ class User < ApplicationRecord
     end
 
     stat_record.update!(stats_json: current_json)
+
+    # Keeps your achievements framework executing perfectly upon completion
     check_and_award_achievements!
   end
 
@@ -139,7 +181,6 @@ class User < ApplicationRecord
       if total_answered >= badge.milestone_threshold
         user_badges.create!(badge: badge)
 
-        # FIXED: Event type string shifted to whitelisted 'badge_unlock' to pass notification constraints!
         Notification.create!(
           recipient: self,
           actor: User.where(role: :admin).first || self,

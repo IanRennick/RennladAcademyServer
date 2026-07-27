@@ -16,9 +16,7 @@ class QuestionSubmissionEvaluator
     @result_packet = {}
   end
 
-  # Primary execution thread orchestrating structural computations
   def call
-    # Run everything inside a database transaction to protect multi-table integrity loops
     ActiveRecord::Base.transaction do
       process_evaluation_metrics
       compute_elo_adjustments
@@ -26,37 +24,37 @@ class QuestionSubmissionEvaluator
       commit_user_metrics_matrix if user.present?
       compile_response_packet
     end
-
     self
   end
 
   private
 
-  # Calculates fractional credits using the question's native evaluation matrix
   def process_evaluation_metrics
     @score = question.score_flat_submission(submitted_raw)
     @is_fully_correct = (@score == 1.0)
     @is_any_credit_earned = (@score > 0.0)
 
-    # ANTI-ELO FARMING SHIELD: Freezes global metrics from rating inflation if previously solved
-    @has_past_win = user.present? && user.user_histories.exists?(question_id: question.id, first_attempt_correct: true)
+    @has_past_win = user.present? && user.user_histories.exists?(question_id: question.id, correct_on_any_attempt: true)
     @effective_practice = is_practice_mode || @has_past_win
   end
 
-  # Computes mathematical Elo ranking shifts across categories
   def compute_elo_adjustments
     @old_user_rating = user.present? ? user.rating : 1200
     @old_q_rating = question.rating
 
     if user.present?
-      user_total = user.user_stats.where(stat_type: "kind").sum(:times_done).to_i
+      stats_count = user.user_stats.where(stat_type: "kind").sum(:times_done).to_i
+      user_total = stats_count.zero? ? 25 : stats_count
+
+      q_done_count = question.times_done.to_i
+      question_total = q_done_count.zero? ? 25 : q_done_count
+
       @new_global_user_elo, @new_global_q_elo = EloCalculator.calculate(
-        user.rating, @old_q_rating, @score, user_total, question.times_done.to_i
+        user.rating, @old_q_rating, @score, user_total, question_total
       )
     end
   end
 
-  # Updates global question row item analytics counters
   def commit_question_aggregates
     question.increment!(:times_done)
     question.increment!(:times_correct) if @is_fully_correct
@@ -68,15 +66,16 @@ class QuestionSubmissionEvaluator
     end
   end
 
-  # Iterates through student enums, tag scoreboards, and review loops
   def commit_user_metrics_matrix
-    # A. Global Rating
+    # A. Global Rating Updates
     user.update!(rating: @new_global_user_elo) unless @effective_practice
 
     # B. Puzzle Kind Enums Elo
     kind_int = Question.kinds[question.kind]
     kind_stat = user.user_stats.find_or_create_by!(stat_type: "kind", stat_key: kind_int)
-    new_kind_elo, _ = EloCalculator.calculate(kind_stat.rating, @old_q_rating, @score, kind_stat.times_done)
+
+    # Synchronized calculator arguments to maintain identical K-factors
+    new_kind_elo, _ = EloCalculator.calculate(kind_stat.rating, @old_q_rating, @score, kind_stat.times_done, question.times_done.to_i)
     kind_stat.increment!(:times_done)
     kind_stat.increment!(:times_correct) if @is_fully_correct
     kind_stat.update!(rating: new_kind_elo) unless @effective_practice
@@ -85,7 +84,9 @@ class QuestionSubmissionEvaluator
     if question.subtype.present?
       subtype_int = Question.subtypes[question.subtype]
       subtype_stat = user.user_stats.find_or_create_by!(stat_type: "subtype", stat_key: subtype_int)
-      new_sub_elo, _ = EloCalculator.calculate(subtype_stat.rating, @old_q_rating, @score, subtype_stat.times_done)
+
+      # Synchronized calculator arguments to maintain identical K-factors
+      new_sub_elo, _ = EloCalculator.calculate(subtype_stat.rating, @old_q_rating, @score, subtype_stat.times_done, question.times_done.to_i)
       subtype_stat.increment!(:times_done)
       subtype_stat.increment!(:times_correct) if @is_fully_correct
       subtype_stat.update!(rating: new_sub_elo) unless @effective_practice
@@ -107,21 +108,25 @@ class QuestionSubmissionEvaluator
       end
     end
 
-    # E. Active Review Queues
+    # E. Active Review Queues & History Logging
     history = user.user_histories.find_by(question_id: question.id)
     if history.nil?
       user.user_histories.create!(
         question_id: question.id,
         first_attempt_correct: @is_fully_correct,
+        correct_on_any_attempt: @is_fully_correct, # Tracks absolute career completion flags cleanly
         needs_review: !@is_fully_correct,
         original_wrong_answer: @is_fully_correct ? nil : submitted_raw
       )
-    elsif history.needs_review && @is_any_credit_earned
-      history.update!(needs_review: false)
+    else
+      # If they eventually get it right on subsequent attempts, log their career win flag!
+      updates = {}
+      updates[:needs_review] = false if history.needs_review && @is_any_credit_earned
+      updates[:correct_on_any_attempt] = true if @is_fully_correct
+      history.update!(updates) if updates.any?
     end
   end
 
-  # Formats a tight JSON payload structure optimized for React components
   def compile_response_packet
     @result_packet = {
       score: @score,

@@ -8,12 +8,25 @@
 # =========================================================================
 class Api::V1::QuestionsController < ApiController
   # --- Action Lifecycle Filters ---
-  before_action :authenticate_api_user!, only: [ :review_queue, :submit_answer ]
+  before_action :authenticate_api_user!
 
   # --- Action Endpoints ---
 
   # GET /api/v1/questions/random
   def random
+    # =========================================================================
+    # ANTI-CHEAT ID BYPASS SHORT-CIRCUIT
+    # If the React client sends an explicit ID from its local storage lock,
+    # immediately pull that exact puzzle and stop execution to protect database pools.
+    # =========================================================================
+    if params[:id].present?
+      @question = Question.find_by(id: params[:id])
+      if @question
+        render json: QuestionSerializer.new(@question).as_json, status: :ok
+        return # Prevents the controller from running the randomizer filters down below
+      end
+    end
+
     questions = Question.all
 
     # =========================================================================

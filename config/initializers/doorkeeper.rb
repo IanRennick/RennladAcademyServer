@@ -30,7 +30,11 @@ Doorkeeper.configure do
   # end
 
   resource_owner_from_credentials do
-    User.authenticate(params[:email], params[:password])
+    # ✅ FIXED: Dynamically matches whichever identifier they provide in the body payload!
+    # It reads params[:email] or falls back to params[:username] cleanly.
+    login_credentials = params[:email] || params[:username]
+
+    User.authenticate(login_credentials, params[:password])
   end
 
   # Enable password grant

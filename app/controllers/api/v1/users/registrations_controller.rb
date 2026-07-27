@@ -10,6 +10,7 @@ module Api
       class RegistrationsController < ApiController
         # Skip token authorization rules on user registration creation endpoints
         skip_before_action :authenticate_api_user!, raise: false
+        skip_before_action :doorkeeper_authorize!
 
         wrap_parameters false
 
