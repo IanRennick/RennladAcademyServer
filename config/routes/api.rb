@@ -34,7 +34,11 @@ namespace :api, defaults: { format: :json } do
     resource :stats, only: [ :show ]
 
     # --- 5. POLYMORPHIC DISCUSSION FORUM COMMUNICATIONS ---
-    resources :comments, only: [ :create, :update, :destroy ]
+    resources :comments, only: [ :create, :update, :destroy ] do
+      member do
+        post :like
+      end
+    end
 
     # --- 6. STATELESS NOTIFICATIONS ALERTS CONTROL (NEW) ---
     resources :notifications, only: [ :index, :update ] do
@@ -49,5 +53,8 @@ namespace :api, defaults: { format: :json } do
     # --- 8. EXAMS POOLS & SUBMISSIONS GATEWAYS (NEW V3) ---
     resources :prompts, only: [ :index, :show ]
     resources :submissions, only: [ :index, :show, :create, :update ]
+
+    # Universal polymorphic submission entry point for logging content flags
+    resources :flags, only: [ :create ]
   end
 end

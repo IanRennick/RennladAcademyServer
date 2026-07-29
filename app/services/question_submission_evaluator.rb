@@ -134,7 +134,10 @@ class QuestionSubmissionEvaluator
       correct_answers: question.answers,
       user_new_rating: user.present? ? user.rating : 1200,
       elo_change: user.present? ? (user.rating - @old_user_rating) : 0,
-      already_solved: @has_past_win
+      already_solved: @has_past_win,
+      question_new_rating: question.rating,
+      category_kind_rating: kind_stat&.rating || 1200,
+      category_subtype_rating: subtype_stat&.rating || 1200
     }
   end
 end

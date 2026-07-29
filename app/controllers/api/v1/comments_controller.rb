@@ -77,6 +77,38 @@ class Api::V1::CommentsController < ApiController
     head :no_content
   end
 
+
+  # POST /api/v1/comments/:id/like
+  def like
+    @comment = Comment.find(params[:id])
+    existing_like = @comment.comment_likes.find_by(user_id: current_user.id)
+
+    if existing_like
+      existing_like.destroy
+      render json: { liked: false, message: "Comment unliked cleanly", like_count: @comment.comment_likes.count }, status: :ok
+    else
+      @comment.comment_likes.create!(user: current_user)
+
+      # DISPATCH NOTIFICATION: Notify the author only if they didn't like their own post!
+      if @comment.user_id != current_user.id
+        Notification.create!(
+          recipient_id: @comment.user_id,
+          actor: current_user,
+          event_type: "system_alert",
+          params: {
+            "message" => "liked your comment in the discussion board",
+            "text_snippet" => @comment.body.to_plain_text.truncate(35),
+            "url" => "/quiz" # Adjust to match your preferred navigation anchor path
+          }
+        )
+      end
+
+      render json: { liked: true, message: "Comment liked successfully", like_count: @comment.comment_likes.count }, status: :created
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Comment record match not found." }, status: :not_found
+  end
+
   private
 
   def comment_params
