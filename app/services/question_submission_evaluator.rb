@@ -128,6 +128,23 @@ class QuestionSubmissionEvaluator
   end
 
   def compile_response_packet
+    # ✅ FIXED: Perform clean lookups directly out of the database context on the fly
+    # instead of pointing to stale, out-of-scope method local variables!
+    resolved_kind_stat = nil
+    resolved_subtype_stat = nil
+
+    if user.present?
+      # 1. Resolve Category Kind Elo Record
+      kind_int = Question.kinds[question.kind]
+      resolved_kind_stat = user.user_stats.find_by(stat_type: "kind", stat_key: kind_int)
+
+      # 2. Resolve Grammar Subtype Elo Record
+      if question.subtype.present?
+        subtype_int = Question.subtypes[question.subtype]
+        resolved_subtype_stat = user.user_stats.find_by(stat_type: "subtype", stat_key: subtype_int)
+      end
+    end
+
     @result_packet = {
       score: @score,
       fully_correct: @is_fully_correct,
@@ -135,9 +152,11 @@ class QuestionSubmissionEvaluator
       user_new_rating: user.present? ? user.rating : 1200,
       elo_change: user.present? ? (user.rating - @old_user_rating) : 0,
       already_solved: @has_past_win,
+
+      # ✅ FIXED: Pointing variables to the freshly resolved database rows securely
       question_new_rating: question.rating,
-      category_kind_rating: kind_stat&.rating || 1200,
-      category_subtype_rating: subtype_stat&.rating || 1200
+      category_kind_rating: resolved_kind_stat&.rating || 1200,
+      category_subtype_rating: resolved_subtype_stat&.rating || 1200
     }
   end
 end
