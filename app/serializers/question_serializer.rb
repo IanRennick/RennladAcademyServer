@@ -47,7 +47,7 @@ class QuestionSerializer
         id: comment.id,
         parent_id: comment.parent_id,
         author: comment.user.username,
-        body: comment.body.to_s, # Converts ActionText rich fragments to clean HTML text
+        body: comment.body.to_plain_text,  # Converts ActionText rich fragments to clean HTML text
         timestamp: comment.created_at.strftime("%b %d, %H:%M"),
         replies: serialize_comments_tree(comment.replies.includes(:user))
       }

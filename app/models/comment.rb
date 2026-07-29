@@ -11,6 +11,8 @@ class Comment < ApplicationRecord
 
   # --- Associations ---
   belongs_to :user
+  has_many :comment_likes, dependent: :destroy
+  has_many :liking_users, through: :comment_likes, source: :user
 
   # A child reply optionally belongs to a single parent thread comment starter
   belongs_to :parent, class_name: "Comment", optional: true

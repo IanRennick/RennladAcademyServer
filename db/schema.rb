@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_26_232513) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_145258) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_232513) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "comment_likes", force: :cascade do |t|
+    t.bigint "comment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["comment_id"], name: "index_comment_likes_on_comment_id"
+    t.index ["user_id"], name: "index_comment_likes_on_user_id"
+  end
+
   create_table "comments", force: :cascade do |t|
     t.bigint "commentable_id", null: false
     t.string "commentable_type", null: false
@@ -83,6 +92,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_232513) do
     t.bigint "user_id", null: false
     t.index ["user_id", "recorded_on"], name: "index_elo_snapshots_on_user_id_and_recorded_on", unique: true
     t.index ["user_id"], name: "index_elo_snapshots_on_user_id"
+  end
+
+  create_table "flags", force: :cascade do |t|
+    t.text "body"
+    t.bigint "commentable_id", null: false
+    t.string "commentable_type", null: false
+    t.datetime "created_at", null: false
+    t.integer "report_type"
+    t.integer "status"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["commentable_type", "commentable_id"], name: "index_flags_on_commentable"
+    t.index ["user_id"], name: "index_flags_on_user_id"
   end
 
   create_table "levels", force: :cascade do |t|
@@ -322,8 +344,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_232513) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "comment_likes", "comments"
+  add_foreign_key "comment_likes", "users"
   add_foreign_key "comments", "users"
   add_foreign_key "elo_snapshots", "users"
+  add_foreign_key "flags", "users"
   add_foreign_key "messages", "rooms"
   add_foreign_key "messages", "users"
   add_foreign_key "notifications", "users", column: "actor_id"
