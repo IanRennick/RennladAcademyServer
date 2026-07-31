@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_145258) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_195238) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -320,6 +320,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_145258) do
     t.string "encrypted_password", default: "", null: false
     t.string "last_activity_desc"
     t.datetime "last_seen_at"
+    t.bigint "level_id", default: 2, null: false
     t.integer "rating", default: 1200, null: false
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
@@ -329,6 +330,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_145258) do
     t.datetime "updated_at", null: false
     t.string "username"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["level_id"], name: "index_users_on_level_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
   end
@@ -371,5 +373,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_145258) do
   add_foreign_key "user_histories", "users"
   add_foreign_key "user_stats", "users"
   add_foreign_key "user_tag_stats", "users"
+  add_foreign_key "users", "levels"
   add_foreign_key "wrong_answers", "questions"
 end

@@ -32,6 +32,7 @@ class User < ApplicationRecord
   has_many :badges, through: :user_badges
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
   has_many :reports, dependent: :destroy
+  belongs_to :level
 
   # Hook up submission logs split cleanly by role profiles
   has_many :student_submissions, class_name: "Submission", foreign_key: :submitter_id, dependent: :destroy
