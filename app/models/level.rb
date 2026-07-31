@@ -8,6 +8,7 @@ class Level < ApplicationRecord
   # --- Associations ---
   has_many :questions, dependent: :nullify
   has_many :prompts, dependent: :destroy
+  has_many :users, dependent: :nullify
 
   # --- Sanitization Filters ---
   before_validation { self.name = name.to_s.upcase.strip if name.present? }
